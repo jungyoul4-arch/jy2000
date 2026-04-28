@@ -161,7 +161,7 @@ COMMENT='학생 정보';
 -- ============================================================
 CREATE TABLE student_history (
     history_id          INT AUTO_INCREMENT COMMENT '이력 ID',
-    student_id          INT NOT NULL COMMENT '학생 ID (FK: student_info)',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: User)',
 
     -- 상태 변경
     prev_status_code    VARCHAR(30) NULL COMMENT '이전 상태',
@@ -201,7 +201,7 @@ COMMENT='학생 상태 변경 이력';
 -- ============================================================
 CREATE TABLE consult (
     consult_id          INT AUTO_INCREMENT COMMENT '상담 ID',
-    student_id          INT NOT NULL COMMENT '학생 ID (FK: student_info)',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: User)',
 
     -- 상담 정보
     consult_type_code   VARCHAR(30) NOT NULL COMMENT '상담 유형 (FK: code_master)',
@@ -305,7 +305,7 @@ COMMENT='프로모션';
 -- ============================================================
 CREATE TABLE student_promotion (
     id                  INT AUTO_INCREMENT COMMENT 'ID',
-    student_id          INT NOT NULL COMMENT '학생 ID (FK: student_info)',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: User)',
     promotion_id        INT NOT NULL COMMENT '프로모션 ID (FK: promotion)',
     applied_date        DATE NOT NULL COMMENT '적용일',
     applied_amount      DECIMAL(10,2) NULL COMMENT '적용 금액',
@@ -330,7 +330,7 @@ COMMENT='학생-프로모션 연결';
 -- ============================================================
 CREATE TABLE former_academy (
     former_id           INT AUTO_INCREMENT COMMENT 'ID',
-    student_id          INT NOT NULL COMMENT '학생 ID (FK: student_info)',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: User)',
 
     -- 학원 정보
     academy_name        VARCHAR(200) NOT NULL COMMENT '학원명',
