@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import 'config/routes.dart';
 import 'config/theme.dart';
@@ -8,9 +7,6 @@ import 'providers/code_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Hive 초기화
-  await Hive.initFlutter();
 
   runApp(
     const ProviderScope(

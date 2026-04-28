@@ -36,9 +36,9 @@ CREATE TABLE code_master (
 COMMENT='코드 마스터';
 
 -- ============================================================
--- 2. 사용자 테이블 (User - 이미 있다고 가정, 참조용)
+-- 2. 사용자 테이블 (이미 있다고 가정, 참조용)
 -- ============================================================
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS User (
     user_id         INT AUTO_INCREMENT COMMENT '사용자 ID',
     login_id        VARCHAR(50) NOT NULL COMMENT '로그인 ID',
     password_hash   VARCHAR(255) NOT NULL COMMENT '비밀번호 해시',
@@ -87,7 +87,7 @@ CREATE TABLE tc_info (
     INDEX idx_branch_code (branch_code),
     INDEX idx_is_active (is_active),
 
-    CONSTRAINT fk_tc_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_tc_user FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='TC(상담사/텔레마케터) 정보';
 
@@ -95,7 +95,7 @@ COMMENT='TC(상담사/텔레마케터) 정보';
 -- 4. 학생 정보 테이블
 -- ============================================================
 CREATE TABLE student_info (
-    student_id          INT AUTO_INCREMENT COMMENT '학생 ID',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: users.user_id)',
 
     -- 기본 정보
     student_name        VARCHAR(50) NOT NULL COMMENT '학생 이름',
@@ -160,9 +160,10 @@ CREATE TABLE student_info (
     INDEX idx_created_at (created_at),
     INDEX idx_deleted_at (deleted_at),
 
+    CONSTRAINT fk_student_user FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_student_tc FOREIGN KEY (tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL,
-    CONSTRAINT fk_student_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL,
-    CONSTRAINT fk_student_updated_by FOREIGN KEY (updated_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_student_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL,
+    CONSTRAINT fk_student_updated_by FOREIGN KEY (updated_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='학생 정보';
 
@@ -199,8 +200,8 @@ CREATE TABLE student_history (
     INDEX idx_changed_at (changed_at),
     INDEX idx_changed_by (changed_by),
 
-    CONSTRAINT fk_history_student FOREIGN KEY (student_id) REFERENCES student_info(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_history_changed_by FOREIGN KEY (changed_by) REFERENCES users(user_id) ON DELETE RESTRICT,
+    CONSTRAINT fk_history_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_history_changed_by FOREIGN KEY (changed_by) REFERENCES User(user_id) ON DELETE RESTRICT,
     CONSTRAINT fk_history_prev_tc FOREIGN KEY (prev_tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL,
     CONSTRAINT fk_history_new_tc FOREIGN KEY (new_tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -256,10 +257,10 @@ CREATE TABLE consult (
     INDEX idx_created_at (created_at),
     INDEX idx_deleted_at (deleted_at),
 
-    CONSTRAINT fk_consult_student FOREIGN KEY (student_id) REFERENCES student_info(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_consult_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_consult_tc FOREIGN KEY (tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL,
-    CONSTRAINT fk_consult_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL,
-    CONSTRAINT fk_consult_updated_by FOREIGN KEY (updated_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_consult_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL,
+    CONSTRAINT fk_consult_updated_by FOREIGN KEY (updated_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='상담';
 
@@ -305,8 +306,8 @@ CREATE TABLE promotion (
     INDEX idx_is_active (is_active),
     INDEX idx_deleted_at (deleted_at),
 
-    CONSTRAINT fk_promotion_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL,
-    CONSTRAINT fk_promotion_updated_by FOREIGN KEY (updated_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_promotion_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL,
+    CONSTRAINT fk_promotion_updated_by FOREIGN KEY (updated_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='프로모션';
 
@@ -329,9 +330,9 @@ CREATE TABLE student_promotion (
     INDEX idx_promotion_id (promotion_id),
     INDEX idx_applied_date (applied_date),
 
-    CONSTRAINT fk_sp_student FOREIGN KEY (student_id) REFERENCES student_info(student_id) ON DELETE CASCADE,
+    CONSTRAINT fk_sp_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_sp_promotion FOREIGN KEY (promotion_id) REFERENCES promotion(promotion_id) ON DELETE CASCADE,
-    CONSTRAINT fk_sp_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_sp_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='학생-프로모션 연결';
 
@@ -371,8 +372,8 @@ CREATE TABLE former_academy (
     INDEX idx_academy_type_code (academy_type_code),
     INDEX idx_deleted_at (deleted_at),
 
-    CONSTRAINT fk_former_student FOREIGN KEY (student_id) REFERENCES student_info(student_id) ON DELETE CASCADE,
-    CONSTRAINT fk_former_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_former_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_former_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='이전 학원 정보';
 
@@ -397,6 +398,6 @@ CREATE TABLE consult_attachment (
     INDEX idx_deleted_at (deleted_at),
 
     CONSTRAINT fk_attach_consult FOREIGN KEY (consult_id) REFERENCES consult(consult_id) ON DELETE CASCADE,
-    CONSTRAINT fk_attach_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_attach_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='상담 첨부파일';
