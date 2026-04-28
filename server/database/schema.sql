@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS User (
     login_id        VARCHAR(50) NOT NULL COMMENT '로그인 ID',
     password_hash   VARCHAR(255) NOT NULL COMMENT '비밀번호 해시',
     user_name       VARCHAR(50) NOT NULL COMMENT '사용자명',
-    role_code       VARCHAR(30) NOT NULL COMMENT '역할 코드 (FK: code_master)',
+    kind            TINYINT NOT NULL COMMENT '사용자 유형 (1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원)',
     phone           VARCHAR(20) NULL COMMENT '전화번호',
     email           VARCHAR(100) NULL COMMENT '이메일',
     department      VARCHAR(100) NULL COMMENT '부서',
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS User (
     PRIMARY KEY (user_id),
     UNIQUE INDEX idx_login_id (login_id),
     INDEX idx_phone (phone),
-    INDEX idx_role_code (role_code),
+    INDEX idx_kind (kind),
     INDEX idx_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='사용자';

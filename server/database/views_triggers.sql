@@ -124,7 +124,7 @@ SELECT
 FROM User u
 LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
 LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
-WHERE u.role_code = 'ROLE_TC' AND u.is_active = 1 AND u.deleted_at IS NULL
+WHERE u.kind = 5 AND u.is_active = 1 AND u.deleted_at IS NULL
 GROUP BY u.user_id, u.user_name;
 
 -- ============================================================

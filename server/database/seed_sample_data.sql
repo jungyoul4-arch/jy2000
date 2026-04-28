@@ -6,13 +6,13 @@ USE jysk;
 
 -- ============================================================
 -- 1. 관리자/TC 계정 (user_id: 1~4)
--- TC는 role_code = 'ROLE_TC'로 등록
+-- kind: 1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원
 -- ============================================================
-INSERT INTO User (login_id, password_hash, user_name, role_code, phone, email) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '관리자', 'ROLE_ADMIN', '010-0000-0000', 'admin@jungyoul.com'),
-('tc_kim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김상담', 'ROLE_TC', '010-2222-2222', 'tc1@jungyoul.com'),
-('tc_lee', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이상담', 'ROLE_TC', '010-3333-3333', 'tc2@jungyoul.com'),
-('tc_park', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박상담', 'ROLE_TC', '010-4444-4444', 'tc3@jungyoul.com');
+INSERT INTO User (login_id, password_hash, user_name, kind, phone, email) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '관리자', 1, '010-0000-0000', 'admin@jungyoul.com'),
+('tc_kim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김상담', 5, '010-2222-2222', 'tc1@jungyoul.com'),
+('tc_lee', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이상담', 5, '010-3333-3333', 'tc2@jungyoul.com'),
+('tc_park', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박상담', 5, '010-4444-4444', 'tc3@jungyoul.com');
 
 -- 비밀번호: password (bcrypt 해시)
 -- TC user_id: 김상담=2, 이상담=3, 박상담=4
@@ -27,18 +27,19 @@ INSERT INTO tc_info (user_id, tc_code, tc_type_code, branch_code, hire_date) VAL
 
 -- ============================================================
 -- 3. 학생 사용자 계정 생성 (user_id: 5~14)
+-- kind=2 (학생)
 -- ============================================================
-INSERT INTO User (login_id, password_hash, user_name, role_code, phone, email) VALUES
-('student_hong', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 'ROLE_STAFF', '010-1234-5678', 'hong@test.com'),
-('student_kim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 'ROLE_STAFF', '010-2345-6789', 'kim@test.com'),
-('student_lee', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 'ROLE_STAFF', '010-3456-7890', 'lee@test.com'),
-('student_park', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박민수', 'ROLE_STAFF', '010-4567-8901', 'park@test.com'),
-('student_choi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최지은', 'ROLE_STAFF', '010-5678-9012', 'choi@test.com'),
-('student_jung', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정우성', 'ROLE_STAFF', '010-6789-0123', 'jung@test.com'),
-('student_kang', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강민지', 'ROLE_STAFF', '010-7890-1234', 'kang@test.com'),
-('student_yoon', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤서준', 'ROLE_STAFF', '010-8901-2345', 'yoon@test.com'),
-('student_han', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한소희', 'ROLE_STAFF', '010-9012-3456', 'han@test.com'),
-('student_lim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임재현', 'ROLE_STAFF', '010-0123-4567', 'lim@test.com');
+INSERT INTO User (login_id, password_hash, user_name, kind, phone, email) VALUES
+('student_hong', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 2, '010-1234-5678', 'hong@test.com'),
+('student_kim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 2, '010-2345-6789', 'kim@test.com'),
+('student_lee', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 2, '010-3456-7890', 'lee@test.com'),
+('student_park', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박민수', 2, '010-4567-8901', 'park@test.com'),
+('student_choi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최지은', 2, '010-5678-9012', 'choi@test.com'),
+('student_jung', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정우성', 2, '010-6789-0123', 'jung@test.com'),
+('student_kang', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강민지', 2, '010-7890-1234', 'kang@test.com'),
+('student_yoon', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤서준', 2, '010-8901-2345', 'yoon@test.com'),
+('student_han', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한소희', 2, '010-9012-3456', 'han@test.com'),
+('student_lim', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임재현', 2, '010-0123-4567', 'lim@test.com');
 
 -- ============================================================
 -- 4. 학생 상세 정보 (student_id = user_id, tc_id = TC의 user_id)
