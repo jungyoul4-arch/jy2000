@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>정율사관학원 문의·모집·등록 체계 설계 보고서 v2</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --paper: #ffffff;
+      --text: #1f2937;
+      --sub: #4b5563;
+      --line: #dbe3ee;
+      --accent: #1d4ed8;
+      --accent-soft: #eef4ff;
+      --table-head: #f3f6fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", Arial, sans-serif;
+      line-height: 1.75;
+    }
+
+    .wrap {
+      max-width: 1440px;
+      margin: 32px auto 60px;
+      padding: 0 20px;
+    }
+
+    .paper {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 48px;
+      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.06);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      line-height: 1.35;
+      color: #111827;
+    }
+
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--sub);
+      font-size: 1rem;
+    }
+
+    .meta-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 28px;
+    }
+
+    .meta-item {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.92rem;
+      color: #334155;
+    }
+
+    h2 {
+      margin-top: 44px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 1.45rem;
+      color: #111827;
+    }
+
+    h3 {
+      margin-top: 28px;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      color: #1f2937;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul, ol {
+      margin: 8px 0 16px 22px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .info-box {
+      background: var(--accent-soft);
+      border: 1px solid #cfe0ff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin: 14px 0 20px;
+      color: #1e3a8a;
+      font-size: 0.96rem;
+    }
+
+    .flowchart-wrap {
+      margin: 18px 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fbfdff;
+      padding: 18px;
+    }
+
+    .flowchart-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      background: #fff;
+      border: 1px solid #e7edf5;
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .flowchart-scroll .mermaid {
+      min-width: 1180px;
+    }
+
+    .caption {
+      margin-top: 10px;
+      font-size: 0.93rem;
+      color: var(--sub);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 22px;
+      font-size: 0.96rem;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 12px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: var(--table-head);
+      font-weight: 700;
+    }
+
+    .small {
+      font-size: 0.94rem;
+      color: var(--sub);
+    }
+
+    /* v2 변경사항 색상 표시 */
+    .v2-new { color: #dc2626; font-weight: 600; }
+    .v2-changed { color: #1d4ed8; font-weight: 600; }
+    tr.v2-new-row td { color: #dc2626; }
+    tr.v2-new-row td .db-status { opacity: 0.9; }
+    tr.v2-changed-row td { color: #1d4ed8; }
+    tr.v2-changed-row td .db-status { opacity: 0.9; }
+    .v2-change-note {
+      font-size: 0.82rem;
+      color: #6b7280;
+      font-style: italic;
+      margin-left: 6px;
+    }
+    .version-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 0 0 32px;
+      padding: 16px 20px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      font-size: 0.93rem;
+    }
+    .version-legend .vl-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vl-red  { color: #dc2626; font-weight: 700; font-size: 1rem; }
+    .vl-blue { color: #1d4ed8; font-weight: 700; font-size: 1rem; }
+
+    .db-status {
+      display: inline-block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .db-ok       { background: #dcfce7; color: #166534; }
+    .db-most     { background: #fef9c3; color: #854d0e; }
+    .db-partial  { background: #ffedd5; color: #9a3412; }
+    .db-new      { background: #fee2e2; color: #991b1b; }
+    .db-note {
+      margin: 12px 0 20px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-left: 4px solid #94a3b8;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.93rem;
+      color: #334155;
+    }
+    .db-note strong { color: #1e293b; }
+    .db-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 20px;
+      font-size: 0.9rem;
+    }
+    .db-legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+      .wrap {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .paper {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        padding: 24px;
+      }
+      .flowchart-scroll {
+        overflow: visible;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .paper {
+        padding: 24px 18px;
+      }
+
+      h1 {
+        font-size: 1.55rem;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+
+      table {
+        font-size: 0.9rem;
+      }
+
+      .flowchart-scroll .mermaid {
+        min-width: 980px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <article class="paper">
+      <header>
+        <h1>정율사관학원 문의·모집·등록 체계 설계 보고서 v2</h1>
+        <p class="subtitle">
+          본 문서는 문의 → 모집 → 등록 → 보류 → DB 축적 → 재유입 흐름을 정리하고,
+          각 단계에서 수집해야 할 데이터, 코드 체계, KPI 및 자동화 방향을 설계하기 위한 초안입니다.
+          <span class="v2-new">v2에서는 통합 학원 관리 시스템 구축을 위한 재원생 관리, 반 단위 데이터, 패턴 분석 설계가 추가되었습니다.</span>
+        </p>
+
+        <div class="meta-box">
+          <div class="meta-item"><strong>최초 작성자:</strong> 김후엽 부원장</div>
+          <div class="meta-item"><strong>v2 검토·보완:</strong> 황규훈 부원장</div>
+          <div class="meta-item"><strong>작성일:</strong> 4월 13일</div>
+          <div class="meta-item"><strong>문서 버전:</strong> v2</div>
+        </div>
+      </header>
+
+      <section id="purpose">
+        <h2>1. 보고서 목적</h2>
+        <p>
+          이 보고서는 정율사관학원의 <strong>문의 → 모집 → 등록 → 보류 → DB 축적 → 재유입</strong> 흐름을 명확하게 정리하고,
+          각 단계에서 어떤 데이터를 수집해야 하는지를 표준화하여 향후 다음 네 가지를 가능하게 만드는 것을 목적으로 합니다.
+        </p>
+        <p>
+          첫째, <strong>분류 체계 구축</strong>입니다. 문의가 어디서 들어왔는지, 어떤 이유로 들어왔는지, 누가 의사결정에 영향력을 행사했는지,
+          어떤 경로에서 등록으로 이어졌는지를 구조적으로 분류할 수 있어야 합니다.
+        </p>
+        <p>
+          둘째, <strong>의사결정 기반 마련</strong>입니다. 예를 들어 “어디에서 실제로 돈을 벌고 있는가?”, “무엇을 시스템화할 수 있는가?”,
+          “우리는 무엇을 잘하고 있는가?”, “학생 영향이 큰가, 학부모 영향이 큰가?”와 같은 질문에 답할 수 있어야 합니다.
+        </p>
+        <p>
+          셋째, <strong>KPI 체계 수립</strong>입니다. 월간 신규 문의 수, 등록 전환율, 설명회 참석률, 입학TEST 방문률,
+          보류 후 재등록률 등을 지속적으로 관리할 수 있어야 합니다.
+        </p>
+        <p>
+          넷째, <strong>관리회계와 자동보고 기반 구축</strong>입니다. 작년에 작성된 보고서처럼 많은 노동력을 투입하지 않고도,
+          이후에는 입력된 데이터를 바탕으로 몇 번의 클릭만으로 월간·분기 보고서를 만들 수 있어야 합니다.
+          기존 보고서는 운영 현황, 학생 수 추이, 지역/학교별 분석, 매출·비용, 수익성, 경쟁 분석 등을 폭넓게 포함하고 있었으며,
+          이번 작업은 그러한 보고서를 자동화하기 위한 첫 도입부 성격을 가집니다.
+          <a href="https://www.genspark.ai/api/files/s/d6HftaZP" target="_blank">[Source]</a>
+        </p>
+        <p class="v2-new">
+          다섯째, <strong>통합 학원 관리 시스템 구축의 설계 기반</strong>입니다. 이 보고서는 정율사관학원에 맞는 통합 관리 시스템을 개발하기 위한 데이터 설계도이며,
+          기존에 aca2000, 구글 스프레드시트, 잔디 등 분산된 출처의 데이터를 하나의 시스템으로 이관·통합하는 것을 목표로 합니다.
+          이관 가능한 데이터는 최대한 자동 연동하고, 이관이 어려운 항목은 신규 수집 체계를 통해 앞으로 쌓아나가는 방향으로 설계합니다.
+        </p>
+        <p class="v2-new">
+          여섯째, <strong>운영 패턴 분석 및 문제 조기 발견</strong>입니다. 데이터가 축적되면 단순 현황 파악을 넘어,
+          특정 시기·월별 반복 패턴(예: 7월 고3 약술 신입생 집중 유입, 5월 이후 고1·고2 퇴원 변동 증가 등)을
+          발견하고, 운영진이 선제적으로 대응할 수 있어야 합니다.
+          이를 위해 신입생 유입·등록 데이터뿐 아니라 <strong>재원생 변동, 퇴원 사유, 반별 현황</strong>까지 통합 관리하는 구조가 필요합니다.
+        </p>
+      </section>
+
+      <section id="principles">
+        <h2>2. 작성 원칙</h2>
+        <p>이 보고서는 다음 원칙을 따릅니다.</p>
+        <ul>
+          <li>정율사관학원 운영 흐름은 <strong>사용자가 직접 제공한 정보만 반영</strong></li>
+          <li><strong>비용이 들어가는 마케팅은 하지 않는다</strong>는 운영 원칙 반영</li>
+          <li>등록 보류는 단순 종료가 아니라 <strong>정율 DB 축적 → 설명회/개강 문자 발송 → 추후 재유입 가능 상태</strong>로 간주</li>
+          <li>플로우차트는 표준 기호 체계로 정리
+            <ul>
+              <li>타원: 시작/종료</li>
+              <li>사각형: 처리/행위</li>
+              <li>마름모: 판단/분기</li>
+            </ul>
+          </li>
+          <li>데이터 항목은 추후 자동 집계가 가능하도록 <strong>코드값 + 메모</strong> 방식으로 설계</li>
+        </ul>
+        <p>
+          정율사관학원은 첨부 이미지 기준으로, 과거와 달리 <strong>비용이 들어가는 마케팅을 진행하지 않으며</strong>,
+          보유 DB, 홈페이지, 친구추천, 학부모 지인추천, 재원생/졸업생 가족 등의 경로를 중심으로 문의와 모집 활동이 이루어집니다.
+          <a href="https://www.genspark.ai/api/files/s/A1LTtlf0" target="_blank">[Source]</a>
+        </p>
+      </section>
+
+      <section id="facts">
+        <h2>3. 현재까지 확정된 문의·모집 운영 사실 요약</h2>
+        <p>
+          현재까지 확정된 내용은 다음과 같습니다.
+        </p>
+        <p>
+          정율사관학원은 <strong>유료 마케팅을 하지 않으며</strong>, 보유 DB를 대상으로
+          <strong>설명회 안내 문자</strong> 또는 <strong>특정 반 개강 안내 문자</strong>를 발송합니다.
+          또한 홈페이지, 친구추천, 학부모 지인추천, 재원생 혹은 졸업생의 가족 경로를 통해 문의가 유입됩니다.
+          친구추천 등 추천 기반 유입은 홈페이지 상담신청, 전화문의, 카카오톡 상담요청으로 이어질 수 있습니다.
+          <a href="https://www.genspark.ai/api/files/s/A1LTtlf0" target="_blank">[Source]</a>
+        </p>
+        <p>
+          설명회 경로에서는 설명회 신청 후 참석 여부가 갈리고, 설명회 이후에는 <strong>바로 등록하는 경우도 있으며</strong>,
+          그렇지 않으면 상담 신청서 제출 여부를 거쳐 TC 진행으로 이어집니다.
+          또 특정 반 개강 안내 문자를 받은 경우에는 <strong>입학TEST 없이 바로 등록하는 경우도 존재</strong>하며,
+          그렇지 않으면 홈페이지 상담신청, 전화문의, 카카오톡 상담요청으로 이어집니다.
+        </p>
+        <p>
+          TC 단계는 <strong>입학TEST 일정을 잡는 전화 단계</strong>이며, 홈페이지/전화/카카오톡 문의만 하고 시험에 오지 않는 경우나
+          설명회 후 상담신청서를 제출한 경우 등이 여기에 해당합니다. 입학TEST에 방문하지 않으면 바로 <strong>등록 보류</strong>로 처리됩니다.
+        </p>
+        <p>
+          입학TEST 및 대면상담 이후에는 결제 또는 확실한 등록 의사 표명이 있으면 등록으로 보며,
+          결제 시점은 상담 직후일 수도 있고 첫 등원일일 수도 있습니다.
+          반대로 “생각 더 해보고 연락드릴게요”와 같은 경우는 <strong>등록 보류</strong>로 처리되며,
+          이후 상담실에서 다시 TC를 진행하여 등록 의사를 재확인합니다.
+        </p>
+        <p>
+          모든 등록 보류건은 정율의 DB로 축적되며, 이후 설명회 안내 문자나 특정 반 개강 안내 문자를 다시 받게 됩니다.
+          이 기존 보류건들 중 일부는 향후 다시 유입되어 등록으로 이어질 수 있습니다.
+        </p>
+      </section>
+
+      <section id="flowchart">
+        <h2>4. 최종 플로우차트</h2>
+
+        <div class="info-box">
+          본 플로우차트는 가독성을 높이기 위해 <strong>세로형 단일 구조</strong>로 재배치하였으며,
+          메인 흐름을 중앙축에 두고 유입 경로와 재유입 경로를 좌우로 분리했습니다.
+          또한 선이 상자 뒤로 지나가는 현상을 줄이기 위해 간격과 분기 구조를 조정했습니다.
+        </div>
+
+        <div class="flowchart-wrap">
+          <div class="flowchart-scroll">
+            <div class="mermaid">
+flowchart TD
+
+    %% 시작
+    S([문의 및 모집 시작])
+
+    %% 상단 유입
+    DB0[보유 DB 대상 문자 발송]
+    B[홈페이지]
+    C[친구추천]
+    D[학부모 지인추천]
+    E[재원생 혹은 졸업생의 가족]
+
+    DB1[설명회 안내 문자]
+    DB2[특정 반 개강 안내 문자]
+
+    F[설명회 신청]
+    G[홈페이지 상담신청]
+    H[전화문의]
+    I[카카오톡 상담요청]
+
+    %% 중간 전환
+    J{설명회 참석?}
+    J2{설명회 후 바로 등록?}
+    K{상담 신청서 제출?}
+
+    X{개강 문자 후 바로 등록?}
+
+    ENTRY[상담 채널 진입]
+    L[TC 진행<br/>입학TEST 일정 안내 전화]
+    M{입학TEST 방문?}
+    N[입학TEST 및 대면상담]
+
+    O{결제 또는<br/>등록 의사 확정?}
+    P[상담실 TC 재진행<br/>등록 의사 재확인]
+    Q{결제 또는<br/>등록 의사 확정?}
+
+    %% 결과
+    R([등록])
+    T([등록 보류])
+
+    %% 재유입
+    U[정율 DB 축적]
+    DB3[보유 DB 대상 문자 재발송]
+    DB4[설명회 안내 문자]
+    DB5[특정 반 개강 안내 문자]
+    RE[기존 문의 및 상담 흐름 재진입]
+
+    %% 메인 시작
+    S --> DB0
+    S --> B
+    S --> C
+    S --> D
+    S --> E
+
+    %% DB 문자 분기
+    DB0 --> DB1
+    DB0 --> DB2
+
+    %% 홈페이지
+    B --> F
+    B --> G
+    B --> H
+
+    %% 추천/가족 유입
+    C --> G
+    C --> H
+    C --> I
+
+    D --> G
+    D --> H
+    D --> I
+
+    E --> G
+    E --> H
+    E --> I
+
+    %% 설명회 안내
+    DB1 --> F
+
+    %% 개강 문자 안내
+    DB2 --> X
+    X -- 예 --> R
+    X -- 아니오 --> ENTRY
+
+    %% 설명회 경로
+    F --> J
+    J -- 아니오 --> T
+    J -- 예 --> J2
+    J2 -- 예 --> R
+    J2 -- 아니오 --> K
+    K -- 아니오 --> T
+    K -- 예 --> L
+
+    %% 상담 채널 집합
+    G --> ENTRY
+    H --> ENTRY
+    I --> ENTRY
+    ENTRY --> L
+
+    %% 테스트 및 상담
+    L --> M
+    M -- 아니오 --> T
+    M -- 예 --> N
+    N --> O
+    O -- 예 --> R
+    O -- 아니오 --> P
+    P --> Q
+    Q -- 예 --> R
+    Q -- 아니오 --> T
+
+    %% 등록 보류 재유입
+    T --> U
+    U --> DB3
+    DB3 --> DB4
+    DB3 --> DB5
+    DB4 --> F
+    DB5 --> X
+
+    %% 스타일
+    classDef startend fill:#eef4ff,stroke:#3b82f6,stroke-width:1.6px,color:#111827;
+    classDef process fill:#ffffff,stroke:#64748b,stroke-width:1.4px,color:#111827;
+    classDef decision fill:#fff7ed,stroke:#f59e0b,stroke-width:1.5px,color:#111827;
+    classDef hold fill:#fff1f2,stroke:#e11d48,stroke-width:1.6px,color:#111827;
+    classDef db fill:#ecfeff,stroke:#0891b2,stroke-width:1.5px,color:#111827;
+
+    class S,R startend;
+    class DB0,DB1,DB2,DB3,DB4,DB5,U,RE process;
+    class B,C,D,E,F,G,H,I,ENTRY,L,N,P process;
+    class J,J2,K,X,M,O,Q decision;
+    class T hold;
+            </div>
+          </div>
+          <p class="caption">
+            [그림 1] 정율사관학원 문의·모집·등록 플로우차트 (세로형 단일 버전)
+          </p>
+        </div>
+      </section>
+
+      <section id="flow-explanation">
+        <h2>5. 플로우차트 흐름 설명</h2>
+
+        <h3>5-1. 유입 시작</h3>
+        <p>문의 및 모집은 크게 다섯 축에서 시작됩니다.</p>
+        <ul>
+          <li>보유 DB 대상 문자 발송</li>
+          <li>홈페이지</li>
+          <li>친구추천</li>
+          <li>학부모 지인추천</li>
+          <li>재원생 혹은 졸업생의 가족</li>
+        </ul>
+        <p>
+          보유 DB 대상 문자 발송은 다시 <strong>(1) 설명회 안내 문자</strong>, <strong>(2) 특정 반 개강 안내 문자</strong>로 나뉩니다.
+        </p>
+
+        <h3>5-2. 설명회 경로</h3>
+        <p>
+          설명회 안내 문자를 받거나 홈페이지를 통해 설명회를 신청한 경우, 설명회 참석 여부를 확인합니다.
+        </p>
+        <ul>
+          <li>설명회에 <strong>불참</strong>하면 등록 보류</li>
+          <li>설명회에 <strong>참석</strong>하면 다음 단계로 진행</li>
+        </ul>
+        <p>설명회 참석 후에는 두 갈래가 있습니다.</p>
+        <ul>
+          <li><strong>설명회 후 바로 등록</strong></li>
+          <li>바로 등록하지 않으면 <strong>상담 신청서 제출 여부 확인</strong></li>
+        </ul>
+        <p>상담 신청서를 제출하지 않으면 등록 보류, 제출하면 TC 단계로 넘어갑니다.</p>
+
+        <h3>5-3. 특정 반 개강 문자 경로</h3>
+        <p>특정 반 개강 안내 문자를 받은 경우에도 두 갈래가 있습니다.</p>
+        <ul>
+          <li><strong>개강 문자 후 바로 등록</strong></li>
+          <li>바로 등록하지 않으면
+            <ul>
+              <li>홈페이지 상담신청</li>
+              <li>전화문의</li>
+              <li>카카오톡 상담요청</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>5-4. 추천 및 일반 문의 경로</h3>
+        <p>
+          홈페이지, 친구추천, 학부모 지인추천, 재원생 혹은 졸업생의 가족 경로를 통해 들어온 문의는 다음 채널로 연결됩니다.
+        </p>
+        <ul>
+          <li>홈페이지 상담신청</li>
+          <li>전화문의</li>
+          <li>카카오톡 상담요청</li>
+        </ul>
+        <p>이후 공통적으로 TC 단계로 연결됩니다.</p>
+
+        <h3>5-5. TC 단계</h3>
+        <p>
+          TC는 단순 상담이 아니라 <strong>입학TEST 일정 안내 및 조율 전화 단계</strong>입니다.
+        </p>
+        <p>이 단계는 다음과 같은 역할을 합니다.</p>
+        <ul>
+          <li>입학TEST 일정 조율</li>
+          <li>기본 문의 상태 확인</li>
+          <li>시험 응시 의사 확인</li>
+          <li>시험 미방문 가능성 판단</li>
+        </ul>
+
+        <h3>5-6. 입학TEST 및 대면상담</h3>
+        <p>
+          TC 이후 실제 입학TEST 방문 여부를 판단합니다.
+        </p>
+        <ul>
+          <li><strong>미방문</strong>: 등록 보류</li>
+          <li><strong>방문</strong>: 입학TEST 및 대면상담 진행</li>
+        </ul>
+        <p>
+          입학TEST 및 대면상담 이후에는 결제 또는 확실한 등록 의사가 있으면 등록,
+          그렇지 않으면 상담실 TC 재진행으로 넘어갑니다.
+        </p>
+
+        <h3>5-7. 등록 보류 후 재유입</h3>
+        <p>등록 보류는 종료가 아닙니다.</p>
+        <ul>
+          <li>등록 보류</li>
+          <li>정율 DB 축적</li>
+          <li>보유 DB 대상 문자 재발송</li>
+          <li>설명회 안내 문자 / 특정 반 개강 안내 문자 재발송</li>
+          <li>이후 다시 설명회 신청 또는 개강문자 기반 등록/상담 경로로 재유입</li>
+        </ul>
+        <p>
+          즉, 정율사관학원의 문의·모집 구조는 <strong>선형 구조가 아니라 순환 구조</strong>이며,
+          보류 데이터를 미래 등록 가능 자산으로 활용하는 것이 핵심입니다.
+        </p>
+      </section>
+
+      <section id="data-perspective">
+        <h2>6. 데이터 수집 설계의 기본 관점</h2>
+        <p>
+          이번 플로우차트의 목적은 단순한 절차 정리가 아니라,
+          <strong>어떤 데이터를 어떤 단계에서 반드시 수집해야 하는지 정의하는 것</strong>입니다.
+        </p>
+        <p>
+          즉, 각 노드는 단순한 행위가 아니라 <strong>데이터 입력 포인트</strong>입니다.
+          이 설계가 있어야 이후 다음이 가능해집니다.
+        </p>
+        <ul>
+          <li>월간 문의/등록 현황 대시보드</li>
+          <li>유입 경로별 전환율 분석</li>
+          <li>설명회/개강문자 효율 비교</li>
+          <li>학생/학부모 영향력 분석</li>
+          <li>학교/거리별 유입 및 등록 성과 분석</li>
+          <li>보류 후 재등록 성과 분석</li>
+          <li>KT 방법론(SA/PA/DA) 기반 의사결정</li>
+        </ul>
+      </section>
+
+      <section id="data-table">
+        <h2>7. 정율사관학원 문의·모집·등록 데이터 수집 항목표 v1</h2>
+
+        <div class="version-legend">
+          <div class="vl-item"><span class="vl-red">●</span> <strong>빨간색</strong> = v1에 없던 신규 추가 항목 / 내용</div>
+          <div class="vl-item"><span class="vl-blue">●</span> <strong>파란색</strong> = v1에 있었으나 변경된 항목 / 내용 (괄호 안에 변경 전 내용 표시)</div>
+          <div class="vl-item">⬜ <strong>검정색</strong> = v1에서 그대로 유지된 항목</div>
+          <div class="vl-item" style="width:100%; margin-top:6px; padding-top:8px; border-top:1px solid #fcd34d; font-size:0.88rem; color:#92400e;">
+            📋 <strong>섹션 7의 "DB 연동 가능 여부" 및 "출처·비고" 컬럼 전체</strong>는 v2에서 신규 추가된 구조입니다. 행 색상과 별개로 해당 컬럼의 모든 내용은 v2 신규입니다.
+          </div>
+        </div>
+
+        <div class="db-legend">
+          <span><span class="db-status db-ok">✅ aca2000 자동 연동</span> aca2000에서 직접 추출 가능</span>
+          <span><span class="db-status db-most">🟡 대부분 확보</span> 거의 기록되어 있으나 간헐적 누락 가능</span>
+          <span><span class="db-status db-partial">⚠️ 불완전 확보</span> 있는 경우도 있고 없는 경우도 있음 / 수작업 필요</span>
+          <span><span class="db-status db-new">❌ 신규 수집 필요</span> 현재 수집 체계 없음, 새로 만들어야 함</span>
+        </div>
+
+        <h3>7-1. 기본 인적사항</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>기본 인적사항</td><td>학생 이름</td><td>문의 및 등록 관리 기준값</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr><td>기본 인적사항</td><td>학생 학교명</td><td>학교 분류, 학교별 유입·등록 분석</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr><td>기본 인적사항</td><td>학생 학년</td><td>학년별 전환율 분석</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-changed-row"><td>기본 인적사항</td><td>학생 연락처</td><td>학생 직접 소통 여부 확인</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000 (재원생 기준). <span class="v2-changed">신입생 문의 건은 학생·학부모 연락처 중 하나만 확보된 경우 있음 <span class="v2-change-note">(v1: 단순 "학생 직접 소통 여부 확인"만 기재)</span></span></td></tr>
+            <tr class="v2-changed-row"><td>기본 인적사항</td><td>학부모 연락처</td><td>주요 의사결정자 접점 관리</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000 (재원생 기준). <span class="v2-changed">신입생 문의 건은 학생·학부모 연락처 중 하나만 확보된 경우 있음 <span class="v2-change-note">(v1: 단순 "의사결정자 접점 관리"만 기재)</span></span></td></tr>
+            <tr class="v2-changed-row"><td>기본 인적사항</td><td>거주 지역</td><td>생활권 분석</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td><span class="v2-changed">aca2000에 업데이트하지 않아 현재 DB 없음. 통합 시스템에서 신규 수집 필요 <span class="v2-change-note">(v2 초안: "DB에 있는 경우도 있고 없는 경우도 있음"으로 기재했으나 실제 미업데이트 확인)</span></span></td></tr>
+            <tr class="v2-new-row"><td>기본 인적사항</td><td>통학 시간/거리</td><td>거리 구간 분석 및 원거리 등록 분석</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td><span class="v2-new">거주 지역 + 학교명을 동시에 확보한 후에야 분석 가능. 현재 직접 산출 불가</span></td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-2. 문의 기본 정보</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>문의 정보</td><td>문의 ID</td><td>건별 고유 식별값</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td><span class="v2-new">식별 체계 자체를 새로 만들어야 함</span></td></tr>
+            <tr><td>문의 정보</td><td>최초 문의일</td><td>코호트 기준월 산정</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr><td>문의 정보</td><td>문의 채널</td><td>홈페이지 상담신청/전화문의/카카오톡 등</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr><td>문의 정보</td><td>유입 경로</td><td>친구추천, 설명회, DB 개강문자 등</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr><td>문의 정보</td><td>신규/기존 DB 여부</td><td>처음 유입인지 재유입인지 구분</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr><td>문의 정보</td><td>담당자</td><td>응대 책임자 관리</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr class="v2-new-row"><td>문의 정보</td><td><span class="v2-new">관심 과목</span></td><td><span class="v2-new">어떤 과목에 관심이 있는지 <span class="v2-change-note">(v1 없던 항목, 신규 추가)</span></span></td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr class="v2-new-row"><td>문의 정보</td><td><span class="v2-new">문의 반 형태</span></td><td><span class="v2-new">종합반 문의인지 단과반 문의인지 <span class="v2-change-note">(v1 없던 항목, 신규 추가)</span></span></td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트. 대부분 기록되어 있으나 간헐적 누락 가능</span></td></tr>
+            <tr><td>문의 정보</td><td>현재 단계 상태</td><td>문의, TC, TEST, 등록, 보류 등</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td><span class="v2-new">구글 스프레드시트 2026 상담 &gt; 일일상담리스트 (간헐적 누락) + 잔디 신입등록프로세스 토픽방 (누락 거의 없으나 대화형 비정형, 건별 수작업 확인 필요)</span></td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-3. 문의 배경 및 관심 정보</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>문의 배경</td><td>문의 이유</td><td>왜 정율에 관심을 가졌는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>신입등록추적 구글시트 + 잔디 신입등록프로세스 토픽방. 전화 수기 작성이라 이유 누락 발생</td></tr>
+            <tr><td>문의 배경</td><td>관심 반/과목</td><td>어떤 반, 어떤 과목에 관심이 있는지</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td>구글 스프레드시트 2026 상담 &gt; 신입등록추적 시트</td></tr>
+            <tr><td>문의 배경</td><td>문의 주도자</td><td>학생/학부모/공동</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>지금까지 별도 정리 없음. 신규 수집 항목</td></tr>
+            <tr><td>문의 배경</td><td>최종 영향자</td><td>실제 선택 결정에 영향 준 주체</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>지금까지 별도 정리 없음. 신규 수집 항목</td></tr>
+            <tr><td>문의 배경</td><td>정율 인지 경로</td><td>처음 알게 된 계기</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>지금까지 별도 정리 없음. 신규 수집 항목</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-4. 설명회 정보</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>설명회</td><td>설명회 신청 여부</td><td>신청 유무</td><td><span class="db-status db-ok">✅ 확보</span></td><td>설명회 관리 구글시트</td></tr>
+            <tr class="v2-changed-row"><td>설명회</td><td>설명회 신청 경로</td><td>DB 문자, 홈페이지 등</td><td><span class="db-status db-ok">✅ 확보</span></td><td>설명회 관리 구글시트. <span class="v2-changed">설명회 후 등록으로 이어진 케이스는 썸머·윈터 설명회 외에는 사실상 없음 <span class="v2-change-note">(v2 초안: 설명회→등록 경로를 일반적인 케이스로 기술했으나 실제 운영 확인)</span></span></td></tr>
+            <tr><td>설명회</td><td>설명회 신청 이유</td><td>무엇 때문에 설명회를 신청했는지</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>별도 조사 없음. 신규 수집 항목</td></tr>
+            <tr><td>설명회</td><td>설명회 참석 여부</td><td>참석/불참</td><td><span class="db-status db-ok">✅ 확보</span></td><td>설명회 관리 구글시트</td></tr>
+            <tr><td>설명회</td><td>불참 사유</td><td>불참 원인 기록</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>별도 조사 없음. 신규 수집 항목</td></tr>
+            <tr><td>설명회</td><td>설명회 후 바로 등록 여부</td><td>직등록 여부</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>별도 체크 없음. 신규 수집 항목</td></tr>
+            <tr><td>설명회</td><td>상담 신청서 제출 여부</td><td>설명회 후 후속 진행 여부</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td>잔디 신입등록프로세스 토픽방에 올리는 형태. 간헐적 누락 가능</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-5. 추천 정보</h3>
+        <div class="db-note">
+          추천 정보 전체가 <strong>학생이 자발적으로 언급할 때만</strong> 잔디 토픽방에 기록되는 구조로, 현재 데이터 신뢰도가 낮은 영역입니다. TC 또는 상담 시점에 "어떻게 알고 오셨어요?"를 표준 질문으로 정착시키는 것이 필요합니다.
+        </div>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>추천</td><td>추천 여부</td><td>추천 기반 유입인지 여부</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방. 학생이 언급할 때만 기록, 누락 다수</td></tr>
+            <tr><td>추천</td><td>추천 유형</td><td>친구추천/학부모 지인추천/가족추천</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+            <tr><td>추천</td><td>추천인 이름</td><td>실제 추천인</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+            <tr><td>추천</td><td>추천인과의 관계</td><td>친구, 형제자매, 학부모 지인 등</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+            <tr><td>추천</td><td>추천 내용</td><td>어떤 좋은 점을 추천했는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+            <tr><td>추천</td><td>추천 포인트</td><td>관리, 성적향상, 강사, 분위기 등</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-6. 기존 학원 정보</h3>
+        <div class="db-note">
+          기존 학원 정보는 <strong>가져올 수 있는 출처가 없으며</strong>, 전 항목이 신규 수집 항목입니다. TC 또는 대면상담 시점에 표준 질문으로 추가하는 방향이 현실적입니다.
+        </div>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>기존 학원</td><td>기존 학원 재원 여부</td><td>이전 학원 존재 여부</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>가져올 출처 없음. 신규 수집 항목</td></tr>
+            <tr><td>기존 학원</td><td>기존 학원명</td><td>비교 분석용</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>동일</td></tr>
+            <tr><td>기존 학원</td><td>기존 학원 수강 과목/형태</td><td>어떤 구조에서 이동했는지</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>동일</td></tr>
+            <tr><td>기존 학원</td><td>정율 문의 계기</td><td>왜 이쪽으로 문의하게 되었는지</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>동일</td></tr>
+            <tr><td>기존 학원</td><td>기존 학원 이탈 사유</td><td>불만, 관리 부족, 성적, 거리 등</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>동일</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-7. <span class="v2-changed">문자 메시지 정보 <span class="v2-change-note">(v1: "개강 문자 정보" → 설명회 홍보 문자 섹션 신규 추가 및 통합)</span></span></h3>
+        <div class="db-note">
+          실제 문자 발송은 <strong>개강 안내 문자보다 설명회 홍보 문자가 더 많이 나가는</strong> 구조입니다. 두 유형 모두 발송 사실은 확인되나, 수신자의 반응을 역추적할 수단이 현재 없습니다.
+        </div>
+
+        <h3>7-7-A. 설명회 홍보 문자</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>설명회 문자</td><td>설명회 문자 발송 여부</td><td>발송 여부 확인</td><td><span class="db-status db-ok">✅ 확보</span></td><td>잔디 문자발송 토픽방 + aca2000</td></tr>
+            <tr><td>설명회 문자</td><td>발송 대상</td><td>어떤 DB 대상으로 발송했는지</td><td><span class="db-status db-ok">✅ 확보</span></td><td>잔디 문자발송 토픽방 + aca2000</td></tr>
+            <tr><td>설명회 문자</td><td>문자 반응</td><td>무반응/문의/설명회 신청 등</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>수신자 반응 역추적 수단 없음</td></tr>
+            <tr class="v2-changed-row"><td>설명회 문자</td><td><span class="v2-changed">문자 후 설명회 신청 여부 <span class="v2-change-note">(v2 초안: "문자 후 바로 등록 여부"로 기재했으나 설명회 문자 후 직등록 케이스는 없으므로 설명회 신청 여부로 수정)</span></span></td><td>설명회 문자 수신 후 설명회를 신청했는지</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>수신자 반응 역추적 수단 없음</td></tr>
+            <tr class="v2-changed-row"><td>설명회 문자</td><td>문자 후 문의 채널</td><td>홈페이지/전화/카카오톡</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td><span class="v2-changed">수신자가 어떤 채널로 반응했는지 역추적하는 조사 방법 자체가 없음 <span class="v2-change-note">(v2 초안: "수단 없음"으로만 기재)</span></span></td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-7-B. 개강 안내 문자</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>개강 문자</td><td>개강 문자 발송 여부</td><td>특정 반 개강 문자 발송 여부</td><td><span class="db-status db-ok">✅ 확보</span></td><td>잔디 문자발송 토픽방 + aca2000</td></tr>
+            <tr><td>개강 문자</td><td>대상 반</td><td>어떤 반 개강 문자였는지</td><td><span class="db-status db-ok">✅ 확보</span></td><td>잔디 문자발송 토픽방 + aca2000</td></tr>
+            <tr><td>개강 문자</td><td>문자 반응</td><td>무반응/문의/바로 등록 등</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>수신자 반응 역추적 수단 없음</td></tr>
+            <tr><td>개강 문자</td><td>개강 문자 후 바로 등록 여부</td><td>TEST 없이 직등록인지</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>동일</td></tr>
+            <tr class="v2-changed-row"><td>개강 문자</td><td>문자 후 문의 채널</td><td>홈페이지/전화/카카오톡</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td><span class="v2-changed">수신자가 어떤 채널로 반응했는지 역추적하는 조사 방법 자체가 없음 <span class="v2-change-note">(v2 초안: "수단 없음"으로만 기재)</span></span></td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-8. TC 단계 정보</h3>
+        <div class="db-note">
+          잔디 신입등록프로세스 토픽방은 누락은 적으나 <strong>대화형 비정형 데이터</strong>라 전수 확인에 수작업이 상당히 소요됩니다. 일일상담달력은 테스트·상담 확정 건 중심으로 파악 가능하며, TC 추적이 더 필요한 건들도 달력에서 일부 확인 가능합니다.
+        </div>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TC</td><td>TC 진행 여부</td><td>TC 실행 여부</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방 (실시간 대화형, 건별 직접 확인 필요)</td></tr>
+            <tr><td>TC</td><td>TC 일시</td><td>언제 TC가 진행됐는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+            <tr><td>TC</td><td>담당자</td><td>누가 진행했는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+            <tr><td>TC</td><td>TC 유형</td><td>부재 / 테스트 및 대면상담 일정 확정 / 테스트 없이 대면상담만 / 전화 상담 후 등록(논술 수업 등) / 간단한 문의 후 상담 종료(해당 과목 없음·수업 시간 불일치)</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방 + 일일상담달력 (건별 수작업 확인 필요)</td></tr>
+            <tr><td>TC</td><td>입학TEST 일정 안내 여부</td><td>시험 일정 안내 여부</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방 + 일일상담달력 (잔디에서도 확인 가능)</td></tr>
+            <tr><td>TC</td><td>입학TEST 예정일</td><td>실제 방문 예정일</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방 + 일일상담달력 (테스트 후 대면상담 잡힌 건 확인 가능)</td></tr>
+            <tr><td>TC</td><td>시험 미방문 여부</td><td>실제 오지 않았는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>간헐적으로만 정리되어 있어 역추적 어려움</td></tr>
+            <tr><td>TC</td><td>시험 미방문 사유</td><td>미방문 원인</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-9. 입학TEST 및 대면상담 정보</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TEST/상담</td><td>입학TEST 방문 여부</td><td>방문했는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>일일상담달력 시트 (가로선 처리 여부로 확인, 수작업 해석 필요)</td></tr>
+            <tr><td>TEST/상담</td><td>방문일</td><td>방문 날짜</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>일일상담달력 시트</td></tr>
+            <tr><td>TEST/상담</td><td>대면상담 진행 여부</td><td>상담 실시 여부</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>일일상담달력 시트</td></tr>
+            <tr><td>TEST/상담</td><td>상담 결과</td><td>등록 가능성, 반 배정 등</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방 (대화형, 건별 직접 확인 필요)</td></tr>
+            <tr><td>TEST/상담</td><td>등록 의사 수준</td><td>확정/보류/검토</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방 (동일)</td></tr>
+            <tr><td>TEST/상담</td><td>결제 여부</td><td>결제 완료 여부</td><td><span class="db-status db-ok">✅ 확보</span></td><td>aca2000</td></tr>
+            <tr><td>TEST/상담</td><td>결제 시점</td><td>상담 직후/첫 등원일</td><td><span class="db-status db-ok">✅ 확보</span></td><td>aca2000</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-10. 등록 정보</h3>
+        <div class="db-note">
+          <strong>등록 확정 기준</strong>은 데이터 문제가 아니라 개념 정의 문제입니다. 결제 완료 기준인지, 등록 의사 확정 기준인지 내부적으로 먼저 합의가 필요합니다.<br />
+          <strong>등록 유형</strong>은 현재 별도 체계가 없어 소급 정리 시 건별 수작업 불가피 — 향후 신규 입력 항목으로 추가하는 것이 현실적입니다.
+        </div>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>등록</td><td>최종 등록 여부</td><td>등록 성공 여부</td><td><span class="db-status db-ok">✅ 복수 출처 교차 확인 가능</span></td><td>잔디 신입등록프로세스 토픽방 + 일일상담달력 + aca2000</td></tr>
+            <tr><td>등록</td><td>등록 확정일</td><td>등록 일자</td><td><span class="db-status db-ok">✅ 복수 출처 교차 확인 가능</span></td><td>잔디 신입등록프로세스 토픽방 + 일일상담달력 + aca2000</td></tr>
+            <tr><td>등록</td><td>첫 등원일</td><td>실제 시작일</td><td><span class="db-status db-ok">✅ 복수 출처 교차 확인 가능</span></td><td>잔디 신입등록프로세스 토픽방 + 일일상담달력 + aca2000</td></tr>
+            <tr><td>등록</td><td>등록 확정 기준</td><td>결제/확실한 등록 의사</td><td><span class="db-status db-partial">⚠️ 기준 정의 필요</span></td><td>결제 시점 vs 등록 의사 표명 시점 혼재. 내부 기준 합의 후 적용 필요</td></tr>
+            <tr><td>등록</td><td>등록 유형</td><td>설명회 직등록/개강문자 직등록/TEST 상담 등록 등</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>별도 정리 없음. 건별 노가다 추적은 가능하나 수작업 부담 큼. 향후 신규 입력 항목으로 추가 권장</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-11. 등록 보류 정보</h3>
+        <div class="db-note">
+          <strong>보류 관리 체계 자체가 현재 없습니다.</strong> 보류 상태인 학생을 한눈에 볼 수 있는 뷰나 리스트가 없어 사실상 체계적 관리가 안 되고 있는 영역입니다. 보류 → 재유입 → 등록으로 이어지는 순환 구조의 핵심 고리임에도 데이터 공백이 가장 큰 영역입니다.
+        </div>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>등록 보류</td><td>등록 보류 여부</td><td>보류 상태 여부</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>보류 상태 학생만 따로 모아보는 뷰 없음. 신규 체계 필요</td></tr>
+            <tr><td>등록 보류</td><td>보류 사유</td><td>설명회 불참, 신청서 미제출, TEST 미방문, 생각 더 해봄 등</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방에서 건별 노가다 추적만 가능</td></tr>
+            <tr><td>등록 보류</td><td>상담실 TC 재진행 여부</td><td>재확인 실시 여부</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>일일상담리스트 + 일일상담달력 + 잔디 신입등록프로세스 토픽방 (수작업 확인 필요)</td></tr>
+            <tr><td>등록 보류</td><td>재확인 결과</td><td>등록/추가 보류</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>동일</td></tr>
+          </tbody>
+        </table>
+
+        <h3>7-12. DB 축적 및 재유입 정보</h3>
+        <div class="db-note">
+          DB 자체는 aca2000에 축적되고 있으나 <strong>재유입 추적 체계가 없어</strong> DB가 실제로 얼마나 효과를 내고 있는지 현재로선 측정 불가합니다. 문자 발송도 직감 기반으로 운영 중이며, 재유입 → 등록 연결고리가 데이터로 잡히지 않아 순환 구조의 성과를 입증할 수 없는 상태입니다.
+        </div>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>DB 재활용</td><td>DB 편입 여부</td><td>등록 보류 후 DB 적재 여부</td><td><span class="db-status db-ok">✅ 확보</span></td><td>aca2000 (등록/미등록 구분으로 전체 확인 가능)</td></tr>
+            <tr class="v2-changed-row"><td>DB 재활용</td><td>DB 편입일</td><td>적재 시점</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td><span class="v2-changed">현재 aca2000의 문의 입학일로 처리 중 <span class="v2-change-note">(v2 초안: "편입 시점을 별도로 기록하지 않음. 신규 수집 항목"으로 기재했으나 실제 운영 확인)</span></span></td></tr>
+            <tr><td>DB 재활용</td><td>재발송 문자 유형</td><td>설명회 안내 / 특정 반 개강 안내</td><td><span class="db-status db-partial">⚠️ 체계 없음</span></td><td>차수별 구분 없이 담당자 직감으로 운영 중. 발송 기준 정립 필요</td></tr>
+            <tr><td>DB 재활용</td><td>재발송일</td><td>문자 발송 시점</td><td><span class="db-status db-ok">✅ 확보</span></td><td>aca2000</td></tr>
+            <tr><td>DB 재활용</td><td>재유입 여부</td><td>다시 반응했는지</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>잔디 신입등록프로세스 토픽방에서 재문의 건 확인 가능하나 건별 수작업 필요</td></tr>
+            <tr><td>DB 재활용</td><td>재유입 채널</td><td>설명회 신청/전화/카카오톡/직등록</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>별도 확인 없음. 신규 수집 항목</td></tr>
+            <tr><td>DB 재활용</td><td>재유입 후 최종 결과</td><td>등록/보류</td><td><span class="db-status db-new">❌ 신규 수집 필요</span></td><td>별도 확인 없음. 신규 수집 항목</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="code-master">
+        <h2>8. 전체 코드 마스터 체계</h2>
+        <p>
+          이후 자동화와 대시보드 운영을 위해서는 자유기입식이 아니라 <strong>코드 표준안</strong>이 필요합니다.
+          아래는 현재까지 만든 코드를 통합한 마스터 구조입니다.
+        </p>
+
+        <h3>8-1. 문의경로 코드 (INQ_CH)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th><th>사용 기준</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>INQ_CH_01</td><td>홈페이지 상담신청</td><td>홈페이지 내 상담신청으로 접수</td><td>최초 실제 문의 채널</td></tr>
+            <tr><td>INQ_CH_02</td><td>전화문의</td><td>학원으로 전화 문의</td><td>최초 실제 문의 채널</td></tr>
+            <tr><td>INQ_CH_03</td><td>카카오톡 상담요청</td><td>카카오톡 채널 문의</td><td>최초 실제 문의 채널</td></tr>
+            <tr><td>INQ_CH_04</td><td>설명회 신청</td><td>설명회 신청으로 접수</td><td>설명회 신청 자체가 최초 접점일 때</td></tr>
+            <tr><td>INQ_CH_99</td><td>기타</td><td>위에 해당하지 않음</td><td>메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8-2. 유입경로 코드 (SRC)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th><th>사용 기준</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SRC_01</td><td>보유 DB 설명회 문자</td><td>DB 설명회 안내 문자 반응</td><td>기존 DB 대상</td></tr>
+            <tr><td>SRC_02</td><td>보유 DB 개강 문자</td><td>DB 개강 안내 문자 반응</td><td>기존 DB 대상</td></tr>
+            <tr><td>SRC_03</td><td>홈페이지 직접 유입</td><td>홈페이지를 통한 직접 관심</td><td>추천 없이 직접</td></tr>
+            <tr><td>SRC_04</td><td>친구추천</td><td>친구의 소개로 유입</td><td>추천인 기록 권장</td></tr>
+            <tr><td>SRC_05</td><td>학부모 지인추천</td><td>학부모 네트워크 추천</td><td>추천인 기록 권장</td></tr>
+            <tr><td>SRC_06</td><td>재원생 가족</td><td>재원생 가족 경유 유입</td><td>가족 관계 기록 권장</td></tr>
+            <tr><td>SRC_07</td><td>졸업생 가족</td><td>졸업생 가족 경유 유입</td><td>가족 관계 기록 권장</td></tr>
+            <tr><td>SRC_99</td><td>기타</td><td>기타 유입</td><td>메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8-3. 신입생 분류 코드 (NEW_SRC)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th><th>사용 기준</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>NEW_SRC_01</td><td>설명회 유입</td><td>설명회를 통해 등록으로 연결</td><td>최초 등록 결정의 출발점</td></tr>
+            <tr><td>NEW_SRC_02</td><td>친구추천 유입</td><td>친구추천 기반 등록</td><td>등록학생 기준 대표 분류</td></tr>
+            <tr><td>NEW_SRC_03</td><td>학부모 지인추천 유입</td><td>학부모 추천 기반 등록</td><td>동일</td></tr>
+            <tr><td>NEW_SRC_04</td><td>재원생 가족 유입</td><td>재원생 가족 기반 등록</td><td>동일</td></tr>
+            <tr><td>NEW_SRC_05</td><td>졸업생 가족 유입</td><td>졸업생 가족 기반 등록</td><td>동일</td></tr>
+            <tr><td>NEW_SRC_06</td><td>홈페이지 직접 유입</td><td>직접 홈페이지 기반 유입</td><td>추천 아님</td></tr>
+            <tr><td>NEW_SRC_07</td><td>DB 설명회 재유입</td><td>DB 설명회 문자 후 재유입</td><td>보류 후 재유입 포함</td></tr>
+            <tr><td>NEW_SRC_08</td><td>DB 개강문자 재유입</td><td>DB 개강문자 후 재유입</td><td>보류 후 재유입 포함</td></tr>
+            <tr><td>NEW_SRC_99</td><td>기타</td><td>기타</td><td>메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8-4. 등록유형 코드 (NEW_REG)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th><th>사용 기준</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>NEW_REG_01</td><td>설명회 직등록</td><td>설명회 후 바로 등록</td><td>TEST 없이 가능</td></tr>
+            <tr><td>NEW_REG_02</td><td>개강문자 직등록</td><td>특정 반 개강 문자 후 바로 등록</td><td>TEST 없이 가능</td></tr>
+            <tr><td>NEW_REG_03</td><td>TEST 상담 등록형</td><td>TC → 입학TEST → 대면상담 후 등록</td><td>일반 경로</td></tr>
+            <tr><td>NEW_REG_04</td><td>보류 후 재확인 등록형</td><td>보류 후 상담실 재확인 통해 등록</td><td>생각 후 연락 등</td></tr>
+            <tr><td>NEW_REG_05</td><td>DB 재유입 등록형</td><td>보류 후 DB 문자 재반응을 통해 등록</td><td>순환형 유입</td></tr>
+            <tr><td>NEW_REG_99</td><td>기타</td><td>예외 사례</td><td>메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8-5. 전환결과 코드 (CONV_RS)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th><th>사용 기준</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CONV_RS_01</td><td>등록</td><td>최종 등록 확정</td><td>결제 또는 확실한 등록 의사</td></tr>
+            <tr><td>CONV_RS_02</td><td>등록 보류</td><td>현재 등록 미확정</td><td>후속 관리 대상</td></tr>
+            <tr><td>CONV_RS_03</td><td>DB 재유입 대기</td><td>DB 적재 후 후속 문자 대기</td><td>중간 관리 상태</td></tr>
+            <tr><td>CONV_RS_99</td><td>기타</td><td>예외 상태</td><td>메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8-6. 보류사유 코드 (HOLD_RS)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th><th>사용 기준</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>HOLD_RS_01</td><td>설명회 불참</td><td>설명회 신청했으나 참석하지 않음</td><td>설명회 단계</td></tr>
+            <tr><td>HOLD_RS_02</td><td>상담신청서 미제출</td><td>설명회 참석 후 신청서 미제출</td><td>설명회 후</td></tr>
+            <tr><td>HOLD_RS_03</td><td>TEST 일정 조율 후 미진행</td><td>TC만 하고 다음 단계 진전 없음</td><td>TC 단계</td></tr>
+            <tr><td>HOLD_RS_04</td><td>입학TEST 미방문</td><td>TEST 일정은 잡혔으나 방문 안 함</td><td>TEST 단계</td></tr>
+            <tr><td>HOLD_RS_05</td><td>상담 후 검토</td><td>“생각 더 해보고 연락” 등</td><td>대면상담 후</td></tr>
+            <tr><td>HOLD_RS_06</td><td>등록 의사 미확정</td><td>의사는 있으나 확정 아님</td><td>상담 후</td></tr>
+            <tr><td>HOLD_RS_07</td><td>결제 미완료</td><td>등록 의사는 있으나 결제 미완료</td><td>등록 직전</td></tr>
+            <tr><td>HOLD_RS_99</td><td>기타</td><td>기타 사유</td><td>메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8-7. 학교 분류 코드</h3>
+
+        <h3>학교급 (SCH_LV)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SCH_LV_01</td><td>중학교</td><td>중학생</td></tr>
+            <tr><td>SCH_LV_02</td><td>고등학교</td><td>고등학생</td></tr>
+            <tr><td>SCH_LV_99</td><td>기타</td><td>예외</td></tr>
+          </tbody>
+        </table>
+
+        <h3>학교권역 (SCH_RG)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SCH_RG_01</td><td>부천 원미권</td><td>원미권 학교</td></tr>
+            <tr><td>SCH_RG_02</td><td>부천 소사권</td><td>소사권 학교</td></tr>
+            <tr><td>SCH_RG_03</td><td>부천 오정권</td><td>오정권 학교</td></tr>
+            <tr><td>SCH_RG_04</td><td>인천권</td><td>인천 지역 학교</td></tr>
+            <tr><td>SCH_RG_05</td><td>서울권</td><td>서울 지역 학교</td></tr>
+            <tr><td>SCH_RG_06</td><td>경기 기타권</td><td>기타 경기권</td></tr>
+            <tr><td>SCH_RG_99</td><td>기타권</td><td>기타</td></tr>
+          </tbody>
+        </table>
+        <p>
+          기존 보고서에는 부천, 서울, 인천 등 지역과 학교/학년 단위 분석이 포함되어 있었고,
+          향후 자동 보고를 위해 학교권역 분류는 반드시 필요합니다.
+          <a href="https://www.genspark.ai/api/files/s/d6HftaZP" target="_blank">[Source]</a>
+        </p>
+
+        <h3>8-8. 거리 분류 코드</h3>
+
+        <h3>거리/시간 구간 (DIST_TM)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>DIST_TM_01</td><td>초근거리권</td><td>10분 이하</td></tr>
+            <tr><td>DIST_TM_02</td><td>근거리권</td><td>11~20분</td></tr>
+            <tr><td>DIST_TM_03</td><td>중거리권</td><td>21~30분</td></tr>
+            <tr><td>DIST_TM_04</td><td>원거리권</td><td>31~40분</td></tr>
+            <tr><td>DIST_TM_05</td><td>초원거리권</td><td>41분 이상</td></tr>
+            <tr><td>DIST_TM_99</td><td>미확인</td><td>확인 안 됨</td></tr>
+          </tbody>
+        </table>
+
+        <h3>원거리 선택 이유 (FAR_RSN)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>FAR_RSN_01</td><td>추천 영향</td><td>추천의 영향이 큼</td></tr>
+            <tr><td>FAR_RSN_02</td><td>과목/반 특화</td><td>특정 반/과목 때문</td></tr>
+            <tr><td>FAR_RSN_03</td><td>성적/관리 기대</td><td>관리 및 성적 기대</td></tr>
+            <tr><td>FAR_RSN_04</td><td>대안 부재</td><td>주변 대안 부족</td></tr>
+            <tr><td>FAR_RSN_05</td><td>강사/수업 선호</td><td>강사/수업 선호</td></tr>
+            <tr><td>FAR_RSN_06</td><td>가족/지인 연결</td><td>가족/지인 연결</td></tr>
+            <tr><td>FAR_RSN_99</td><td>기타</td><td>기타</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="v2-new">8-9. 퇴원 사유 코드 (EXIT_RS)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>EXIT_RS_01</td><td>수능 종료/졸업</td><td>수능 응시 후 자연 종료</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_02</td><td>타 학원 이동</td><td>다른 학원으로 옮김</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_03</td><td>성적 불만</td><td>성적 향상 미흡으로 인한 이탈</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_04</td><td>비용 문제</td><td>수강료 부담으로 인한 이탈</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_05</td><td>이사/거리</td><td>이사 또는 통학 거리 문제</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_06</td><td>학교 내신 집중</td><td>내신 준비를 위해 일시 중단</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_07</td><td>개인 사정</td><td>건강, 가정 사정 등</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_08</td><td>전반 처리</td><td>실제 퇴원이 아닌 반 이동(전반) — aca2000 오류 주의</td></tr>
+            <tr class="v2-new-row"><td>EXIT_RS_99</td><td>기타</td><td>기타 사유. 메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="v2-new">8-10. 재원 상태 코드 (STU_ST)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>STU_ST_01</td><td>재원 중</td><td>현재 정상 수강 중</td></tr>
+            <tr class="v2-new-row"><td>STU_ST_02</td><td>휴원</td><td>일시적 수강 중단 상태</td></tr>
+            <tr class="v2-new-row"><td>STU_ST_03</td><td>퇴원</td><td>수강 종료 확정</td></tr>
+            <tr class="v2-new-row"><td>STU_ST_04</td><td>졸업</td><td>수능 응시 후 자연 종료</td></tr>
+            <tr class="v2-new-row"><td>STU_ST_05</td><td>재등록</td><td>퇴원 후 재등록한 상태</td></tr>
+            <tr class="v2-new-row"><td>STU_ST_99</td><td>기타</td><td>예외 상태. 메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="v2-new">8-11. 반 유형 코드 (CLS_TP)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>CLS_TP_01</td><td>종합반</td><td>복수 과목 통합 수강 형태</td></tr>
+            <tr class="v2-new-row"><td>CLS_TP_02</td><td>단과반</td><td>단일 과목 수강 형태</td></tr>
+            <tr class="v2-new-row"><td>CLS_TP_03</td><td>특강</td><td>단기 집중 특강</td></tr>
+            <tr class="v2-new-row"><td>CLS_TP_99</td><td>기타</td><td>기타 형태. 메모 필수</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="v2-new">8-12. 시기 코드 (TERM_CD)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>TERM_CD_01</td><td>1학기</td><td>3월~6월</td></tr>
+            <tr class="v2-new-row"><td>TERM_CD_02</td><td>여름방학</td><td>7월~8월</td></tr>
+            <tr class="v2-new-row"><td>TERM_CD_03</td><td>2학기</td><td>9월~11월</td></tr>
+            <tr class="v2-new-row"><td>TERM_CD_04</td><td>수능 후</td><td>수능 이후~12월</td></tr>
+            <tr class="v2-new-row"><td>TERM_CD_05</td><td>겨울방학</td><td>1월~2월</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="v2-new">8-13. 수험생 유형 코드 (EXAM_TP)</h3>
+        <table>
+          <thead>
+            <tr><th>코드</th><th>명칭</th><th>정의</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>EXAM_TP_01</td><td>현역</td><td>해당 연도 수능 응시 예정 고3</td></tr>
+            <tr class="v2-new-row"><td>EXAM_TP_02</td><td>N수생</td><td>재수 이상 수험생</td></tr>
+            <tr class="v2-new-row"><td>EXAM_TP_03</td><td>중학생</td><td>중등 과정</td></tr>
+            <tr class="v2-new-row"><td>EXAM_TP_04</td><td>고1·고2</td><td>수능 준비 전 단계</td></tr>
+            <tr class="v2-new-row"><td>EXAM_TP_99</td><td>기타</td><td>기타. 메모 필수</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="student-data">
+        <h2 class="v2-new">8-A. 재원생 현황 및 변동 데이터 수집 항목표</h2>
+        <p class="v2-new">
+          신입생 유입·등록 데이터만으로는 학원 전체 운영 현황을 파악할 수 없습니다.
+          <strong>재원생 변동, 퇴원 사유, 학년별·시기별 패턴</strong>을 함께 관리해야
+          "5월 이후 고1·고2 퇴원이 증가한다", "7월에 고3 약술 신입이 집중된다" 와 같은
+          운영 패턴을 발견하고 운영진이 선제적으로 대응할 수 있습니다.
+        </p>
+
+        <h3 class="v2-new">재원생 기본 변동 데이터</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>재원생</td><td>등록 반 / 과목</td><td>수강 중인 반 및 과목</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>등록 유형</td><td>종합반 / 단과반 구분 (CLS_TP 코드)</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>등록 시작일</td><td>최초 수강 시작일</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>등록 종료일</td><td>수강 종료일 (퇴원/졸업)</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>재원 상태</td><td>재원 중 / 휴원 / 퇴원 / 졸업 / 재등록 (STU_ST 코드)</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>학년</td><td>현재 학년 (학년별 이탈 패턴 분석)</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>수험생 유형</td><td>현역 / N수생 / 고1·고2 / 중학생 (EXAM_TP 코드)</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>퇴원 여부 및 퇴원일</td><td>퇴원 확정 여부 및 날짜</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>퇴원 시기</td><td>퇴원 발생 월 (TERM_CD 연계 — 월별 패턴 분석 핵심)</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>퇴원 사유</td><td>타 학원 이동 / 성적 불만 / 비용 / 이사 등 (EXIT_RS 코드)</td><td><span class="db-status db-most">🟡 대부분 확보</span></td><td>잔디 빨간불 관리 토픽방. 거의 대부분 기록되나 아주 약간의 누락 가능</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>재등록 여부</td><td>퇴원 후 재등록 여부</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>재원생</td><td>수강 과목 변경 이력</td><td>단과→종합, 종합→단과 등 변경 패턴</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+          </tbody>
+        </table>
+        <div class="db-note">
+          <strong>패턴 분석 활용 예시:</strong> 퇴원 시기(월) × 학년 교차 분석을 통해 "5월 이후 고1·고2 퇴원 급증", "수능 직후 고3 자연 종료" 등의 패턴을 정량적으로 확인할 수 있습니다.
+          이 데이터는 대부분 aca2000에서 자동 연동 가능하므로, 통합 시스템 구축 시 최우선 이관 대상입니다.
+        </div>
+
+        <h3 class="v2-new">반 단위 데이터</h3>
+        <table>
+          <thead>
+            <tr><th>구분</th><th>수집 항목</th><th>설명</th><th>DB 연동 가능 여부</th><th>출처 / 비고</th></tr>
+          </thead>
+          <tbody>
+            <tr class="v2-new-row"><td>반 단위</td><td>반 명칭 / 코드</td><td>반별 성과 비교 기준</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>담당 강사</td><td>강사별 재원율, 신입 전환 기여도 분석</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>정원</td><td>해당 없음 — 정원 제도 미운영</td><td><span class="db-status db-new">❌ 해당 없음</span></td><td>정율사관학원은 정원 제도를 별도로 운영하지 않음</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>현원</td><td>현재 수강 인원</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>개강일 / 종강일</td><td>해당 없음 — 별도 운영하지 않음</td><td><span class="db-status db-new">❌ 해당 없음</span></td><td>정율사관학원은 개강일/종강일 제도를 별도로 운영하지 않음</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>반별 퇴원율</td><td>반별 이탈 비율 — 문제 반 조기 발견</td><td><span class="db-status db-most">🟡 대부분 확보, 간헐적 오류</span></td><td>구글시트 + aca2000. 전반생이 퇴원으로 잡히는 오류 간헐적 존재. 통합 시스템에서 전반(EXIT_RS_08) 처리 기준 명확화 필요</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>반별 월 매출</td><td>반별 수익 기여도 분석</td><td><span class="db-status db-ok">✅ aca2000 자동 연동</span></td><td>aca2000</td></tr>
+            <tr class="v2-new-row"><td>반 단위</td><td>반별 성적 향상 데이터</td><td>시험 후 성적 변화 (등급·점수·백분위)</td><td><span class="db-status db-partial">⚠️ 불완전 확보</span></td><td>과별 팀장 개인 노트북에 분산 보관. 통합 시스템 구축 시 수기 이관 및 입력 표준화 필요 (시험 기준, 수치 기준, 입력 주체·시점 정의 필수)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="why-data">
+        <h2>9. 왜 이 데이터가 필요한가</h2>
+        <p>이 수집 체계가 정착되면 다음 질문에 답할 수 있습니다.</p>
+        <ul>
+          <li>어떤 채널에서 실제 신규 등록이 많이 발생하는가?</li>
+          <li>친구추천과 학부모 지인추천 중 어떤 경로가 더 강한가?</li>
+          <li>설명회가 실제 등록 전환에 얼마나 기여하는가?</li>
+          <li>특정 반 개강 안내 문자는 얼마나 직접 등록을 만드는가?</li>
+          <li>학생 주도형과 학부모 주도형 중 어떤 유형이 등록 전환율이 높은가?</li>
+          <li>어떤 학교권역에서 유입은 많은데 등록은 약한가?</li>
+          <li>원거리 학생은 왜 정율을 선택하는가?</li>
+          <li>등록 보류 중 어떤 유형이 재유입 후 등록으로 회복되는가?</li>
+          <li class="v2-new">현재 총 재원생 수는 몇 명이며, 전월 대비 순증감은 얼마인가?</li>
+          <li class="v2-new">어떤 학년에서, 어떤 시기에 퇴원이 집중되는가? (월별·학년별 패턴)</li>
+          <li class="v2-new">퇴원 사유 중 가장 많은 비중을 차지하는 것은 무엇인가?</li>
+          <li class="v2-new">어떤 반에서 퇴원율이 높은가? 강사·반 유형별 차이가 있는가?</li>
+          <li class="v2-new">7월에 고3 약술 신입이 얼마나 집중 유입되는가? 전년 동기 대비 어떤가?</li>
+          <li class="v2-new">5월 이후 고1·고2 퇴원 변동폭이 실제로 크게 나타나는가?</li>
+          <li class="v2-new">반별 성적 향상 데이터와 재원율 사이에 상관관계가 있는가?</li>
+        </ul>
+        <p>
+          즉, 이 데이터 구조는 단순 접수 기록이 아니라
+          <strong>매출 발생 구조, 강점 구조, 개선 포인트, 시스템화 가능 영역</strong>을 파악하는 핵심 자료가 됩니다.
+        </p>
+      </section>
+
+      <section id="dashboard">
+        <h2>10. <span class="v2-changed">학원 통합 관리 대시보드 설계안 <span class="v2-change-note">(v1: "월간 신입생 유입·등록 전환 관리 대시보드 설계안" → 재원생·패턴 분석 영역 추가로 범위 확장)</span></span></h2>
+
+        <h3>10-1. 대시보드 핵심 영역</h3>
+        <table>
+          <thead>
+            <tr><th>영역</th><th>주요 항목</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>요약 카드</td><td>신규 문의 수, 신규 등록 수, 등록 전환율, 등록 보류 수, DB 재유입 등록 수</td></tr>
+            <tr><td>유입 분석</td><td>문의경로별 건수, 유입경로별 건수, 신입생 분류별 건수</td></tr>
+            <tr><td>퍼널 분석</td><td>설명회 신청 → 참석 → 상담신청서 → TC → TEST 방문 → 상담 → 등록</td></tr>
+            <tr><td>등록유형 분석</td><td>설명회 직등록, 개강문자 직등록, TEST 상담 등록, 보류 후 등록</td></tr>
+            <tr><td>보류 관리</td><td>보류 사유별 건수, 보류 후 재확인 진행 수, 보류 후 재등록 수</td></tr>
+            <tr><td>DB 재활용</td><td>DB 적재 수, 재문자 발송 수, 재유입 수, 재유입 등록 수</td></tr>
+            <tr><td>학교/거리 분석</td><td>학교권역별 유입·등록, 거리구간별 전환율, 원거리 선택 이유</td></tr>
+            <tr><td>영향자 분석</td><td>학생 주도/학부모 주도/공동 결정 비중</td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">재원생 현황</span></td><td><span class="v2-new">현재 총 재원생 수, 반별 현원, 학년별 분포, 수험생 유형별 분포</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">월별 변동 추이</span></td><td><span class="v2-new">신입 등록 수, 퇴원 수, 순증감, 전월 대비 재원율 변화</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">퇴원 분석</span></td><td><span class="v2-new">퇴원 사유별 건수(EXIT_RS), 학년별 퇴원 시기 패턴, 반별 퇴원율</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">학년 × 월 교차 분석</span></td><td><span class="v2-new">고1·고2·고3·N수별 신입/퇴원 흐름, 시기별 패턴(TERM_CD) 발견</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">강사/반별 현황</span></td><td><span class="v2-new">담당 반 현원, 반별 퇴원율, 반별 성적 향상 데이터(입력 시)</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">연간 패턴 뷰</span></td><td><span class="v2-new">전년 동월 대비 신입·퇴원 비교, 특정 시기 반복 패턴 시각화</span></td></tr>
+          </tbody>
+        </table>
+
+        <h3>10-2. 월간 KPI 표</h3>
+        <table>
+          <thead>
+            <tr><th>KPI명</th><th>정의</th><th>계산식 예시</th><th>관리 목적</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>신규 문의 수</td><td>월간 최초 문의 건수</td><td>해당월 문의 ID 수</td><td>유입 규모 파악</td></tr>
+            <tr><td>신규 등록 수</td><td>월간 등록 확정 건수</td><td>CONV_RS_01 건수</td><td>매출 기반 파악</td></tr>
+            <tr><td>전체 등록 전환율</td><td>문의 대비 등록 비율</td><td>등록 수 / 신규 문의 수</td><td>총 효율 관리</td></tr>
+            <tr><td>설명회 신청률</td><td>문의 중 설명회 신청 비율</td><td>설명회 신청 수 / 신규 문의 수</td><td>설명회 유도력</td></tr>
+            <tr><td>설명회 참석률</td><td>신청 대비 참석 비율</td><td>참석 수 / 신청 수</td><td>운영 효율</td></tr>
+            <tr><td>설명회 직등록률</td><td>설명회 참석 후 즉시 등록 비율</td><td>설명회 직등록 수 / 설명회 참석 수</td><td>설명회 성과</td></tr>
+            <tr><td>TC 진행률</td><td>상담채널 유입 중 TC까지 간 비율</td><td>TC 진행 수 / 상담신청+전화+카카오 건수</td><td>중간 전환</td></tr>
+            <tr><td>TEST 방문률</td><td>TC 진행 후 실제 방문 비율</td><td>TEST 방문 수 / TC 진행 수</td><td>현장 전환</td></tr>
+            <tr><td>TEST 상담 등록률</td><td>TEST/상담 후 등록 비율</td><td>TEST 경유 등록 수 / TEST 방문 수</td><td>핵심 전환</td></tr>
+            <tr><td>개강문자 직등록률</td><td>개강문자 반응 후 즉시 등록 비율</td><td>개강문자 직등록 수 / 개강문자 반응 수</td><td>문자 성과</td></tr>
+            <tr><td>등록 보류율</td><td>문의 대비 보류 비율</td><td>등록 보류 수 / 신규 문의 수</td><td>이탈성 관리</td></tr>
+            <tr><td>보류 회복률</td><td>보류 후 등록 비율</td><td>보류 후 등록 수 / 등록 보류 수</td><td>재활용 효율</td></tr>
+            <tr><td>DB 재유입률</td><td>DB 적재 후 재반응 비율</td><td>재유입 수 / DB 적재 수</td><td>DB 활용도</td></tr>
+            <tr><td>DB 재유입 등록률</td><td>재유입 후 등록 비율</td><td>DB 재유입 등록 수 / DB 재유입 수</td><td>장기 전환</td></tr>
+            <tr><td>학생 주도 비중</td><td>학생 주도 문의 비율</td><td>학생 주도 건수 / 전체 문의 수</td><td>영향력 분석</td></tr>
+            <tr><td>학부모 주도 비중</td><td>학부모 주도 문의 비율</td><td>학부모 주도 건수 / 전체 문의 수</td><td>영향력 분석</td></tr>
+            <tr><td>원거리 등록 비중</td><td>등록자 중 원거리권 비율</td><td>DIST_TM_04~05 등록 수 / 전체 등록 수</td><td>생활권 확장성</td></tr>
+            <tr><td>추천 기반 등록 비중</td><td>추천 기반 등록 비율</td><td>추천 기반 등록 수 / 전체 등록 수</td><td>관계망 강도</td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">총 재원생 수</span></td><td><span class="v2-new">월말 기준 재원 중 학생 수</span></td><td><span class="v2-new">STU_ST_01 건수</span></td><td><span class="v2-new">전체 규모 파악</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">월간 순증감</span></td><td><span class="v2-new">신규 등록 수 - 퇴원 수</span></td><td><span class="v2-new">신규 등록 수 - 해당월 퇴원 수</span></td><td><span class="v2-new">성장/감소 추세 파악</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">월간 퇴원 수</span></td><td><span class="v2-new">해당월 퇴원 확정 건수</span></td><td><span class="v2-new">해당월 EXIT_RS 코드 건수</span></td><td><span class="v2-new">이탈 규모 파악</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">퇴원율</span></td><td><span class="v2-new">재원생 대비 퇴원 비율</span></td><td><span class="v2-new">퇴원 수 / 전월 말 재원생 수</span></td><td><span class="v2-new">이탈 심각도 관리</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">학년별 퇴원 비중</span></td><td><span class="v2-new">학년별 퇴원 건수 비율</span></td><td><span class="v2-new">학년별 퇴원 수 / 전체 퇴원 수</span></td><td><span class="v2-new">학년별 이탈 패턴 발견</span></td></tr>
+            <tr class="v2-new-row"><td><span class="v2-new">재등록률</span></td><td><span class="v2-new">퇴원 후 재등록 비율</span></td><td><span class="v2-new">재등록 수 / 전체 퇴원 수</span></td><td><span class="v2-new">재원생 복귀 관리</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="management-accounting">
+        <h2>11. 관리회계 및 의사결정 연결 관점</h2>
+        <p>이 체계는 단순 행정 기록용이 아니라 <strong>관리회계의 근간</strong>이 됩니다.</p>
+        <p>예를 들어 다음과 같은 질문에 정량적으로 답할 수 있습니다.</p>
+
+        <h3>어디에서 돈을 벌고 있는가?</h3>
+        <p>→ 등록 유형, 유입경로, 학교권역, 거리구간별 등록/매출 기여도 분석</p>
+
+        <h3>무엇을 시스템화할 수 있는가?</h3>
+        <p>
+          → 설명회 후 직등록이 강하면 설명회 운영 프로세스 자동화 강화<br />
+          → 개강문자 직등록이 강하면 DB 세분화와 문자 자동화 강화
+        </p>
+
+        <h3>우리는 무엇을 잘하고 있는가?</h3>
+        <p>
+          → 추천 유입이 강하면 추천 포인트(관리, 성적 향상, 분위기 등) 정제 가능<br />
+          → 원거리 등록이 높으면 거리 장벽을 뛰어넘는 경쟁력 확인 가능
+        </p>
+
+        <h3>학생 영향이 큰가, 학부모 영향이 큰가?</h3>
+        <p>
+          → 문의 주도자/최종 영향자 코드와 등록전환율을 연결하면 판단 가능
+        </p>
+
+        <p>
+          이러한 분석 결과는 이후 SA, PA, DA 등 KT 방식 의사결정의 입력값이 될 수 있습니다.
+        </p>
+      </section>
+
+      <section id="automation">
+        <h2>12. 자동화 구현 방향</h2>
+        <p>
+          현재 보고서의 최종 목적은 사람이 매번 수작업으로 PPT를 만드는 것이 아니라,
+          <strong>데이터가 자동으로 축적·정리되고, 클릭 몇 번으로 보고서가 생성되는 구조</strong>를 만드는 것입니다.
+        </p>
+        <p>기본 구조는 다음과 같습니다.</p>
+        <ol>
+          <li>현장 입력 폼 표준화</li>
+          <li>코드 마스터 기반 입력 제한</li>
+          <li>DB 자동 축적</li>
+          <li>월간 집계 테이블 자동 생성</li>
+          <li>KPI 자동 계산</li>
+          <li>대시보드 자동 시각화</li>
+          <li>보고서/PPT 자동 출력</li>
+        </ol>
+        <p>
+          즉, 이번 플로우차트와 데이터 수집 표준은
+          <strong>보고서 자동화 시스템의 가장 첫 번째 설계도</strong>라고 볼 수 있습니다.
+        </p>
+      </section>
+
+      <section id="conclusion">
+        <h2>13. 결론</h2>
+        <p>
+          정율사관학원의 문의·모집·등록 구조는 단순히 "문의가 오고 등록된다"는 일회성 절차가 아니라,
+        </p>
+        <ul>
+          <li>설명회 기반 유입</li>
+          <li>개강문자 기반 유입</li>
+          <li>추천 기반 유입</li>
+          <li>홈페이지/전화/카카오 상담 유입</li>
+          <li>TC 및 입학TEST 전환</li>
+          <li>등록 보류</li>
+          <li>DB 축적</li>
+          <li>설명회/개강 문자 재발송</li>
+          <li>추후 재유입 및 등록</li>
+        </ul>
+        <p>
+          으로 이어지는 <strong>순환형 전환 구조</strong>입니다.
+        </p>
+        <p class="v2-new">
+          나아가 이 보고서는 단순 신입생 유입 관리를 넘어, <strong>재원생 변동·퇴원 패턴·반 단위 현황</strong>까지 포함하는
+          통합 학원 관리 시스템의 데이터 설계 기반으로 확장되었습니다.
+          aca2000, 구글 스프레드시트, 잔디 등 현재 분산된 데이터를 하나의 시스템으로 통합하고,
+          이관이 어려운 항목은 신규 수집 체계를 통해 앞으로 쌓아나가는 것이 핵심 방향입니다.
+        </p>
+        <p>
+          따라서 운영의 핵심은 <strong>각 단계에서 무엇을 수집할 것인지 표준화하고</strong>,
+          <strong>그 수집값을 코드화하여</strong>,
+          <strong>월간 KPI와 자동 보고서로 연결하는 것</strong>입니다.
+        </p>
+        <p>이번 보고서는 그 첫 단계로서 다음을 모두 정리했습니다.</p>
+        <ul>
+          <li>최종 문의·모집 플로우차트</li>
+          <li>흐름에 대한 해설</li>
+          <li>단계별 데이터 수집 항목 <span class="v2-new">(DB 연동 가능 여부 및 출처 포함)</span></li>
+          <li>전체 코드 마스터 체계 <span class="v2-new">(EXIT_RS / STU_ST / CLS_TP / TERM_CD / EXAM_TP 신규 추가)</span></li>
+          <li>학교/거리 분류 체계</li>
+          <li class="v2-new">재원생 현황·변동 데이터 수집 항목 (신규)</li>
+          <li class="v2-new">반 단위 데이터 수집 항목 (신규)</li>
+          <li>월간 대시보드 항목 <span class="v2-new">(재원생·퇴원·학년×월 교차 분석 뷰 추가)</span></li>
+          <li>KPI 체계 <span class="v2-new">(재원생 관련 KPI 추가)</span></li>
+          <li>의사결정 및 관리회계 연결 관점</li>
+          <li class="v2-new">통합 시스템 구축 목적 및 기존 DB 이관 방향 (신규)</li>
+          <li class="v2-new">운영 패턴 분석 및 문제 조기 발견 목적 (신규)</li>
+        </ul>
+      </section>
+
+      <p class="small">
+        참고 링크:
+        <a href="https://www.genspark.ai/api/files/s/A1LTtlf0" target="_blank">문의·모집 흐름 이미지</a> /
+        <a href="https://www.genspark.ai/api/files/s/d6HftaZP" target="_blank">기존 운영 보고서(PPT)</a>
+      </p>
+    </article>
+  </div>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      securityLevel: "loose",
+      themeVariables: {
+        fontSize: "18px",
+        primaryTextColor: "#111827",
+        lineColor: "#475569",
+        primaryBorderColor: "#94a3b8",
+        edgeLabelBackground: "#ffffff",
+        clusterBkg: "#ffffff"
+      },
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: true,
+        curve: "linear",
+        nodeSpacing: 50,
+        rankSpacing: 85,
+        padding: 20,
+        defaultRenderer: "elk"
+      }
+    });
+  </script>
+</body>
+</html>
