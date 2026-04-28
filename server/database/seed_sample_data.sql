@@ -10,10 +10,10 @@ USE jysk;
 -- phone이 로그인 ID 역할
 -- ============================================================
 INSERT INTO User (password_hash, name, kind, phone, email) VALUES
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '관리자', 1, '010-0000-0000', 'admin@jungyoul.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김상담', 5, '010-2222-2222', 'tc1@jungyoul.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이상담', 5, '010-3333-3333', 'tc2@jungyoul.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박상담', 5, '010-4444-4444', 'tc3@jungyoul.com');
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '관리자', 1, '01000000000', 'admin@jungyoul.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김상담', 5, '01022222222', 'tc1@jungyoul.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이상담', 5, '01033333333', 'tc2@jungyoul.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박상담', 5, '01044444444', 'tc3@jungyoul.com');
 
 -- 비밀번호: password (bcrypt 해시)
 -- TC user_id: 김상담=2, 이상담=3, 박상담=4
@@ -31,16 +31,16 @@ INSERT INTO tc_info (user_id, tc_code, tc_type_code, branch_code, hire_date) VAL
 -- kind=2 (학생), phone이 로그인 ID 역할
 -- ============================================================
 INSERT INTO User (password_hash, name, kind, phone, email) VALUES
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 2, '010-1234-5678', 'hong@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 2, '010-2345-6789', 'kim@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 2, '010-3456-7890', 'lee@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박민수', 2, '010-4567-8901', 'park@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최지은', 2, '010-5678-9012', 'choi@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정우성', 2, '010-6789-0123', 'jung@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강민지', 2, '010-7890-1234', 'kang@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤서준', 2, '010-8901-2345', 'yoon@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한소희', 2, '010-9012-3456', 'han@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임재현', 2, '010-0123-4567', 'lim@test.com');
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 2, '01012345678', 'hong@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 2, '01023456789', 'kim@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 2, '01034567890', 'lee@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박민수', 2, '01045678901', 'park@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최지은', 2, '01056789012', 'choi@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정우성', 2, '01067890123', 'jung@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강민지', 2, '01078901234', 'kang@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤서준', 2, '01089012345', 'yoon@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한소희', 2, '01090123456', 'han@test.com'),
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임재현', 2, '01001234567', 'lim@test.com');
 
 -- ============================================================
 -- 4. 학생 상세 정보 (student_id = user_id, tc_id = TC의 user_id)
@@ -53,52 +53,52 @@ INSERT INTO student_info (
 ) VALUES
 -- 잠재 고객 (user_id: 5, 담당: 김상담=2)
 (5, '2012-03-15', 'GENDER_MALE', '서울초등학교', 'GRADE_ELEM_6',
- '홍어머니', '010-1234-0001', 'RELATION_MOTHER',
+ '홍어머니', '01012340001', 'RELATION_MOTHER',
  'STATUS_PROSPECT', 'SOURCE_ONLINE', 2, '2026-04-25', 1),
 
 -- 접촉 (user_id: 6, 담당: 김상담=2)
 (6, '2011-07-22', 'GENDER_MALE', '강남중학교', 'GRADE_MID_1',
- '김아버지', '010-2345-0001', 'RELATION_FATHER',
+ '김아버지', '01023450001', 'RELATION_FATHER',
  'STATUS_CONTACT', 'SOURCE_REFERRAL', 2, '2026-04-20', 1),
 
 -- 상담 예약 (user_id: 7, 담당: 이상담=3)
 (7, '2010-11-08', 'GENDER_FEMALE', '분당중학교', 'GRADE_MID_2',
- '이어머니', '010-3456-0001', 'RELATION_MOTHER',
+ '이어머니', '01034560001', 'RELATION_MOTHER',
  'STATUS_CONSULT_BOOK', 'SOURCE_CAFE', 3, '2026-04-18', 1),
 
 -- 상담 완료 (user_id: 8, 담당: 이상담=3)
 (8, '2009-05-30', 'GENDER_MALE', '대치고등학교', 'GRADE_HIGH_1',
- '박어머니', '010-4567-0001', 'RELATION_MOTHER',
+ '박어머니', '01045670001', 'RELATION_MOTHER',
  'STATUS_CONSULT_DONE', 'SOURCE_BLOG', 3, '2026-04-10', 1),
 
 -- 등록 (user_id: 9, 담당: 김상담=2)
 (9, '2013-09-12', 'GENDER_FEMALE', '서초초등학교', 'GRADE_ELEM_5',
- '최아버지', '010-5678-0001', 'RELATION_FATHER',
+ '최아버지', '01056780001', 'RELATION_FATHER',
  'STATUS_REGISTER', 'SOURCE_WALK_IN', 2, '2026-04-01', 1),
 
 -- 재원 (user_id: 10, 담당: 김상담=2)
 (10, '2012-01-25', 'GENDER_MALE', '역삼초등학교', 'GRADE_ELEM_6',
- '정어머니', '010-6789-0001', 'RELATION_MOTHER',
+ '정어머니', '01067890001', 'RELATION_MOTHER',
  'STATUS_ENROLLED', 'SOURCE_REFERRAL', 2, '2026-01-15', 1),
 
 -- 재원 (user_id: 11, 담당: 이상담=3)
 (11, '2011-04-18', 'GENDER_FEMALE', '청담중학교', 'GRADE_MID_1',
- '강어머니', '010-7890-0001', 'RELATION_MOTHER',
+ '강어머니', '01078900001', 'RELATION_MOTHER',
  'STATUS_ENROLLED', 'SOURCE_PREV_STUDENT', 3, '2026-02-01', 1),
 
 -- 재원 (user_id: 12, 담당: 박상담=4)
 (12, '2010-08-05', 'GENDER_MALE', '압구정중학교', 'GRADE_MID_2',
- '윤아버지', '010-8901-0001', 'RELATION_FATHER',
+ '윤아버지', '01089010001', 'RELATION_FATHER',
  'STATUS_ENROLLED', 'SOURCE_ONLINE', 4, '2025-09-01', 1),
 
 -- 퇴원 (user_id: 13, 담당: 김상담=2)
 (13, '2009-12-30', 'GENDER_FEMALE', '서울고등학교', 'GRADE_HIGH_2',
- '한어머니', '010-9012-0001', 'RELATION_MOTHER',
+ '한어머니', '01090120001', 'RELATION_MOTHER',
  'STATUS_WITHDRAW', 'SOURCE_REFERRAL', 2, '2025-03-01', 1),
 
 -- 이탈 (user_id: 14, 담당: 이상담=3)
 (14, '2012-06-14', 'GENDER_MALE', '개포초등학교', 'GRADE_ELEM_6',
- '임어머니', '010-0123-0001', 'RELATION_MOTHER',
+ '임어머니', '01001230001', 'RELATION_MOTHER',
  'STATUS_LOST', 'SOURCE_SNS', 3, '2026-04-15', 1);
 
 -- 날짜 업데이트
