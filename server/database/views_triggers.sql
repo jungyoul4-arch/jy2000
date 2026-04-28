@@ -1,0 +1,290 @@
+-- ============================================================
+-- 뷰 및 트리거
+-- ============================================================
+
+USE jysk;
+
+-- ============================================================
+-- 1. 학생 상세 뷰 (코드명 포함)
+-- ============================================================
+CREATE OR REPLACE VIEW v_student_detail AS
+SELECT
+    s.student_id,
+    s.student_name,
+    s.phone,
+    s.phone_sub,
+    s.email,
+    s.birth_date,
+    s.gender_code,
+    g.code_name AS gender_name,
+    s.school_name,
+    s.grade_code,
+    gr.code_name AS grade_name,
+    s.guardian_name,
+    s.guardian_phone,
+    s.guardian_relation,
+    rel.code_name AS relation_name,
+    s.address,
+    s.address_detail,
+    s.status_code,
+    st.code_name AS status_name,
+    s.sub_status_code,
+    sub.code_name AS sub_status_name,
+    s.source_code,
+    src.code_name AS source_name,
+    s.source_detail,
+    s.tc_id,
+    tc.tc_name,
+    s.first_contact_date,
+    s.consult_date,
+    s.register_date,
+    s.enroll_date,
+    s.withdraw_date,
+    s.memo,
+    s.created_at,
+    s.updated_at
+FROM student_info s
+LEFT JOIN code_master g ON s.gender_code = g.code_id
+LEFT JOIN code_master gr ON s.grade_code = gr.code_id
+LEFT JOIN code_master rel ON s.guardian_relation = rel.code_id
+LEFT JOIN code_master st ON s.status_code = st.code_id
+LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
+LEFT JOIN code_master src ON s.source_code = src.code_id
+LEFT JOIN tc_info tc ON s.tc_id = tc.tc_id
+WHERE s.deleted_at IS NULL;
+
+-- ============================================================
+-- 2. 상담 상세 뷰
+-- ============================================================
+CREATE OR REPLACE VIEW v_consult_detail AS
+SELECT
+    c.consult_id,
+    c.student_id,
+    s.student_name,
+    s.phone AS student_phone,
+    c.consult_type_code,
+    ct.code_name AS consult_type_name,
+    c.consult_date,
+    c.consult_duration,
+    c.channel_code,
+    ch.code_name AS channel_name,
+    c.tc_id,
+    tc.tc_name,
+    c.content,
+    c.student_needs,
+    c.consult_result_code,
+    cr.code_name AS consult_result_name,
+    c.result_detail,
+    c.next_action_code,
+    na.code_name AS next_action_name,
+    c.next_action_detail,
+    c.next_consult_date,
+    c.interest_subject,
+    c.interest_program,
+    c.created_at,
+    c.updated_at
+FROM consult c
+JOIN student_info s ON c.student_id = s.student_id
+LEFT JOIN code_master ct ON c.consult_type_code = ct.code_id
+LEFT JOIN code_master ch ON c.channel_code = ch.code_id
+LEFT JOIN code_master cr ON c.consult_result_code = cr.code_id
+LEFT JOIN code_master na ON c.next_action_code = na.code_id
+LEFT JOIN tc_info tc ON c.tc_id = tc.tc_id
+WHERE c.deleted_at IS NULL;
+
+-- ============================================================
+-- 3. 퍼널 통계 뷰 (상태별 학생 수)
+-- ============================================================
+CREATE OR REPLACE VIEW v_funnel_stats AS
+SELECT
+    s.status_code,
+    cm.code_name AS status_name,
+    cm.sort_order,
+    COUNT(*) AS student_count
+FROM student_info s
+JOIN code_master cm ON s.status_code = cm.code_id
+WHERE s.deleted_at IS NULL
+GROUP BY s.status_code, cm.code_name, cm.sort_order
+ORDER BY cm.sort_order;
+
+-- ============================================================
+-- 4. TC별 실적 뷰
+-- ============================================================
+CREATE OR REPLACE VIEW v_tc_performance AS
+SELECT
+    tc.tc_id,
+    tc.tc_name,
+    COUNT(DISTINCT s.student_id) AS total_students,
+    SUM(CASE WHEN s.status_code = 'STATUS_PROSPECT' THEN 1 ELSE 0 END) AS prospect_count,
+    SUM(CASE WHEN s.status_code = 'STATUS_CONSULT_DONE' THEN 1 ELSE 0 END) AS consult_count,
+    SUM(CASE WHEN s.status_code = 'STATUS_REGISTER' THEN 1 ELSE 0 END) AS register_count,
+    SUM(CASE WHEN s.status_code = 'STATUS_ENROLLED' THEN 1 ELSE 0 END) AS enrolled_count,
+    COUNT(DISTINCT c.consult_id) AS consult_total
+FROM tc_info tc
+LEFT JOIN student_info s ON tc.tc_id = s.tc_id AND s.deleted_at IS NULL
+LEFT JOIN consult c ON tc.tc_id = c.tc_id AND c.deleted_at IS NULL
+WHERE tc.deleted_at IS NULL AND tc.is_active = 1
+GROUP BY tc.tc_id, tc.tc_name;
+
+-- ============================================================
+-- 5. 오늘 할 일 뷰 (오늘 예정된 상담)
+-- ============================================================
+CREATE OR REPLACE VIEW v_today_tasks AS
+SELECT
+    c.consult_id,
+    c.student_id,
+    s.student_name,
+    s.phone,
+    c.next_consult_date,
+    c.next_action_code,
+    na.code_name AS next_action_name,
+    c.next_action_detail,
+    c.tc_id,
+    tc.tc_name
+FROM consult c
+JOIN student_info s ON c.student_id = s.student_id
+LEFT JOIN code_master na ON c.next_action_code = na.code_id
+LEFT JOIN tc_info tc ON c.tc_id = tc.tc_id
+WHERE c.deleted_at IS NULL
+  AND DATE(c.next_consult_date) = CURDATE()
+  AND c.next_action_code IS NOT NULL
+  AND c.next_action_code != 'ACTION_NONE'
+ORDER BY c.next_consult_date;
+
+-- ============================================================
+-- 6. 월별 등록 통계 뷰
+-- ============================================================
+CREATE OR REPLACE VIEW v_monthly_register_stats AS
+SELECT
+    DATE_FORMAT(register_date, '%Y-%m') AS month,
+    COUNT(*) AS register_count
+FROM student_info
+WHERE deleted_at IS NULL
+  AND register_date IS NOT NULL
+GROUP BY DATE_FORMAT(register_date, '%Y-%m')
+ORDER BY month DESC;
+
+-- ============================================================
+-- TRIGGERS
+-- ============================================================
+
+-- ============================================================
+-- 트리거 1: 학생 상태 변경 시 자동 히스토리 기록
+-- ============================================================
+DELIMITER //
+
+CREATE TRIGGER trg_student_status_change
+AFTER UPDATE ON student_info
+FOR EACH ROW
+BEGIN
+    -- 상태가 변경된 경우에만 기록
+    IF OLD.status_code != NEW.status_code OR
+       (OLD.sub_status_code IS NULL AND NEW.sub_status_code IS NOT NULL) OR
+       (OLD.sub_status_code IS NOT NULL AND NEW.sub_status_code IS NULL) OR
+       (OLD.sub_status_code != NEW.sub_status_code) THEN
+
+        INSERT INTO student_history (
+            student_id,
+            prev_status_code,
+            new_status_code,
+            prev_sub_status,
+            new_sub_status,
+            change_type_code,
+            prev_tc_id,
+            new_tc_id,
+            changed_by
+        ) VALUES (
+            NEW.student_id,
+            OLD.status_code,
+            NEW.status_code,
+            OLD.sub_status_code,
+            NEW.sub_status_code,
+            'CHANGE_STATUS',
+            OLD.tc_id,
+            NEW.tc_id,
+            COALESCE(NEW.updated_by, 1)
+        );
+    END IF;
+
+    -- 담당자가 변경된 경우 기록
+    IF (OLD.tc_id IS NULL AND NEW.tc_id IS NOT NULL) OR
+       (OLD.tc_id IS NOT NULL AND NEW.tc_id IS NULL) OR
+       (OLD.tc_id != NEW.tc_id) THEN
+
+        INSERT INTO student_history (
+            student_id,
+            prev_status_code,
+            new_status_code,
+            change_type_code,
+            prev_tc_id,
+            new_tc_id,
+            changed_by
+        ) VALUES (
+            NEW.student_id,
+            NEW.status_code,
+            NEW.status_code,
+            'CHANGE_TC',
+            OLD.tc_id,
+            NEW.tc_id,
+            COALESCE(NEW.updated_by, 1)
+        );
+    END IF;
+END//
+
+DELIMITER ;
+
+-- ============================================================
+-- 트리거 2: 학생 등록 시 상태에 따른 날짜 자동 설정
+-- ============================================================
+DELIMITER //
+
+CREATE TRIGGER trg_student_date_auto
+BEFORE UPDATE ON student_info
+FOR EACH ROW
+BEGIN
+    -- 등록 상태로 변경 시 register_date 자동 설정
+    IF OLD.status_code != 'STATUS_REGISTER' AND NEW.status_code = 'STATUS_REGISTER' THEN
+        IF NEW.register_date IS NULL THEN
+            SET NEW.register_date = CURDATE();
+        END IF;
+    END IF;
+
+    -- 재원 상태로 변경 시 enroll_date 자동 설정
+    IF OLD.status_code != 'STATUS_ENROLLED' AND NEW.status_code = 'STATUS_ENROLLED' THEN
+        IF NEW.enroll_date IS NULL THEN
+            SET NEW.enroll_date = CURDATE();
+        END IF;
+    END IF;
+
+    -- 퇴원 상태로 변경 시 withdraw_date 자동 설정
+    IF OLD.status_code != 'STATUS_WITHDRAW' AND NEW.status_code = 'STATUS_WITHDRAW' THEN
+        IF NEW.withdraw_date IS NULL THEN
+            SET NEW.withdraw_date = CURDATE();
+        END IF;
+    END IF;
+
+    -- 상담완료 상태로 변경 시 consult_date 자동 설정
+    IF OLD.status_code != 'STATUS_CONSULT_DONE' AND NEW.status_code = 'STATUS_CONSULT_DONE' THEN
+        IF NEW.consult_date IS NULL THEN
+            SET NEW.consult_date = CURDATE();
+        END IF;
+    END IF;
+END//
+
+DELIMITER ;
+
+-- ============================================================
+-- 트리거 3: 신규 학생 등록 시 first_contact_date 자동 설정
+-- ============================================================
+DELIMITER //
+
+CREATE TRIGGER trg_student_first_contact
+BEFORE INSERT ON student_info
+FOR EACH ROW
+BEGIN
+    IF NEW.first_contact_date IS NULL THEN
+        SET NEW.first_contact_date = CURDATE();
+    END IF;
+END//
+
+DELIMITER ;
