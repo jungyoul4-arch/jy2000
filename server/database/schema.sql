@@ -66,11 +66,8 @@ COMMENT='사용자';
 -- ============================================================
 CREATE TABLE tc_info (
     tc_id           INT AUTO_INCREMENT COMMENT 'TC ID',
-    user_id         INT NULL COMMENT '사용자 ID (FK: users)',
-    tc_name         VARCHAR(50) NOT NULL COMMENT 'TC 이름',
+    user_id         INT NOT NULL COMMENT '사용자 ID (FK: User) - 이름/전화/이메일은 User 테이블 참조',
     tc_code         VARCHAR(20) NULL COMMENT 'TC 코드 (사번)',
-    phone           VARCHAR(20) NULL COMMENT '전화번호',
-    email           VARCHAR(100) NULL COMMENT '이메일',
     tc_type_code    VARCHAR(30) NULL COMMENT 'TC 유형 (FK: code_master)',
     branch_code     VARCHAR(30) NULL COMMENT '지점 코드 (FK: code_master)',
     hire_date       DATE NULL COMMENT '입사일',
@@ -83,11 +80,10 @@ CREATE TABLE tc_info (
     PRIMARY KEY (tc_id),
     INDEX idx_user_id (user_id),
     INDEX idx_tc_code (tc_code),
-    INDEX idx_phone (phone),
     INDEX idx_branch_code (branch_code),
     INDEX idx_is_active (is_active),
 
-    CONSTRAINT fk_tc_user FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE SET NULL
+    CONSTRAINT fk_tc_user FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='TC(상담사/텔레마케터) 정보';
 
@@ -95,13 +91,10 @@ COMMENT='TC(상담사/텔레마케터) 정보';
 -- 4. 학생 정보 테이블
 -- ============================================================
 CREATE TABLE student_info (
-    student_id          INT NOT NULL COMMENT '학생 ID (FK: users.user_id)',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: User.user_id) - 이름/전화/이메일은 User 테이블 참조',
 
-    -- 기본 정보
-    student_name        VARCHAR(50) NOT NULL COMMENT '학생 이름',
-    phone               VARCHAR(20) NOT NULL COMMENT '학생 전화번호 (통합 키)',
+    -- 추가 연락처
     phone_sub           VARCHAR(20) NULL COMMENT '보조 전화번호',
-    email               VARCHAR(100) NULL COMMENT '이메일',
 
     -- 학생 상세
     birth_date          DATE NULL COMMENT '생년월일',
@@ -127,8 +120,8 @@ CREATE TABLE student_info (
     source_code         VARCHAR(30) NULL COMMENT '유입 경로 (FK: code_master)',
     source_detail       VARCHAR(200) NULL COMMENT '유입 경로 상세',
 
-    -- 담당자
-    tc_id               INT NULL COMMENT '담당 TC (FK: tc_info)',
+    -- 담당자 (User.role_code = 'ROLE_TC'인 사용자)
+    tc_id               INT NULL COMMENT '담당 TC (FK: User.user_id)',
 
     -- 주요 일자
     first_contact_date  DATE NULL COMMENT '최초 접촉일',
@@ -141,15 +134,13 @@ CREATE TABLE student_info (
     memo                TEXT NULL COMMENT '메모',
 
     -- 시스템 필드
-    created_by          INT NULL COMMENT '생성자 (FK: users)',
-    updated_by          INT NULL COMMENT '수정자 (FK: users)',
+    created_by          INT NULL COMMENT '생성자 (FK: User)',
+    updated_by          INT NULL COMMENT '수정자 (FK: User)',
     created_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
     deleted_at          DATETIME NULL COMMENT '삭제일시 (soft delete)',
 
     PRIMARY KEY (student_id),
-    UNIQUE INDEX idx_phone (phone),
-    INDEX idx_student_name (student_name),
     INDEX idx_guardian_phone (guardian_phone),
     INDEX idx_status_code (status_code),
     INDEX idx_tc_id (tc_id),
@@ -161,7 +152,7 @@ CREATE TABLE student_info (
     INDEX idx_deleted_at (deleted_at),
 
     CONSTRAINT fk_student_user FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_student_tc FOREIGN KEY (tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL,
+    CONSTRAINT fk_student_tc FOREIGN KEY (tc_id) REFERENCES User(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_student_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_student_updated_by FOREIGN KEY (updated_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -186,11 +177,11 @@ CREATE TABLE student_history (
     change_reason       TEXT NULL COMMENT '변경 사유 상세',
 
     -- 담당자 변경
-    prev_tc_id          INT NULL COMMENT '이전 담당 TC',
-    new_tc_id           INT NULL COMMENT '변경 담당 TC',
+    prev_tc_id          INT NULL COMMENT '이전 담당 TC (FK: User.user_id)',
+    new_tc_id           INT NULL COMMENT '변경 담당 TC (FK: User.user_id)',
 
     -- 시스템 필드
-    changed_by          INT NOT NULL COMMENT '변경자 (FK: users)',
+    changed_by          INT NOT NULL COMMENT '변경자 (FK: User)',
     changed_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '변경일시',
 
     PRIMARY KEY (history_id),
@@ -202,8 +193,8 @@ CREATE TABLE student_history (
 
     CONSTRAINT fk_history_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_history_changed_by FOREIGN KEY (changed_by) REFERENCES User(user_id) ON DELETE RESTRICT,
-    CONSTRAINT fk_history_prev_tc FOREIGN KEY (prev_tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL,
-    CONSTRAINT fk_history_new_tc FOREIGN KEY (new_tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL
+    CONSTRAINT fk_history_prev_tc FOREIGN KEY (prev_tc_id) REFERENCES User(user_id) ON DELETE SET NULL,
+    CONSTRAINT fk_history_new_tc FOREIGN KEY (new_tc_id) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='학생 상태 변경 이력';
 
@@ -222,8 +213,8 @@ CREATE TABLE consult (
     -- 상담 채널/방법
     channel_code        VARCHAR(30) NULL COMMENT '상담 채널 (FK: code_master)',
 
-    -- 담당자
-    tc_id               INT NULL COMMENT '상담 TC (FK: tc_info)',
+    -- 담당자 (User.role_code = 'ROLE_TC'인 사용자)
+    tc_id               INT NULL COMMENT '상담 TC (FK: User.user_id)',
 
     -- 상담 내용
     content             TEXT NULL COMMENT '상담 내용',
@@ -241,8 +232,8 @@ CREATE TABLE consult (
     interest_program    VARCHAR(200) NULL COMMENT '관심 프로그램',
 
     -- 시스템 필드
-    created_by          INT NULL COMMENT '생성자 (FK: users)',
-    updated_by          INT NULL COMMENT '수정자 (FK: users)',
+    created_by          INT NULL COMMENT '생성자 (FK: User)',
+    updated_by          INT NULL COMMENT '수정자 (FK: User)',
     created_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
     deleted_at          DATETIME NULL COMMENT '삭제일시 (soft delete)',
@@ -258,7 +249,7 @@ CREATE TABLE consult (
     INDEX idx_deleted_at (deleted_at),
 
     CONSTRAINT fk_consult_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_consult_tc FOREIGN KEY (tc_id) REFERENCES tc_info(tc_id) ON DELETE SET NULL,
+    CONSTRAINT fk_consult_tc FOREIGN KEY (tc_id) REFERENCES User(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_consult_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_consult_updated_by FOREIGN KEY (updated_by) REFERENCES User(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -292,8 +283,8 @@ CREATE TABLE promotion (
     is_active           TINYINT(1) DEFAULT 1 COMMENT '활성화 여부',
 
     -- 시스템 필드
-    created_by          INT NULL COMMENT '생성자 (FK: users)',
-    updated_by          INT NULL COMMENT '수정자 (FK: users)',
+    created_by          INT NULL COMMENT '생성자 (FK: User)',
+    updated_by          INT NULL COMMENT '수정자 (FK: User)',
     created_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
     deleted_at          DATETIME NULL COMMENT '삭제일시 (soft delete)',
@@ -322,7 +313,7 @@ CREATE TABLE student_promotion (
     applied_amount      DECIMAL(10,2) NULL COMMENT '적용 금액',
     memo                VARCHAR(500) NULL COMMENT '메모',
 
-    created_by          INT NULL COMMENT '생성자 (FK: users)',
+    created_by          INT NULL COMMENT '생성자 (FK: User)',
     created_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
 
     PRIMARY KEY (id),
@@ -361,7 +352,7 @@ CREATE TABLE former_academy (
     memo                TEXT NULL COMMENT '메모',
 
     -- 시스템 필드
-    created_by          INT NULL COMMENT '생성자 (FK: users)',
+    created_by          INT NULL COMMENT '생성자 (FK: User)',
     created_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
     deleted_at          DATETIME NULL COMMENT '삭제일시 (soft delete)',
@@ -389,7 +380,7 @@ CREATE TABLE consult_attachment (
     file_size           INT NULL COMMENT '파일 크기 (bytes)',
     file_type           VARCHAR(100) NULL COMMENT '파일 타입 (MIME)',
 
-    created_by          INT NULL COMMENT '생성자 (FK: users)',
+    created_by          INT NULL COMMENT '생성자 (FK: User)',
     created_at          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
     deleted_at          DATETIME NULL COMMENT '삭제일시 (soft delete)',
 

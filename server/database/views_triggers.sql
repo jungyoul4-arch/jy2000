@@ -5,15 +5,15 @@
 USE jysk;
 
 -- ============================================================
--- 1. 학생 상세 뷰 (코드명 포함)
+-- 1. 학생 상세 뷰 (코드명 포함) - User 테이블 JOIN
 -- ============================================================
 CREATE OR REPLACE VIEW v_student_detail AS
 SELECT
     s.student_id,
-    s.student_name,
-    s.phone,
+    u.user_name AS student_name,
+    u.phone,
     s.phone_sub,
-    s.email,
+    u.email,
     s.birth_date,
     s.gender_code,
     g.code_name AS gender_name,
@@ -34,7 +34,7 @@ SELECT
     src.code_name AS source_name,
     s.source_detail,
     s.tc_id,
-    tc.tc_name,
+    tc.user_name AS tc_name,
     s.first_contact_date,
     s.consult_date,
     s.register_date,
@@ -44,24 +44,25 @@ SELECT
     s.created_at,
     s.updated_at
 FROM student_info s
+JOIN User u ON s.student_id = u.user_id
 LEFT JOIN code_master g ON s.gender_code = g.code_id
 LEFT JOIN code_master gr ON s.grade_code = gr.code_id
 LEFT JOIN code_master rel ON s.guardian_relation = rel.code_id
 LEFT JOIN code_master st ON s.status_code = st.code_id
 LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
 LEFT JOIN code_master src ON s.source_code = src.code_id
-LEFT JOIN tc_info tc ON s.tc_id = tc.tc_id
+LEFT JOIN User tc ON s.tc_id = tc.user_id
 WHERE s.deleted_at IS NULL;
 
 -- ============================================================
--- 2. 상담 상세 뷰
+-- 2. 상담 상세 뷰 - User 테이블 JOIN
 -- ============================================================
 CREATE OR REPLACE VIEW v_consult_detail AS
 SELECT
     c.consult_id,
     c.student_id,
-    s.student_name,
-    s.phone AS student_phone,
+    u.user_name AS student_name,
+    u.phone AS student_phone,
     c.consult_type_code,
     ct.code_name AS consult_type_name,
     c.consult_date,
@@ -69,7 +70,7 @@ SELECT
     c.channel_code,
     ch.code_name AS channel_name,
     c.tc_id,
-    tc.tc_name,
+    tc.user_name AS tc_name,
     c.content,
     c.student_needs,
     c.consult_result_code,
@@ -84,12 +85,12 @@ SELECT
     c.created_at,
     c.updated_at
 FROM consult c
-JOIN student_info s ON c.student_id = s.student_id
+JOIN User u ON c.student_id = u.user_id
 LEFT JOIN code_master ct ON c.consult_type_code = ct.code_id
 LEFT JOIN code_master ch ON c.channel_code = ch.code_id
 LEFT JOIN code_master cr ON c.consult_result_code = cr.code_id
 LEFT JOIN code_master na ON c.next_action_code = na.code_id
-LEFT JOIN tc_info tc ON c.tc_id = tc.tc_id
+LEFT JOIN User tc ON c.tc_id = tc.user_id
 WHERE c.deleted_at IS NULL;
 
 -- ============================================================
@@ -108,43 +109,43 @@ GROUP BY s.status_code, cm.code_name, cm.sort_order
 ORDER BY cm.sort_order;
 
 -- ============================================================
--- 4. TC별 실적 뷰
+-- 4. TC별 실적 뷰 - User 테이블에서 role_code='ROLE_TC'인 사용자
 -- ============================================================
 CREATE OR REPLACE VIEW v_tc_performance AS
 SELECT
-    tc.tc_id,
-    tc.tc_name,
+    u.user_id AS tc_id,
+    u.user_name AS tc_name,
     COUNT(DISTINCT s.student_id) AS total_students,
     SUM(CASE WHEN s.status_code = 'STATUS_PROSPECT' THEN 1 ELSE 0 END) AS prospect_count,
     SUM(CASE WHEN s.status_code = 'STATUS_CONSULT_DONE' THEN 1 ELSE 0 END) AS consult_count,
     SUM(CASE WHEN s.status_code = 'STATUS_REGISTER' THEN 1 ELSE 0 END) AS register_count,
     SUM(CASE WHEN s.status_code = 'STATUS_ENROLLED' THEN 1 ELSE 0 END) AS enrolled_count,
     COUNT(DISTINCT c.consult_id) AS consult_total
-FROM tc_info tc
-LEFT JOIN student_info s ON tc.tc_id = s.tc_id AND s.deleted_at IS NULL
-LEFT JOIN consult c ON tc.tc_id = c.tc_id AND c.deleted_at IS NULL
-WHERE tc.deleted_at IS NULL AND tc.is_active = 1
-GROUP BY tc.tc_id, tc.tc_name;
+FROM User u
+LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
+LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
+WHERE u.role_code = 'ROLE_TC' AND u.is_active = 1 AND u.deleted_at IS NULL
+GROUP BY u.user_id, u.user_name;
 
 -- ============================================================
--- 5. 오늘 할 일 뷰 (오늘 예정된 상담)
+-- 5. 오늘 할 일 뷰 (오늘 예정된 상담) - User 테이블 JOIN
 -- ============================================================
 CREATE OR REPLACE VIEW v_today_tasks AS
 SELECT
     c.consult_id,
     c.student_id,
-    s.student_name,
-    s.phone,
+    u.user_name AS student_name,
+    u.phone,
     c.next_consult_date,
     c.next_action_code,
     na.code_name AS next_action_name,
     c.next_action_detail,
     c.tc_id,
-    tc.tc_name
+    tc.user_name AS tc_name
 FROM consult c
-JOIN student_info s ON c.student_id = s.student_id
+JOIN User u ON c.student_id = u.user_id
 LEFT JOIN code_master na ON c.next_action_code = na.code_id
-LEFT JOIN tc_info tc ON c.tc_id = tc.tc_id
+LEFT JOIN User tc ON c.tc_id = tc.user_id
 WHERE c.deleted_at IS NULL
   AND DATE(c.next_consult_date) = CURDATE()
   AND c.next_action_code IS NOT NULL
