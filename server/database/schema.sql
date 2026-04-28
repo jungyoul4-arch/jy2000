@@ -40,24 +40,22 @@ COMMENT='코드 마스터';
 -- ============================================================
 CREATE TABLE IF NOT EXISTS User (
     user_id         INT AUTO_INCREMENT COMMENT '사용자 ID',
-    login_id        VARCHAR(50) NOT NULL COMMENT '로그인 ID',
     password_hash   VARCHAR(255) NOT NULL COMMENT '비밀번호 해시',
-    user_name       VARCHAR(50) NOT NULL COMMENT '사용자명',
+    name            VARCHAR(50) NOT NULL COMMENT '사용자명',
     kind            TINYINT NOT NULL COMMENT '사용자 유형 (1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원)',
-    phone           VARCHAR(20) NULL COMMENT '전화번호',
+    phone           VARCHAR(20) NOT NULL COMMENT '전화번호 (로그인 ID)',
     email           VARCHAR(100) NULL COMMENT '이메일',
     department      VARCHAR(100) NULL COMMENT '부서',
-    is_active       TINYINT(1) DEFAULT 1 COMMENT '활성화 여부',
-    last_login_at   DATETIME NULL COMMENT '마지막 로그인 일시',
-    created_at      DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+    active_flag     TINYINT(1) DEFAULT 1 COMMENT '활성화 여부 (1=활성)',
+    last_login_dt   DATETIME NULL COMMENT '마지막 로그인 일시',
+    reg_dt          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
     updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
     deleted_at      DATETIME NULL COMMENT '삭제일시 (soft delete)',
 
     PRIMARY KEY (user_id),
-    UNIQUE INDEX idx_login_id (login_id),
-    INDEX idx_phone (phone),
+    UNIQUE INDEX idx_phone (phone),
     INDEX idx_kind (kind),
-    INDEX idx_is_active (is_active)
+    INDEX idx_active_flag (active_flag)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='사용자';
 

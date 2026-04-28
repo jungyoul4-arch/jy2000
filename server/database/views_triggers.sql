@@ -10,7 +10,7 @@ USE jysk;
 CREATE OR REPLACE VIEW v_student_detail AS
 SELECT
     s.student_id,
-    u.user_name AS student_name,
+    u.name AS student_name,
     u.phone,
     s.phone_sub,
     u.email,
@@ -34,7 +34,7 @@ SELECT
     src.code_name AS source_name,
     s.source_detail,
     s.tc_id,
-    tc.user_name AS tc_name,
+    tc.name AS tc_name,
     s.first_contact_date,
     s.consult_date,
     s.register_date,
@@ -61,7 +61,7 @@ CREATE OR REPLACE VIEW v_consult_detail AS
 SELECT
     c.consult_id,
     c.student_id,
-    u.user_name AS student_name,
+    u.name AS student_name,
     u.phone AS student_phone,
     c.consult_type_code,
     ct.code_name AS consult_type_name,
@@ -70,7 +70,7 @@ SELECT
     c.channel_code,
     ch.code_name AS channel_name,
     c.tc_id,
-    tc.user_name AS tc_name,
+    tc.name AS tc_name,
     c.content,
     c.student_needs,
     c.consult_result_code,
@@ -114,7 +114,7 @@ ORDER BY cm.sort_order;
 CREATE OR REPLACE VIEW v_tc_performance AS
 SELECT
     u.user_id AS tc_id,
-    u.user_name AS tc_name,
+    u.name AS tc_name,
     COUNT(DISTINCT s.student_id) AS total_students,
     SUM(CASE WHEN s.status_code = 'STATUS_PROSPECT' THEN 1 ELSE 0 END) AS prospect_count,
     SUM(CASE WHEN s.status_code = 'STATUS_CONSULT_DONE' THEN 1 ELSE 0 END) AS consult_count,
@@ -124,8 +124,8 @@ SELECT
 FROM User u
 LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
 LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
-WHERE u.kind = 5 AND u.is_active = 1 AND u.deleted_at IS NULL
-GROUP BY u.user_id, u.user_name;
+WHERE u.kind = 5 AND u.active_flag = 1 AND u.deleted_at IS NULL
+GROUP BY u.user_id, u.name;
 
 -- ============================================================
 -- 5. 오늘 할 일 뷰 (오늘 예정된 상담) - User 테이블 JOIN
@@ -134,14 +134,14 @@ CREATE OR REPLACE VIEW v_today_tasks AS
 SELECT
     c.consult_id,
     c.student_id,
-    u.user_name AS student_name,
+    u.name AS student_name,
     u.phone,
     c.next_consult_date,
     c.next_action_code,
     na.code_name AS next_action_name,
     c.next_action_detail,
     c.tc_id,
-    tc.user_name AS tc_name
+    tc.name AS tc_name
 FROM consult c
 JOIN User u ON c.student_id = u.user_id
 LEFT JOIN code_master na ON c.next_action_code = na.code_id
