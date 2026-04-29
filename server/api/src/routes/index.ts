@@ -5,10 +5,12 @@ import promotionRoutes from './promotionRoutes';
 import tcRoutes from './tcRoutes';
 import dashboardRoutes from './dashboardRoutes';
 import codeRoutes from './codeRoutes';
+import authRoutes from './authRoutes';
 
 const router = Router();
 
 // API Routes
+router.use('/auth', authRoutes);
 router.use('/student', studentRoutes);
 router.use('/consult', consultRoutes);
 router.use('/promotion', promotionRoutes);

@@ -40,7 +40,7 @@ COMMENT='코드 마스터';
 -- ============================================================
 CREATE TABLE IF NOT EXISTS User (
     user_id         INT AUTO_INCREMENT COMMENT '사용자 ID',
-    password_hash   VARCHAR(255) NOT NULL COMMENT '비밀번호 해시',
+    user_pw_hash    VARCHAR(255) NOT NULL COMMENT '비밀번호 해시',
     name            VARCHAR(50) NOT NULL COMMENT '사용자명',
     kind            TINYINT NOT NULL COMMENT '사용자 유형 (1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원)',
     phone           VARCHAR(20) NOT NULL COMMENT '전화번호 (로그인 ID)',

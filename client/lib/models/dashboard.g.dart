@@ -6,14 +6,17 @@ part of 'dashboard.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+int _toInt(dynamic value) => value is num ? value.toInt() : int.parse(value.toString());
+double _toDouble(dynamic value) => value is num ? value.toDouble() : double.parse(value.toString());
+
 _$DashboardKPIImpl _$$DashboardKPIImplFromJson(Map<String, dynamic> json) =>
     _$DashboardKPIImpl(
-      totalStudents: (json['total_students'] as num).toInt(),
-      newStudentsThisMonth: (json['new_students_this_month'] as num).toInt(),
-      consultsThisMonth: (json['consults_this_month'] as num).toInt(),
-      registersThisMonth: (json['registers_this_month'] as num).toInt(),
-      enrolledCount: (json['enrolled_count'] as num).toInt(),
-      conversionRate: (json['conversion_rate'] as num).toDouble(),
+      totalStudents: _toInt(json['total_students']),
+      newStudentsThisMonth: _toInt(json['new_students_this_month']),
+      consultsThisMonth: _toInt(json['consults_this_month']),
+      registersThisMonth: _toInt(json['registers_this_month']),
+      enrolledCount: _toInt(json['enrolled_count']),
+      conversionRate: _toDouble(json['conversion_rate']),
     );
 
 Map<String, dynamic> _$$DashboardKPIImplToJson(_$DashboardKPIImpl instance) =>
@@ -30,8 +33,8 @@ _$FunnelDataImpl _$$FunnelDataImplFromJson(Map<String, dynamic> json) =>
     _$FunnelDataImpl(
       statusCode: json['status_code'] as String,
       statusName: json['status_name'] as String,
-      count: (json['count'] as num).toInt(),
-      percentage: (json['percentage'] as num).toDouble(),
+      count: _toInt(json['count']),
+      percentage: _toDouble(json['percentage']),
     );
 
 Map<String, dynamic> _$$FunnelDataImplToJson(_$FunnelDataImpl instance) =>
@@ -44,13 +47,13 @@ Map<String, dynamic> _$$FunnelDataImplToJson(_$FunnelDataImpl instance) =>
 
 _$TCPerformanceImpl _$$TCPerformanceImplFromJson(Map<String, dynamic> json) =>
     _$TCPerformanceImpl(
-      tcId: (json['tc_id'] as num).toInt(),
+      tcId: _toInt(json['tc_id']),
       tcName: json['tc_name'] as String,
-      totalStudents: (json['total_students'] as num).toInt(),
-      prospectCount: (json['prospect_count'] as num).toInt(),
-      consultCount: (json['consult_count'] as num).toInt(),
-      registerCount: (json['register_count'] as num).toInt(),
-      consultTotal: (json['consult_total'] as num).toInt(),
+      totalStudents: _toInt(json['total_students']),
+      prospectCount: _toInt(json['prospect_count']),
+      consultCount: _toInt(json['consult_count']),
+      registerCount: _toInt(json['register_count']),
+      consultTotal: _toInt(json['consult_total']),
     );
 
 Map<String, dynamic> _$$TCPerformanceImplToJson(_$TCPerformanceImpl instance) =>
@@ -67,7 +70,7 @@ Map<String, dynamic> _$$TCPerformanceImplToJson(_$TCPerformanceImpl instance) =>
 _$MonthlyTrendImpl _$$MonthlyTrendImplFromJson(Map<String, dynamic> json) =>
     _$MonthlyTrendImpl(
       month: json['month'] as String,
-      registerCount: (json['register_count'] as num).toInt(),
+      registerCount: _toInt(json['register_count']),
     );
 
 Map<String, dynamic> _$$MonthlyTrendImplToJson(_$MonthlyTrendImpl instance) =>

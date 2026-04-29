@@ -9,7 +9,7 @@ USE jysk;
 -- kind: 1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원
 -- phone이 로그인 ID 역할
 -- ============================================================
-INSERT INTO User (password_hash, name, kind, phone, email) VALUES
+INSERT INTO User (user_pw_hash, name, kind, phone, email) VALUES
 ('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '관리자', 1, '01000000000', 'admin@jungyoul.com'),
 ('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김상담', 5, '01022222222', 'tc1@jungyoul.com'),
 ('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이상담', 5, '01033333333', 'tc2@jungyoul.com'),
@@ -30,7 +30,7 @@ INSERT INTO tc_info (user_id, tc_code, tc_type_code, branch_code, hire_date) VAL
 -- 3. 학생 사용자 계정 생성 (user_id: 5~14)
 -- kind=2 (학생), phone이 로그인 ID 역할
 -- ============================================================
-INSERT INTO User (password_hash, name, kind, phone, email) VALUES
+INSERT INTO User (user_pw_hash, name, kind, phone, email) VALUES
 ('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 2, '01012345678', 'hong@test.com'),
 ('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 2, '01023456789', 'kim@test.com'),
 ('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 2, '01034567890', 'lee@test.com'),

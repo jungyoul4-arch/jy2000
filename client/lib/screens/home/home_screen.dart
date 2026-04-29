@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../config/routes.dart';
+import '../../providers/auth_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final Widget child;
 
   const HomeScreen({super.key, required this.child});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<_NavItem> _navItems = [
@@ -42,14 +44,41 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
+  Future<void> _logout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('로그아웃'),
+        content: const Text('로그아웃 하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('로그아웃'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(authProvider.notifier).logout();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isExtended = MediaQuery.of(context).size.width > 1200;
+
     return Scaffold(
       body: Row(
         children: [
           // 사이드바
           NavigationRail(
-            extended: MediaQuery.of(context).size.width > 1200,
+            extended: isExtended,
             minExtendedWidth: 200,
             selectedIndex: _selectedIndex,
             onDestinationSelected: (index) {
@@ -65,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     size: 32,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  if (MediaQuery.of(context).size.width > 1200) ...[
+                  if (isExtended) ...[
                     const SizedBox(height: 8),
                     Text(
                       '상담 관리',
@@ -75,6 +104,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ],
+              ),
+            ),
+            trailing: Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isExtended && authState.user != null) ...[
+                        Text(
+                          authState.user!.name,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      isExtended
+                          ? TextButton.icon(
+                              onPressed: _logout,
+                              icon: const Icon(Icons.logout),
+                              label: const Text('로그아웃'),
+                            )
+                          : IconButton(
+                              onPressed: _logout,
+                              icon: const Icon(Icons.logout),
+                              tooltip: '로그아웃',
+                            ),
+                    ],
+                  ),
+                ),
               ),
             ),
             destinations: _navItems
