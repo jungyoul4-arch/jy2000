@@ -47,7 +47,7 @@ export class ConsultService {
     }
 
     if (query.search) {
-      conditions.push('(s.student_name LIKE ? OR s.phone LIKE ?)');
+      conditions.push('(u.name LIKE ? OR u.phone LIKE ?)');
       const searchTerm = `%${query.search}%`;
       params.push(searchTerm, searchTerm);
     }
@@ -64,6 +64,7 @@ export class ConsultService {
       SELECT COUNT(*) as total
       FROM consult c
       JOIN student_info s ON c.student_id = s.student_id
+      JOIN User u ON s.student_id = u.user_id
       WHERE ${whereClause}
     `;
 
@@ -72,8 +73,8 @@ export class ConsultService {
       SELECT
         c.consult_id,
         c.student_id,
-        s.student_name,
-        s.phone as student_phone,
+        u.name as student_name,
+        u.phone as student_phone,
         c.consult_type_code,
         ct.code_name as consult_type_name,
         c.consult_date,
@@ -81,7 +82,7 @@ export class ConsultService {
         c.channel_code,
         ch.code_name as channel_name,
         c.tc_id,
-        tc.tc_name,
+        tc.name as tc_name,
         c.content,
         c.student_needs,
         c.consult_result_code,
@@ -97,11 +98,12 @@ export class ConsultService {
         c.updated_at
       FROM consult c
       JOIN student_info s ON c.student_id = s.student_id
+      JOIN User u ON s.student_id = u.user_id
       LEFT JOIN code_master ct ON c.consult_type_code = ct.code_id
       LEFT JOIN code_master ch ON c.channel_code = ch.code_id
       LEFT JOIN code_master cr ON c.consult_result_code = cr.code_id
       LEFT JOIN code_master na ON c.next_action_code = na.code_id
-      LEFT JOIN tc_info tc ON c.tc_id = tc.tc_id
+      LEFT JOIN User tc ON c.tc_id = tc.user_id
       WHERE ${whereClause}
       ORDER BY c.${sortColumn} ${sortOrder}
       LIMIT ? OFFSET ?
@@ -178,20 +180,21 @@ export class ConsultService {
     const sql = `
       SELECT
         c.*,
-        s.student_name,
-        s.phone as student_phone,
+        u.name as student_name,
+        u.phone as student_phone,
         ct.code_name as consult_type_name,
         ch.code_name as channel_name,
         cr.code_name as consult_result_name,
         na.code_name as next_action_name,
-        tc.tc_name
+        tc.name as tc_name
       FROM consult c
       JOIN student_info s ON c.student_id = s.student_id
+      JOIN User u ON s.student_id = u.user_id
       LEFT JOIN code_master ct ON c.consult_type_code = ct.code_id
       LEFT JOIN code_master ch ON c.channel_code = ch.code_id
       LEFT JOIN code_master cr ON c.consult_result_code = cr.code_id
       LEFT JOIN code_master na ON c.next_action_code = na.code_id
-      LEFT JOIN tc_info tc ON c.tc_id = tc.tc_id
+      LEFT JOIN User tc ON c.tc_id = tc.user_id
       WHERE c.consult_id = ? AND c.deleted_at IS NULL
     `;
 

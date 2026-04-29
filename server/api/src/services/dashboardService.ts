@@ -105,18 +105,18 @@ export class DashboardService {
   async getTCPerformance(): Promise<any[]> {
     const sql = `
       SELECT
-        tc.tc_id,
-        tc.tc_name,
+        u.user_id as tc_id,
+        u.name as tc_name,
         COUNT(DISTINCT s.student_id) as total_students,
         SUM(CASE WHEN s.status_code = 'STATUS_PROSPECT' THEN 1 ELSE 0 END) as prospect_count,
         SUM(CASE WHEN s.status_code = 'STATUS_CONSULT_DONE' THEN 1 ELSE 0 END) as consult_count,
         SUM(CASE WHEN s.status_code IN ('STATUS_REGISTER', 'STATUS_ENROLLED') THEN 1 ELSE 0 END) as register_count,
         COUNT(DISTINCT c.consult_id) as consult_total
-      FROM tc_info tc
-      LEFT JOIN student_info s ON tc.tc_id = s.tc_id AND s.deleted_at IS NULL
-      LEFT JOIN consult c ON tc.tc_id = c.tc_id AND c.deleted_at IS NULL
-      WHERE tc.deleted_at IS NULL AND tc.is_active = 1
-      GROUP BY tc.tc_id, tc.tc_name
+      FROM User u
+      LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
+      LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
+      WHERE u.deleted_at IS NULL AND u.active_flag = 1 AND u.kind = 5
+      GROUP BY u.user_id, u.name
       ORDER BY register_count DESC
     `;
 

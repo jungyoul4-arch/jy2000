@@ -32,7 +32,7 @@ export class StudentService {
     }
 
     if (query.search) {
-      conditions.push('(s.student_name LIKE ? OR s.phone LIKE ? OR s.guardian_phone LIKE ?)');
+      conditions.push('(u.name LIKE ? OR u.phone LIKE ? OR s.guardian_phone LIKE ?)');
       const searchTerm = `%${query.search}%`;
       params.push(searchTerm, searchTerm, searchTerm);
     }
@@ -58,6 +58,7 @@ export class StudentService {
     const countSql = `
       SELECT COUNT(*) as total
       FROM student_info s
+      JOIN User u ON s.student_id = u.user_id
       WHERE ${whereClause}
     `;
 
@@ -65,9 +66,9 @@ export class StudentService {
     const dataSql = `
       SELECT
         s.student_id,
-        s.student_name,
-        s.phone,
-        s.email,
+        u.name as student_name,
+        u.phone,
+        u.email,
         s.birth_date,
         s.gender_code,
         g.code_name as gender_name,
@@ -83,7 +84,7 @@ export class StudentService {
         s.source_code,
         src.code_name as source_name,
         s.tc_id,
-        tc.tc_name,
+        tc.name as tc_name,
         s.first_contact_date,
         s.consult_date,
         s.register_date,
@@ -93,12 +94,13 @@ export class StudentService {
         s.created_at,
         s.updated_at
       FROM student_info s
+      JOIN User u ON s.student_id = u.user_id
       LEFT JOIN code_master g ON s.gender_code = g.code_id
       LEFT JOIN code_master gr ON s.grade_code = gr.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
-      LEFT JOIN tc_info tc ON s.tc_id = tc.tc_id
+      LEFT JOIN User tc ON s.tc_id = tc.user_id
       WHERE ${whereClause}
       ORDER BY s.${sortColumn} ${sortOrder}
       LIMIT ? OFFSET ?
@@ -120,21 +122,25 @@ export class StudentService {
     const sql = `
       SELECT
         s.*,
+        u.name as student_name,
+        u.phone,
+        u.email,
         g.code_name as gender_name,
         gr.code_name as grade_name,
         st.code_name as status_name,
         sub.code_name as sub_status_name,
         src.code_name as source_name,
         rel.code_name as relation_name,
-        tc.tc_name
+        tc.name as tc_name
       FROM student_info s
+      JOIN User u ON s.student_id = u.user_id
       LEFT JOIN code_master g ON s.gender_code = g.code_id
       LEFT JOIN code_master gr ON s.grade_code = gr.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
       LEFT JOIN code_master rel ON s.guardian_relation = rel.code_id
-      LEFT JOIN tc_info tc ON s.tc_id = tc.tc_id
+      LEFT JOIN User tc ON s.tc_id = tc.user_id
       WHERE s.student_id = ? AND s.deleted_at IS NULL
     `;
 
