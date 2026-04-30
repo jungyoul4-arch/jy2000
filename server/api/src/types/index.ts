@@ -38,8 +38,9 @@ export interface Student {
   email?: string;
   birth_date?: string;
   gender_code?: string;
+  school_id?: number;
   school_name?: string;
-  grade_code?: string;
+  grade?: number; // 1-6:초, 7-9:중, 10-12:고, 13:N수생, 14:성인
   guardian_name?: string;
   guardian_phone?: string;
   guardian_relation?: string;
@@ -62,7 +63,7 @@ export interface Student {
 
 export interface StudentListQuery extends ListQueryParams {
   status_code?: string;
-  grade_code?: string;
+  grade?: number;
   tc_id?: number;
   from_date?: string;
   to_date?: string;
@@ -204,4 +205,26 @@ export interface CodeMaster {
   parent_code_id?: string;
   sort_order: number;
   is_active: boolean;
+}
+
+// School Types
+export interface School {
+  school_id: number;
+  school_name: string;
+  school_kind: number; // 1=중학교, 2=고등학교
+  region_kind: number; // 1=원미권, 2=소사권, 3=오정권, 4=인천권, 5=서울권, 6=경기기타권, 99=기타
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SchoolCreate {
+  school_name: string;
+  school_kind: number;
+  region_kind: number;
+}
+
+export interface SchoolListQuery extends ListQueryParams {
+  school_kind?: number;
+  region_kind?: number;
 }

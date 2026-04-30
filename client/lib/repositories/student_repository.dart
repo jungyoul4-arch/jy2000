@@ -16,7 +16,7 @@ class StudentRepository {
     if (params.order != null) queryParams['order'] = params.order;
     if (params.search != null) queryParams['search'] = params.search;
     if (params.statusCode != null) queryParams['status_code'] = params.statusCode;
-    if (params.gradeCode != null) queryParams['grade_code'] = params.gradeCode;
+    if (params.grade != null) queryParams['grade'] = params.grade;
     if (params.tcId != null) queryParams['tc_id'] = params.tcId;
     if (params.fromDate != null) queryParams['from_date'] = params.fromDate;
     if (params.toDate != null) queryParams['to_date'] = params.toDate;

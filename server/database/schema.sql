@@ -86,7 +86,29 @@ CREATE TABLE tc_info (
 COMMENT='TC(상담사/텔레마케터) 정보';
 
 -- ============================================================
--- 4. 학생 정보 테이블
+-- 4. 학교 테이블
+-- ============================================================
+CREATE TABLE School (
+    school_id       INT AUTO_INCREMENT COMMENT '학교 ID',
+    school_name     VARCHAR(100) NOT NULL COMMENT '학교명 (중, 고로 끝남)',
+    school_kind     TINYINT NOT NULL COMMENT '학교 종류 (1=중학교, 2=고등학교)',
+    region_kind     TINYINT NOT NULL COMMENT '학교 권역 (1=원미권, 2=소사권,3=오정권, 4=인천권, 5=서울권, 6=경기기타권,99=기타)',
+    is_active       TINYINT(1) DEFAULT 1 COMMENT '활성화 여부',
+    created_at      DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+    updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+    deleted_at      DATETIME NULL COMMENT '삭제일시 (soft delete)',
+
+    PRIMARY KEY (school_id),
+    UNIQUE INDEX idx_school_name (school_name),
+    INDEX idx_school_kind (school_kind),
+    INDEX idx_region_kind (region_kind),
+    INDEX idx_is_active (is_active),
+    INDEX idx_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='학교';
+
+-- ============================================================
+-- 5. 학생 정보 테이블
 -- ============================================================
 CREATE TABLE student_info (
     student_id          INT NOT NULL COMMENT '학생 ID (FK: User.user_id) - 이름/전화/이메일은 User 테이블 참조',
@@ -94,16 +116,11 @@ CREATE TABLE student_info (
     -- 추가 연락처
     phone_sub           VARCHAR(20) NULL COMMENT '보조 전화번호',
 
-    -- 학생 상세
+    -- 학생 상세 (grade는 User 테이블에서 관리, 보호자는 ParentPhone 테이블에서 관리)
     birth_date          DATE NULL COMMENT '생년월일',
     gender_code         VARCHAR(30) NULL COMMENT '성별 (FK: code_master)',
-    school_name         VARCHAR(100) NULL COMMENT '학교명',
-    grade_code          VARCHAR(30) NULL COMMENT '학년 (FK: code_master)',
-
-    -- 보호자 정보
-    guardian_name       VARCHAR(50) NULL COMMENT '보호자 이름',
-    guardian_phone      VARCHAR(20) NULL COMMENT '보호자 전화번호',
-    guardian_relation   VARCHAR(30) NULL COMMENT '보호자 관계 (FK: code_master)',
+    school_id           INT NULL COMMENT '학교 ID (FK: school)',
+    school_name         VARCHAR(100) NULL COMMENT '학교명 (school_id가 없을 때 직접 입력)',
 
     -- 주소
     zip_code            VARCHAR(10) NULL COMMENT '우편번호',
@@ -139,10 +156,9 @@ CREATE TABLE student_info (
     deleted_at          DATETIME NULL COMMENT '삭제일시 (soft delete)',
 
     PRIMARY KEY (student_id),
-    INDEX idx_guardian_phone (guardian_phone),
     INDEX idx_status_code (status_code),
     INDEX idx_tc_id (tc_id),
-    INDEX idx_grade_code (grade_code),
+    INDEX idx_school_id (school_id),
     INDEX idx_source_code (source_code),
     INDEX idx_first_contact_date (first_contact_date),
     INDEX idx_register_date (register_date),
@@ -150,6 +166,7 @@ CREATE TABLE student_info (
     INDEX idx_deleted_at (deleted_at),
 
     CONSTRAINT fk_student_user FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_student_school FOREIGN KEY (school_id) REFERENCES School(school_id) ON DELETE SET NULL,
     CONSTRAINT fk_student_tc FOREIGN KEY (tc_id) REFERENCES User(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_student_created_by FOREIGN KEY (created_by) REFERENCES User(user_id) ON DELETE SET NULL,
     CONSTRAINT fk_student_updated_by FOREIGN KEY (updated_by) REFERENCES User(user_id) ON DELETE SET NULL
@@ -157,7 +174,28 @@ CREATE TABLE student_info (
 COMMENT='학생 정보';
 
 -- ============================================================
--- 5. 학생 상태 변경 이력 테이블
+-- 5-1. 보호자-학생 연결 테이블
+-- ============================================================
+CREATE TABLE ParentPhone (
+    parent_id           INT NOT NULL COMMENT '보호자 ID (FK: User.user_id, kind=4)',
+    student_id          INT NOT NULL COMMENT '학생 ID (FK: User.user_id, kind=2)',
+    phone               VARCHAR(20) NOT NULL COMMENT '보호자 전화번호',
+    seq                 TINYINT NOT NULL DEFAULT 1 COMMENT '보호자 순번 (1, 2, ...)',
+    parent_kind         TINYINT NOT NULL DEFAULT 2 COMMENT '보호자 관계 (1=부, 2=모, 3=친척, 99=기타)',
+
+    reg_dt              DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
+
+    PRIMARY KEY (parent_id, student_id),
+    INDEX idx_student_id (student_id),
+    INDEX idx_phone (phone),
+
+    CONSTRAINT fk_parentphone_parent FOREIGN KEY (parent_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_parentphone_student FOREIGN KEY (student_id) REFERENCES User(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='보호자-학생 연결';
+
+-- ============================================================
+-- 6. 학생 상태 변경 이력 테이블
 -- ============================================================
 CREATE TABLE student_history (
     history_id          INT AUTO_INCREMENT COMMENT '이력 ID',

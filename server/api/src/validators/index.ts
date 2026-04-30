@@ -58,10 +58,10 @@ export const validateStudentListQuery: ValidationChain[] = [
     .optional()
     .isString()
     .trim(),
-  query('grade_code')
+  query('grade')
     .optional()
-    .isString()
-    .trim(),
+    .isInt({ min: 1, max: 14 })
+    .withMessage('grade must be between 1 and 14'),
   query('tc_id')
     .optional()
     .isInt({ min: 1 }),
@@ -197,6 +197,57 @@ export const validatePromotionCreate: ValidationChain[] = [
     .isString()
     .trim(),
   body('target_subject')
+    .optional()
+    .isString()
+    .trim()
+];
+
+// School Validators
+export const validateSchoolCreate: ValidationChain[] = [
+  body('school_name')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('school_name is required')
+    .isLength({ max: 100 })
+    .custom((value) => {
+      if (!value.endsWith('중') && !value.endsWith('고')) {
+        throw new Error('학교명은 "중" 또는 "고"로 끝나야 합니다');
+      }
+      return true;
+    }),
+  body('school_kind')
+    .isInt({ min: 1, max: 2 })
+    .withMessage('school_kind must be 1 (중학교) or 2 (고등학교)'),
+  body('region_kind')
+    .isInt({ min: 1, max: 99 })
+    .withMessage('region_kind is required (1=원미권, 2=소사권, 3=오정권, 4=인천권, 5=서울권, 6=경기기타권, 99=기타)')
+];
+
+export const validateSchoolListQuery: ValidationChain[] = [
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('page must be a positive integer'),
+  query('perPage')
+    .optional()
+    .isInt({ min: 1, max: 2000 })
+    .withMessage('perPage must be between 1 and 2000'),
+  query('sort')
+    .optional()
+    .isString()
+    .trim(),
+  query('order')
+    .optional()
+    .isIn(['asc', 'desc'])
+    .withMessage('order must be asc or desc'),
+  query('school_kind')
+    .optional()
+    .isInt({ min: 1, max: 2 }),
+  query('region_kind')
+    .optional()
+    .isInt({ min: 1, max: 99 }),
+  query('search')
     .optional()
     .isString()
     .trim()

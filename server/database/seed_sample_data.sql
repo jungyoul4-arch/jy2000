@@ -28,77 +28,99 @@ INSERT INTO tc_info (user_id, tc_code, tc_type_code, branch_code, hire_date) VAL
 
 -- ============================================================
 -- 3. 학생 사용자 계정 생성 (user_id: 5~14)
--- kind=2 (학생), phone이 로그인 ID 역할
+-- kind=2 (학생), phone이 로그인 ID 역할, grade 포함
+-- ============================================================
+INSERT INTO User (user_pw_hash, name, kind, phone, email, grade) VALUES
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 2, '01012345678', 'hong@test.com', 6),    -- 초6
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 2, '01023456789', 'kim@test.com', 7),    -- 중1
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 2, '01034567890', 'lee@test.com', 8),    -- 중2
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박민수', 2, '01045678901', 'park@test.com', 10),  -- 고1
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최지은', 2, '01056789012', 'choi@test.com', 5),   -- 초5
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정우성', 2, '01067890123', 'jung@test.com', 6),   -- 초6
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강민지', 2, '01078901234', 'kang@test.com', 7),   -- 중1
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤서준', 2, '01089012345', 'yoon@test.com', 8),   -- 중2
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한소희', 2, '01090123456', 'han@test.com', 11),   -- 고2
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임재현', 2, '01001234567', 'lim@test.com', 6);    -- 초6
+
+-- ============================================================
+-- 3-1. 학부모 사용자 계정 생성 (user_id: 15~24)
+-- kind=4 (학부모)
 -- ============================================================
 INSERT INTO User (user_pw_hash, name, kind, phone, email) VALUES
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍길동', 2, '01012345678', 'hong@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김철수', 2, '01023456789', 'kim@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이영희', 2, '01034567890', 'lee@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박민수', 2, '01045678901', 'park@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최지은', 2, '01056789012', 'choi@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정우성', 2, '01067890123', 'jung@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강민지', 2, '01078901234', 'kang@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤서준', 2, '01089012345', 'yoon@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한소희', 2, '01090123456', 'han@test.com'),
-('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임재현', 2, '01001234567', 'lim@test.com');
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '홍어머니', 4, '01012340001', NULL),  -- 홍길동 모
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '김아버지', 4, '01023450001', NULL),  -- 김철수 부
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '이어머니', 4, '01034560001', NULL),  -- 이영희 모
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '박어머니', 4, '01045670001', NULL),  -- 박민수 모
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '최아버지', 4, '01056780001', NULL),  -- 최지은 부
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '정어머니', 4, '01067890001', NULL),  -- 정우성 모
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '강어머니', 4, '01078900001', NULL),  -- 강민지 모
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '윤아버지', 4, '01089010001', NULL),  -- 윤서준 부
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '한어머니', 4, '01090120001', NULL),  -- 한소희 모
+('$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '임어머니', 4, '01001230001', NULL);  -- 임재현 모
+
+-- ============================================================
+-- 3-2. 학부모-학생 연결 (ParentPhone)
+-- parent_kind: 1=부, 2=모, 3=친척, 99=기타
+-- ============================================================
+INSERT INTO ParentPhone (parent_id, student_id, phone, seq, parent_kind) VALUES
+(15, 5, '01012340001', 1, 2),   -- 홍어머니 - 홍길동 (모)
+(16, 6, '01023450001', 1, 1),   -- 김아버지 - 김철수 (부)
+(17, 7, '01034560001', 1, 2),   -- 이어머니 - 이영희 (모)
+(18, 8, '01045670001', 1, 2),   -- 박어머니 - 박민수 (모)
+(19, 9, '01056780001', 1, 1),   -- 최아버지 - 최지은 (부)
+(20, 10, '01067890001', 1, 2),  -- 정어머니 - 정우성 (모)
+(21, 11, '01078900001', 1, 2),  -- 강어머니 - 강민지 (모)
+(22, 12, '01089010001', 1, 1),  -- 윤아버지 - 윤서준 (부)
+(23, 13, '01090120001', 1, 2),  -- 한어머니 - 한소희 (모)
+(24, 14, '01001230001', 1, 2);  -- 임어머니 - 임재현 (모)
 
 -- ============================================================
 -- 4. 학생 상세 정보 (student_id = user_id, tc_id = TC의 user_id)
+-- grade는 User 테이블, 보호자는 ParentPhone 테이블에서 관리
 -- tc_id: 김상담=2, 이상담=3, 박상담=4
 -- ============================================================
 INSERT INTO student_info (
-    student_id, birth_date, gender_code, school_name, grade_code,
-    guardian_name, guardian_phone, guardian_relation,
+    student_id, birth_date, gender_code, school_name,
     status_code, source_code, tc_id, first_contact_date, created_by
 ) VALUES
 -- 잠재 고객 (user_id: 5, 담당: 김상담=2)
-(5, '2012-03-15', 'GENDER_MALE', '서울초등학교', 'GRADE_ELEM_6',
- '홍어머니', '01012340001', 'RELATION_MOTHER',
+(5, '2012-03-15', 'GENDER_MALE', '서울초등학교',
  'STATUS_PROSPECT', 'SOURCE_ONLINE', 2, '2026-04-25', 1),
 
 -- 접촉 (user_id: 6, 담당: 김상담=2)
-(6, '2011-07-22', 'GENDER_MALE', '강남중학교', 'GRADE_MID_1',
- '김아버지', '01023450001', 'RELATION_FATHER',
+(6, '2011-07-22', 'GENDER_MALE', '강남중학교',
  'STATUS_CONTACT', 'SOURCE_REFERRAL', 2, '2026-04-20', 1),
 
 -- 상담 예약 (user_id: 7, 담당: 이상담=3)
-(7, '2010-11-08', 'GENDER_FEMALE', '분당중학교', 'GRADE_MID_2',
- '이어머니', '01034560001', 'RELATION_MOTHER',
+(7, '2010-11-08', 'GENDER_FEMALE', '분당중학교',
  'STATUS_CONSULT_BOOK', 'SOURCE_CAFE', 3, '2026-04-18', 1),
 
 -- 상담 완료 (user_id: 8, 담당: 이상담=3)
-(8, '2009-05-30', 'GENDER_MALE', '대치고등학교', 'GRADE_HIGH_1',
- '박어머니', '01045670001', 'RELATION_MOTHER',
+(8, '2009-05-30', 'GENDER_MALE', '대치고등학교',
  'STATUS_CONSULT_DONE', 'SOURCE_BLOG', 3, '2026-04-10', 1),
 
 -- 등록 (user_id: 9, 담당: 김상담=2)
-(9, '2013-09-12', 'GENDER_FEMALE', '서초초등학교', 'GRADE_ELEM_5',
- '최아버지', '01056780001', 'RELATION_FATHER',
+(9, '2013-09-12', 'GENDER_FEMALE', '서초초등학교',
  'STATUS_REGISTER', 'SOURCE_WALK_IN', 2, '2026-04-01', 1),
 
 -- 재원 (user_id: 10, 담당: 김상담=2)
-(10, '2012-01-25', 'GENDER_MALE', '역삼초등학교', 'GRADE_ELEM_6',
- '정어머니', '01067890001', 'RELATION_MOTHER',
+(10, '2012-01-25', 'GENDER_MALE', '역삼초등학교',
  'STATUS_ENROLLED', 'SOURCE_REFERRAL', 2, '2026-01-15', 1),
 
 -- 재원 (user_id: 11, 담당: 이상담=3)
-(11, '2011-04-18', 'GENDER_FEMALE', '청담중학교', 'GRADE_MID_1',
- '강어머니', '01078900001', 'RELATION_MOTHER',
+(11, '2011-04-18', 'GENDER_FEMALE', '청담중학교',
  'STATUS_ENROLLED', 'SOURCE_PREV_STUDENT', 3, '2026-02-01', 1),
 
 -- 재원 (user_id: 12, 담당: 박상담=4)
-(12, '2010-08-05', 'GENDER_MALE', '압구정중학교', 'GRADE_MID_2',
- '윤아버지', '01089010001', 'RELATION_FATHER',
+(12, '2010-08-05', 'GENDER_MALE', '압구정중학교',
  'STATUS_ENROLLED', 'SOURCE_ONLINE', 4, '2025-09-01', 1),
 
 -- 퇴원 (user_id: 13, 담당: 김상담=2)
-(13, '2009-12-30', 'GENDER_FEMALE', '서울고등학교', 'GRADE_HIGH_2',
- '한어머니', '01090120001', 'RELATION_MOTHER',
+(13, '2009-12-30', 'GENDER_FEMALE', '서울고등학교',
  'STATUS_WITHDRAW', 'SOURCE_REFERRAL', 2, '2025-03-01', 1),
 
 -- 이탈 (user_id: 14, 담당: 이상담=3)
-(14, '2012-06-14', 'GENDER_MALE', '개포초등학교', 'GRADE_ELEM_6',
- '임어머니', '01001230001', 'RELATION_MOTHER',
+(14, '2012-06-14', 'GENDER_MALE', '개포초등학교',
  'STATUS_LOST', 'SOURCE_SNS', 3, '2026-04-15', 1);
 
 -- 날짜 업데이트

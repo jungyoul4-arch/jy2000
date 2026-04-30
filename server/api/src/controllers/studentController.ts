@@ -14,7 +14,7 @@ export class StudentController {
       order: req.query.order as 'asc' | 'desc',
       search: req.query.search as string,
       status_code: req.query.status_code as string,
-      grade_code: req.query.grade_code as string,
+      grade: parseInt(req.query.grade as string) || undefined,
       tc_id: parseInt(req.query.tc_id as string) || undefined,
       from_date: req.query.from_date as string,
       to_date: req.query.to_date as string

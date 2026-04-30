@@ -6,6 +6,7 @@ USE jysk;
 
 -- ============================================================
 -- 1. 학생 상세 뷰 (코드명 포함) - User 테이블 JOIN
+-- grade는 User 테이블, 보호자는 ParentPhone 테이블에서 조회
 -- ============================================================
 CREATE OR REPLACE VIEW v_student_detail AS
 SELECT
@@ -17,13 +18,25 @@ SELECT
     s.birth_date,
     s.gender_code,
     g.code_name AS gender_name,
+    s.school_id,
     s.school_name,
-    s.grade_code,
-    gr.code_name AS grade_name,
-    s.guardian_name,
-    s.guardian_phone,
-    s.guardian_relation,
-    rel.code_name AS relation_name,
+    u.grade,
+    CASE u.grade
+        WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
+        WHEN 4 THEN '초4' WHEN 5 THEN '초5' WHEN 6 THEN '초6'
+        WHEN 7 THEN '중1' WHEN 8 THEN '중2' WHEN 9 THEN '중3'
+        WHEN 10 THEN '고1' WHEN 11 THEN '고2' WHEN 12 THEN '고3'
+        WHEN 13 THEN 'N수생' WHEN 14 THEN '성인'
+        ELSE NULL
+    END AS grade_name,
+    p.name AS guardian_name,
+    pp.phone AS guardian_phone,
+    pp.parent_kind AS guardian_relation,
+    CASE pp.parent_kind
+        WHEN 1 THEN '부' WHEN 2 THEN '모' WHEN 3 THEN '친척' WHEN 99 THEN '기타'
+        ELSE NULL
+    END AS relation_name,
+    s.zip_code,
     s.address,
     s.address_detail,
     s.status_code,
@@ -46,12 +59,12 @@ SELECT
 FROM student_info s
 JOIN User u ON s.student_id = u.user_id
 LEFT JOIN code_master g ON s.gender_code = g.code_id
-LEFT JOIN code_master gr ON s.grade_code = gr.code_id
-LEFT JOIN code_master rel ON s.guardian_relation = rel.code_id
 LEFT JOIN code_master st ON s.status_code = st.code_id
 LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
 LEFT JOIN code_master src ON s.source_code = src.code_id
 LEFT JOIN User tc ON s.tc_id = tc.user_id
+LEFT JOIN ParentPhone pp ON pp.student_id = s.student_id AND pp.seq = 1
+LEFT JOIN User p ON pp.parent_id = p.user_id
 WHERE s.deleted_at IS NULL;
 
 -- ============================================================

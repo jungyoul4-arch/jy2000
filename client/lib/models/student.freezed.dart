@@ -35,10 +35,11 @@ mixin _$Student {
   String? get genderCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'gender_name')
   String? get genderName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_id')
+  int? get schoolId => throw _privateConstructorUsedError;
   @JsonKey(name: 'school_name')
   String? get schoolName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'grade_code')
-  String? get gradeCode => throw _privateConstructorUsedError;
+  int? get grade => throw _privateConstructorUsedError;
   @JsonKey(name: 'grade_name')
   String? get gradeName => throw _privateConstructorUsedError;
   @JsonKey(name: 'guardian_name')
@@ -109,8 +110,9 @@ abstract class $StudentCopyWith<$Res> {
     @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'gender_code') String? genderCode,
     @JsonKey(name: 'gender_name') String? genderName,
+    @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
-    @JsonKey(name: 'grade_code') String? gradeCode,
+    int? grade,
     @JsonKey(name: 'grade_name') String? gradeName,
     @JsonKey(name: 'guardian_name') String? guardianName,
     @JsonKey(name: 'guardian_phone') String? guardianPhone,
@@ -161,8 +163,9 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
     Object? birthDate = freezed,
     Object? genderCode = freezed,
     Object? genderName = freezed,
+    Object? schoolId = freezed,
     Object? schoolName = freezed,
-    Object? gradeCode = freezed,
+    Object? grade = freezed,
     Object? gradeName = freezed,
     Object? guardianName = freezed,
     Object? guardianPhone = freezed,
@@ -222,14 +225,18 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
                 ? _value.genderName
                 : genderName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            schoolId: freezed == schoolId
+                ? _value.schoolId
+                : schoolId // ignore: cast_nullable_to_non_nullable
+                      as int?,
             schoolName: freezed == schoolName
                 ? _value.schoolName
                 : schoolName // ignore: cast_nullable_to_non_nullable
                       as String?,
-            gradeCode: freezed == gradeCode
-                ? _value.gradeCode
-                : gradeCode // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            grade: freezed == grade
+                ? _value.grade
+                : grade // ignore: cast_nullable_to_non_nullable
+                      as int?,
             gradeName: freezed == gradeName
                 ? _value.gradeName
                 : gradeName // ignore: cast_nullable_to_non_nullable
@@ -349,8 +356,9 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'gender_code') String? genderCode,
     @JsonKey(name: 'gender_name') String? genderName,
+    @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
-    @JsonKey(name: 'grade_code') String? gradeCode,
+    int? grade,
     @JsonKey(name: 'grade_name') String? gradeName,
     @JsonKey(name: 'guardian_name') String? guardianName,
     @JsonKey(name: 'guardian_phone') String? guardianPhone,
@@ -400,8 +408,9 @@ class __$$StudentImplCopyWithImpl<$Res>
     Object? birthDate = freezed,
     Object? genderCode = freezed,
     Object? genderName = freezed,
+    Object? schoolId = freezed,
     Object? schoolName = freezed,
-    Object? gradeCode = freezed,
+    Object? grade = freezed,
     Object? gradeName = freezed,
     Object? guardianName = freezed,
     Object? guardianPhone = freezed,
@@ -461,14 +470,18 @@ class __$$StudentImplCopyWithImpl<$Res>
             ? _value.genderName
             : genderName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        schoolId: freezed == schoolId
+            ? _value.schoolId
+            : schoolId // ignore: cast_nullable_to_non_nullable
+                  as int?,
         schoolName: freezed == schoolName
             ? _value.schoolName
             : schoolName // ignore: cast_nullable_to_non_nullable
                   as String?,
-        gradeCode: freezed == gradeCode
-            ? _value.gradeCode
-            : gradeCode // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        grade: freezed == grade
+            ? _value.grade
+            : grade // ignore: cast_nullable_to_non_nullable
+                  as int?,
         gradeName: freezed == gradeName
             ? _value.gradeName
             : gradeName // ignore: cast_nullable_to_non_nullable
@@ -582,8 +595,9 @@ class _$StudentImpl implements _Student {
     @JsonKey(name: 'birth_date') this.birthDate,
     @JsonKey(name: 'gender_code') this.genderCode,
     @JsonKey(name: 'gender_name') this.genderName,
+    @JsonKey(name: 'school_id') this.schoolId,
     @JsonKey(name: 'school_name') this.schoolName,
-    @JsonKey(name: 'grade_code') this.gradeCode,
+    this.grade,
     @JsonKey(name: 'grade_name') this.gradeName,
     @JsonKey(name: 'guardian_name') this.guardianName,
     @JsonKey(name: 'guardian_phone') this.guardianPhone,
@@ -636,11 +650,13 @@ class _$StudentImpl implements _Student {
   @JsonKey(name: 'gender_name')
   final String? genderName;
   @override
+  @JsonKey(name: 'school_id')
+  final int? schoolId;
+  @override
   @JsonKey(name: 'school_name')
   final String? schoolName;
   @override
-  @JsonKey(name: 'grade_code')
-  final String? gradeCode;
+  final int? grade;
   @override
   @JsonKey(name: 'grade_name')
   final String? gradeName;
@@ -714,7 +730,7 @@ class _$StudentImpl implements _Student {
 
   @override
   String toString() {
-    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolName: $schoolName, gradeCode: $gradeCode, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -736,10 +752,11 @@ class _$StudentImpl implements _Student {
                 other.genderCode == genderCode) &&
             (identical(other.genderName, genderName) ||
                 other.genderName == genderName) &&
+            (identical(other.schoolId, schoolId) ||
+                other.schoolId == schoolId) &&
             (identical(other.schoolName, schoolName) ||
                 other.schoolName == schoolName) &&
-            (identical(other.gradeCode, gradeCode) ||
-                other.gradeCode == gradeCode) &&
+            (identical(other.grade, grade) || other.grade == grade) &&
             (identical(other.gradeName, gradeName) ||
                 other.gradeName == gradeName) &&
             (identical(other.guardianName, guardianName) ||
@@ -798,8 +815,9 @@ class _$StudentImpl implements _Student {
     birthDate,
     genderCode,
     genderName,
+    schoolId,
     schoolName,
-    gradeCode,
+    grade,
     gradeName,
     guardianName,
     guardianPhone,
@@ -850,8 +868,9 @@ abstract class _Student implements Student {
     @JsonKey(name: 'birth_date') final String? birthDate,
     @JsonKey(name: 'gender_code') final String? genderCode,
     @JsonKey(name: 'gender_name') final String? genderName,
+    @JsonKey(name: 'school_id') final int? schoolId,
     @JsonKey(name: 'school_name') final String? schoolName,
-    @JsonKey(name: 'grade_code') final String? gradeCode,
+    final int? grade,
     @JsonKey(name: 'grade_name') final String? gradeName,
     @JsonKey(name: 'guardian_name') final String? guardianName,
     @JsonKey(name: 'guardian_phone') final String? guardianPhone,
@@ -903,11 +922,13 @@ abstract class _Student implements Student {
   @JsonKey(name: 'gender_name')
   String? get genderName;
   @override
+  @JsonKey(name: 'school_id')
+  int? get schoolId;
+  @override
   @JsonKey(name: 'school_name')
   String? get schoolName;
   @override
-  @JsonKey(name: 'grade_code')
-  String? get gradeCode;
+  int? get grade;
   @override
   @JsonKey(name: 'grade_name')
   String? get gradeName;
@@ -1272,8 +1293,7 @@ mixin _$StudentListParams {
   String? get search => throw _privateConstructorUsedError;
   @JsonKey(name: 'status_code')
   String? get statusCode => throw _privateConstructorUsedError;
-  @JsonKey(name: 'grade_code')
-  String? get gradeCode => throw _privateConstructorUsedError;
+  int? get grade => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
   int? get tcId => throw _privateConstructorUsedError;
   @JsonKey(name: 'from_date')
@@ -1305,7 +1325,7 @@ abstract class $StudentListParamsCopyWith<$Res> {
     String? order,
     String? search,
     @JsonKey(name: 'status_code') String? statusCode,
-    @JsonKey(name: 'grade_code') String? gradeCode,
+    int? grade,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'from_date') String? fromDate,
     @JsonKey(name: 'to_date') String? toDate,
@@ -1333,7 +1353,7 @@ class _$StudentListParamsCopyWithImpl<$Res, $Val extends StudentListParams>
     Object? order = freezed,
     Object? search = freezed,
     Object? statusCode = freezed,
-    Object? gradeCode = freezed,
+    Object? grade = freezed,
     Object? tcId = freezed,
     Object? fromDate = freezed,
     Object? toDate = freezed,
@@ -1364,10 +1384,10 @@ class _$StudentListParamsCopyWithImpl<$Res, $Val extends StudentListParams>
                 ? _value.statusCode
                 : statusCode // ignore: cast_nullable_to_non_nullable
                       as String?,
-            gradeCode: freezed == gradeCode
-                ? _value.gradeCode
-                : gradeCode // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            grade: freezed == grade
+                ? _value.grade
+                : grade // ignore: cast_nullable_to_non_nullable
+                      as int?,
             tcId: freezed == tcId
                 ? _value.tcId
                 : tcId // ignore: cast_nullable_to_non_nullable
@@ -1402,7 +1422,7 @@ abstract class _$$StudentListParamsImplCopyWith<$Res>
     String? order,
     String? search,
     @JsonKey(name: 'status_code') String? statusCode,
-    @JsonKey(name: 'grade_code') String? gradeCode,
+    int? grade,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'from_date') String? fromDate,
     @JsonKey(name: 'to_date') String? toDate,
@@ -1429,7 +1449,7 @@ class __$$StudentListParamsImplCopyWithImpl<$Res>
     Object? order = freezed,
     Object? search = freezed,
     Object? statusCode = freezed,
-    Object? gradeCode = freezed,
+    Object? grade = freezed,
     Object? tcId = freezed,
     Object? fromDate = freezed,
     Object? toDate = freezed,
@@ -1460,10 +1480,10 @@ class __$$StudentListParamsImplCopyWithImpl<$Res>
             ? _value.statusCode
             : statusCode // ignore: cast_nullable_to_non_nullable
                   as String?,
-        gradeCode: freezed == gradeCode
-            ? _value.gradeCode
-            : gradeCode // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        grade: freezed == grade
+            ? _value.grade
+            : grade // ignore: cast_nullable_to_non_nullable
+                  as int?,
         tcId: freezed == tcId
             ? _value.tcId
             : tcId // ignore: cast_nullable_to_non_nullable
@@ -1491,7 +1511,7 @@ class _$StudentListParamsImpl implements _StudentListParams {
     this.order,
     this.search,
     @JsonKey(name: 'status_code') this.statusCode,
-    @JsonKey(name: 'grade_code') this.gradeCode,
+    this.grade,
     @JsonKey(name: 'tc_id') this.tcId,
     @JsonKey(name: 'from_date') this.fromDate,
     @JsonKey(name: 'to_date') this.toDate,
@@ -1516,8 +1536,7 @@ class _$StudentListParamsImpl implements _StudentListParams {
   @JsonKey(name: 'status_code')
   final String? statusCode;
   @override
-  @JsonKey(name: 'grade_code')
-  final String? gradeCode;
+  final int? grade;
   @override
   @JsonKey(name: 'tc_id')
   final int? tcId;
@@ -1530,7 +1549,7 @@ class _$StudentListParamsImpl implements _StudentListParams {
 
   @override
   String toString() {
-    return 'StudentListParams(page: $page, perPage: $perPage, sort: $sort, order: $order, search: $search, statusCode: $statusCode, gradeCode: $gradeCode, tcId: $tcId, fromDate: $fromDate, toDate: $toDate)';
+    return 'StudentListParams(page: $page, perPage: $perPage, sort: $sort, order: $order, search: $search, statusCode: $statusCode, grade: $grade, tcId: $tcId, fromDate: $fromDate, toDate: $toDate)';
   }
 
   @override
@@ -1545,8 +1564,7 @@ class _$StudentListParamsImpl implements _StudentListParams {
             (identical(other.search, search) || other.search == search) &&
             (identical(other.statusCode, statusCode) ||
                 other.statusCode == statusCode) &&
-            (identical(other.gradeCode, gradeCode) ||
-                other.gradeCode == gradeCode) &&
+            (identical(other.grade, grade) || other.grade == grade) &&
             (identical(other.tcId, tcId) || other.tcId == tcId) &&
             (identical(other.fromDate, fromDate) ||
                 other.fromDate == fromDate) &&
@@ -1563,7 +1581,7 @@ class _$StudentListParamsImpl implements _StudentListParams {
     order,
     search,
     statusCode,
-    gradeCode,
+    grade,
     tcId,
     fromDate,
     toDate,
@@ -1594,7 +1612,7 @@ abstract class _StudentListParams implements StudentListParams {
     final String? order,
     final String? search,
     @JsonKey(name: 'status_code') final String? statusCode,
-    @JsonKey(name: 'grade_code') final String? gradeCode,
+    final int? grade,
     @JsonKey(name: 'tc_id') final int? tcId,
     @JsonKey(name: 'from_date') final String? fromDate,
     @JsonKey(name: 'to_date') final String? toDate,
@@ -1617,8 +1635,7 @@ abstract class _StudentListParams implements StudentListParams {
   @JsonKey(name: 'status_code')
   String? get statusCode;
   @override
-  @JsonKey(name: 'grade_code')
-  String? get gradeCode;
+  int? get grade;
   @override
   @JsonKey(name: 'tc_id')
   int? get tcId;

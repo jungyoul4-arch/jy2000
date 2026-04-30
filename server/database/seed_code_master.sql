@@ -25,27 +25,14 @@ INSERT INTO code_master (code_id, code_group, code_value, code_name, sort_order)
 ('GENDER_FEMALE', 'GENDER', 'FEMALE', '여', 2);
 
 -- ============================================================
--- 3. 학년 (GRADE)
+-- 3. 학년 (GRADE) - 학교 종류(중/고)는 학교명에서 결정됨
 -- ============================================================
 INSERT INTO code_master (code_id, code_group, code_value, code_name, sort_order) VALUES
--- 초등학교
-('GRADE_ELEM_1', 'GRADE', 'ELEM_1', '초1', 1),
-('GRADE_ELEM_2', 'GRADE', 'ELEM_2', '초2', 2),
-('GRADE_ELEM_3', 'GRADE', 'ELEM_3', '초3', 3),
-('GRADE_ELEM_4', 'GRADE', 'ELEM_4', '초4', 4),
-('GRADE_ELEM_5', 'GRADE', 'ELEM_5', '초5', 5),
-('GRADE_ELEM_6', 'GRADE', 'ELEM_6', '초6', 6),
--- 중학교
-('GRADE_MID_1', 'GRADE', 'MID_1', '중1', 7),
-('GRADE_MID_2', 'GRADE', 'MID_2', '중2', 8),
-('GRADE_MID_3', 'GRADE', 'MID_3', '중3', 9),
--- 고등학교
-('GRADE_HIGH_1', 'GRADE', 'HIGH_1', '고1', 10),
-('GRADE_HIGH_2', 'GRADE', 'HIGH_2', '고2', 11),
-('GRADE_HIGH_3', 'GRADE', 'HIGH_3', '고3', 12),
--- 기타
-('GRADE_N_SUSI', 'GRADE', 'N_SUSI', 'N수생', 13),
-('GRADE_ADULT', 'GRADE', 'ADULT', '성인', 14);
+('GRADE_1', 'GRADE', '1', '1학년', 1),
+('GRADE_2', 'GRADE', '2', '2학년', 2),
+('GRADE_3', 'GRADE', '3', '3학년', 3),
+('GRADE_N', 'GRADE', 'N', 'N수생', 4),
+('GRADE_ADULT', 'GRADE', 'ADULT', '성인', 5);
 
 -- ============================================================
 -- 4. 학생 상태 (STATUS) - 퍼널 단계

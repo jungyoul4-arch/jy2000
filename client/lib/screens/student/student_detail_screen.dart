@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../providers/student_provider.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../utils/formatters.dart';
 
 class StudentDetailScreen extends ConsumerWidget {
   final int studentId;
@@ -112,9 +113,9 @@ class StudentDetailScreen extends ConsumerWidget {
                       context,
                       title: '기본 정보',
                       items: [
-                        _InfoItem('전화번호', student.phone),
+                        _InfoItem('전화번호', formatPhone(student.phone)),
                         _InfoItem('이메일', student.email ?? '-'),
-                        _InfoItem('생년월일', student.birthDate ?? '-'),
+                        _InfoItem('생년월일', formatDate(student.birthDate)),
                         _InfoItem('성별', student.genderName ?? '-'),
                         _InfoItem('학교', student.schoolName ?? '-'),
                         _InfoItem('학년', student.gradeName ?? '-'),
@@ -130,7 +131,7 @@ class StudentDetailScreen extends ConsumerWidget {
                       title: '보호자 정보',
                       items: [
                         _InfoItem('보호자명', student.guardianName ?? '-'),
-                        _InfoItem('연락처', student.guardianPhone ?? '-'),
+                        _InfoItem('연락처', formatPhone(student.guardianPhone)),
                         _InfoItem('관계', student.relationName ?? '-'),
                       ],
                     ),
@@ -145,10 +146,10 @@ class StudentDetailScreen extends ConsumerWidget {
                       items: [
                         _InfoItem('담당 TC', student.tcName ?? '-'),
                         _InfoItem('유입경로', student.sourceName ?? '-'),
-                        _InfoItem('최초접촉', student.firstContactDate ?? '-'),
-                        _InfoItem('상담일', student.consultDate ?? '-'),
-                        _InfoItem('등록일', student.registerDate ?? '-'),
-                        _InfoItem('재원시작', student.enrollDate ?? '-'),
+                        _InfoItem('최초접촉', formatDateTime(student.firstContactDate)),
+                        _InfoItem('상담일', formatDate(student.consultDate)),
+                        _InfoItem('등록일', formatDate(student.registerDate)),
+                        _InfoItem('재원시작', formatDate(student.enrollDate)),
                       ],
                     ),
                   ),

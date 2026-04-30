@@ -98,7 +98,7 @@ class StudentListNotifier extends StateNotifier<StudentListState> {
   // 필터 변경
   void updateFilter({
     String? statusCode,
-    String? gradeCode,
+    int? grade,
     int? tcId,
     String? search,
   }) {
@@ -106,7 +106,7 @@ class StudentListNotifier extends StateNotifier<StudentListState> {
       params: state.params.copyWith(
         page: 1,
         statusCode: statusCode,
-        gradeCode: gradeCode,
+        grade: grade,
         tcId: tcId,
         search: search,
       ),

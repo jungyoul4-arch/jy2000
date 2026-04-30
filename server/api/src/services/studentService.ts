@@ -21,9 +21,9 @@ export class StudentService {
       params.push(query.status_code);
     }
 
-    if (query.grade_code) {
-      conditions.push('s.grade_code = ?');
-      params.push(query.grade_code);
+    if (query.grade) {
+      conditions.push('u.grade = ?');
+      params.push(query.grade);
     }
 
     if (query.tc_id) {
@@ -32,9 +32,9 @@ export class StudentService {
     }
 
     if (query.search) {
-      conditions.push('(u.name LIKE ? OR u.phone LIKE ? OR s.guardian_phone LIKE ?)');
+      conditions.push('(u.name LIKE ? OR u.phone LIKE ?)');
       const searchTerm = `%${query.search}%`;
-      params.push(searchTerm, searchTerm, searchTerm);
+      params.push(searchTerm, searchTerm);
     }
 
     if (query.from_date) {
@@ -72,11 +72,23 @@ export class StudentService {
         s.birth_date,
         s.gender_code,
         g.code_name as gender_name,
+        s.school_id,
         s.school_name,
-        s.grade_code,
-        gr.code_name as grade_name,
-        s.guardian_name,
-        s.guardian_phone,
+        u.grade,
+        CASE u.grade
+          WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
+          WHEN 4 THEN '초4' WHEN 5 THEN '초5' WHEN 6 THEN '초6'
+          WHEN 7 THEN '중1' WHEN 8 THEN '중2' WHEN 9 THEN '중3'
+          WHEN 10 THEN '고1' WHEN 11 THEN '고2' WHEN 12 THEN '고3'
+          WHEN 13 THEN 'N수생' WHEN 14 THEN '성인'
+          ELSE NULL
+        END as grade_name,
+        p.name as guardian_name,
+        pp.phone as guardian_phone,
+        CASE pp.parent_kind
+          WHEN 1 THEN '부' WHEN 2 THEN '모' WHEN 3 THEN '친척' WHEN 99 THEN '기타'
+          ELSE NULL
+        END as guardian_relation,
         s.status_code,
         st.code_name as status_name,
         s.sub_status_code,
@@ -96,11 +108,12 @@ export class StudentService {
       FROM student_info s
       JOIN User u ON s.student_id = u.user_id
       LEFT JOIN code_master g ON s.gender_code = g.code_id
-      LEFT JOIN code_master gr ON s.grade_code = gr.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
       LEFT JOIN User tc ON s.tc_id = tc.user_id
+      LEFT JOIN ParentPhone pp ON pp.student_id = s.student_id AND pp.seq = 1
+      LEFT JOIN User p ON pp.parent_id = p.user_id
       WHERE ${whereClause}
       ORDER BY s.${sortColumn} ${sortOrder}
       LIMIT ? OFFSET ?
@@ -121,26 +134,61 @@ export class StudentService {
   async getById(studentId: number): Promise<Student> {
     const sql = `
       SELECT
-        s.*,
+        s.student_id,
         u.name as student_name,
         u.phone,
+        s.phone_sub,
         u.email,
+        s.birth_date,
+        s.gender_code,
         g.code_name as gender_name,
-        gr.code_name as grade_name,
+        s.school_id,
+        s.school_name,
+        u.grade,
+        CASE u.grade
+          WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
+          WHEN 4 THEN '초4' WHEN 5 THEN '초5' WHEN 6 THEN '초6'
+          WHEN 7 THEN '중1' WHEN 8 THEN '중2' WHEN 9 THEN '중3'
+          WHEN 10 THEN '고1' WHEN 11 THEN '고2' WHEN 12 THEN '고3'
+          WHEN 13 THEN 'N수생' WHEN 14 THEN '성인'
+          ELSE NULL
+        END as grade_name,
+        p.name as guardian_name,
+        pp.phone as guardian_phone,
+        pp.parent_kind as guardian_relation,
+        CASE pp.parent_kind
+          WHEN 1 THEN '부' WHEN 2 THEN '모' WHEN 3 THEN '친척' WHEN 99 THEN '기타'
+          ELSE NULL
+        END as relation_name,
+        s.zip_code,
+        s.address,
+        s.address_detail,
+        s.status_code,
         st.code_name as status_name,
+        s.sub_status_code,
         sub.code_name as sub_status_name,
+        s.source_code,
         src.code_name as source_name,
-        rel.code_name as relation_name,
-        tc.name as tc_name
+        s.source_detail,
+        s.tc_id,
+        tc.name as tc_name,
+        s.first_contact_date,
+        s.consult_date,
+        s.register_date,
+        s.enroll_date,
+        s.withdraw_date,
+        s.memo,
+        s.created_at,
+        s.updated_at
       FROM student_info s
       JOIN User u ON s.student_id = u.user_id
       LEFT JOIN code_master g ON s.gender_code = g.code_id
-      LEFT JOIN code_master gr ON s.grade_code = gr.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
-      LEFT JOIN code_master rel ON s.guardian_relation = rel.code_id
       LEFT JOIN User tc ON s.tc_id = tc.user_id
+      LEFT JOIN ParentPhone pp ON pp.student_id = s.student_id AND pp.seq = 1
+      LEFT JOIN User p ON pp.parent_id = p.user_id
       WHERE s.student_id = ? AND s.deleted_at IS NULL
     `;
 

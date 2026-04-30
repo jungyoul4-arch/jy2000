@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:data_table_2/data_table_2.dart';
 
-import '../../config/theme.dart';
 import '../../config/routes.dart';
 import '../../providers/student_provider.dart';
 import '../../providers/code_provider.dart';
 import '../../models/student.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../utils/formatters.dart';
 
 class StudentListScreen extends ConsumerStatefulWidget {
   const StudentListScreen({super.key});
@@ -17,10 +17,23 @@ class StudentListScreen extends ConsumerStatefulWidget {
   ConsumerState<StudentListScreen> createState() => _StudentListScreenState();
 }
 
+// 학년 필터용 아이템
+class _GradeFilterItem {
+  final int value;
+  final String label;
+  const _GradeFilterItem(this.value, this.label);
+}
+
+const _gradeFilterItems = [
+  _GradeFilterItem(7, '중1'), _GradeFilterItem(8, '중2'), _GradeFilterItem(9, '중3'),
+  _GradeFilterItem(10, '고1'), _GradeFilterItem(11, '고2'), _GradeFilterItem(12, '고3'),
+  _GradeFilterItem(13, 'N수생'), _GradeFilterItem(14, '성인'),
+];
+
 class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   final _searchController = TextEditingController();
   String? _selectedStatus;
-  String? _selectedGrade;
+  int? _selectedGrade;
 
   @override
   void initState() {
@@ -40,7 +53,6 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   Widget build(BuildContext context) {
     final studentState = ref.watch(studentListProvider);
     final statusCodes = ref.watch(statusCodesProvider);
-    final gradeCodes = ref.watch(gradeCodesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -124,21 +136,21 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                 // 학년 필터
                 SizedBox(
                   width: 150,
-                  child: DropdownButtonFormField<String>(
+                  child: DropdownButtonFormField<int>(
                     value: _selectedGrade,
                     decoration: const InputDecoration(
                       labelText: '학년',
                       contentPadding: EdgeInsets.symmetric(horizontal: 12),
                     ),
                     items: [
-                      const DropdownMenuItem(
+                      const DropdownMenuItem<int>(
                         value: null,
                         child: Text('전체'),
                       ),
-                      ...gradeCodes.map(
-                        (code) => DropdownMenuItem(
-                          value: code.codeId,
-                          child: Text(code.codeName),
+                      ..._gradeFilterItems.map(
+                        (item) => DropdownMenuItem(
+                          value: item.value,
+                          child: Text(item.label),
                         ),
                       ),
                     ],
@@ -197,7 +209,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
           onTap: () => context.go('/students/${student.studentId}'),
           cells: [
             DataCell(Text(student.studentName)),
-            DataCell(Text(student.phone)),
+            DataCell(Text(formatPhone(student.phone))),
             DataCell(Text(student.gradeName ?? '-')),
             DataCell(
               StatusBadge(
@@ -206,8 +218,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
               ),
             ),
             DataCell(Text(student.tcName ?? '-')),
-            DataCell(Text(student.firstContactDate ?? '-')),
-            DataCell(Text(student.registerDate ?? '-')),
+            DataCell(Text(formatDateTime(student.firstContactDate))),
+            DataCell(Text(formatDate(student.registerDate))),
             DataCell(
               IconButton(
                 icon: const Icon(Icons.chevron_right),
@@ -227,7 +239,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   void _applyFilter() {
     ref.read(studentListProvider.notifier).updateFilter(
           statusCode: _selectedStatus,
-          gradeCode: _selectedGrade,
+          grade: _selectedGrade,
         );
   }
 }

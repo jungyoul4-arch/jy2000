@@ -6,6 +6,7 @@ import tcRoutes from './tcRoutes';
 import dashboardRoutes from './dashboardRoutes';
 import codeRoutes from './codeRoutes';
 import authRoutes from './authRoutes';
+import schoolRoutes from './schoolRoutes';
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use('/promotion', promotionRoutes);
 router.use('/tc', tcRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/code', codeRoutes);
+router.use('/school', schoolRoutes);
 
 export default router;

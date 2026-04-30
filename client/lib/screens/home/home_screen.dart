@@ -42,6 +42,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       label: '프로모션',
       path: AppRoutes.promotionList,
     ),
+    _NavItem(
+      icon: Icons.school_outlined,
+      selectedIcon: Icons.school,
+      label: '학교 관리',
+      path: AppRoutes.schoolList,
+    ),
   ];
 
   Future<void> _logout() async {
