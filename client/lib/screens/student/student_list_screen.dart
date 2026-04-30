@@ -190,11 +190,18 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   }
 
   Widget _buildDataTable(List<Student> students) {
-    return DataTable2(
+    return PaginatedDataTable2(
       columnSpacing: 12,
       horizontalMargin: 16,
-      minWidth: 1000,
+      minWidth: 1100,
+      rowsPerPage: 100,
+      availableRowsPerPage: const [20, 50, 100],
+      source: _StudentDataSource(
+        students: students,
+        onTap: (student) => context.go('/students/${student.studentId}'),
+      ),
       columns: const [
+        DataColumn2(label: Text('No.'), fixedWidth: 60),
         DataColumn2(label: Text('이름'), size: ColumnSize.S),
         DataColumn2(label: Text('전화번호'), size: ColumnSize.M),
         DataColumn2(label: Text('학년'), size: ColumnSize.S),
@@ -204,31 +211,6 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
         DataColumn2(label: Text('등록일'), size: ColumnSize.S),
         DataColumn2(label: Text(''), fixedWidth: 50),
       ],
-      rows: students.map((student) {
-        return DataRow2(
-          onTap: () => context.go('/students/${student.studentId}'),
-          cells: [
-            DataCell(Text(student.studentName)),
-            DataCell(Text(formatPhone(student.phone))),
-            DataCell(Text(student.gradeName ?? '-')),
-            DataCell(
-              StatusBadge(
-                statusCode: student.statusCode,
-                statusName: student.statusName ?? '',
-              ),
-            ),
-            DataCell(Text(student.tcName ?? '-')),
-            DataCell(Text(formatDateTime(student.firstContactDate))),
-            DataCell(Text(formatDate(student.registerDate))),
-            DataCell(
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: () => context.go('/students/${student.studentId}'),
-              ),
-            ),
-          ],
-        );
-      }).toList(),
     );
   }
 
@@ -242,4 +224,54 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
           grade: _selectedGrade,
         );
   }
+}
+
+class _StudentDataSource extends DataTableSource {
+  final List<Student> students;
+  final void Function(Student student) onTap;
+
+  _StudentDataSource({
+    required this.students,
+    required this.onTap,
+  });
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= students.length) return null;
+    final student = students[index];
+
+    return DataRow2(
+      onTap: () => onTap(student),
+      cells: [
+        DataCell(Text('${index + 1}')),
+        DataCell(Text(student.studentName)),
+        DataCell(Text(formatPhone(student.phone))),
+        DataCell(Text(student.gradeName ?? '-')),
+        DataCell(
+          StatusBadge(
+            statusCode: student.statusCode,
+            statusName: student.statusName ?? '',
+          ),
+        ),
+        DataCell(Text(student.tcName ?? '-')),
+        DataCell(Text(formatDateTime(student.firstContactDate))),
+        DataCell(Text(formatDate(student.registerDate))),
+        DataCell(
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: () => onTap(student),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => students.length;
+
+  @override
+  int get selectedRowCount => 0;
 }

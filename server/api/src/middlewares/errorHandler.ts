@@ -49,10 +49,9 @@ export const errorHandler = (
     message = 'Token expired';
   }
 
-  // Log error in development
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', err);
-  }
+  // Always log error for debugging
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
 
   const response: ApiResponse = {
     success: false,

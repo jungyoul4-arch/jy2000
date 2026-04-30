@@ -42,6 +42,7 @@ class Student with _$Student {
     @JsonKey(name: 'guardian_phone') String? guardianPhone,
     @JsonKey(name: 'guardian_relation') @FlexibleIntConverter() int? guardianRelation,
     @JsonKey(name: 'relation_name') String? relationName,
+    @JsonKey(name: 'zip_code') String? zipCode,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
     @JsonKey(name: 'status_code') required String statusCode,
@@ -61,10 +62,47 @@ class Student with _$Student {
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
+    List<ParentInfo>? parents,
   }) = _Student;
 
   factory Student.fromJson(Map<String, dynamic> json) =>
       _$StudentFromJson(json);
+}
+
+@freezed
+class ParentInfo with _$ParentInfo {
+  const factory ParentInfo({
+    @JsonKey(name: 'parent_id') int? parentId,
+    required String phone,
+    @Default(1) int seq,
+    @JsonKey(name: 'parent_kind') @Default(2) int parentKind,
+    String? name,
+  }) = _ParentInfo;
+
+  factory ParentInfo.fromJson(Map<String, dynamic> json) =>
+      _$ParentInfoFromJson(json);
+}
+
+@freezed
+class StudentUpdate with _$StudentUpdate {
+  const factory StudentUpdate({
+    @JsonKey(name: 'student_name') String? studentName,
+    String? phone,
+    String? email,
+    @JsonKey(name: 'birth_date') String? birthDate,
+    @JsonKey(name: 'gender_code') String? genderCode,
+    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_name') String? schoolName,
+    int? grade,
+    @JsonKey(name: 'zip_code') String? zipCode,
+    String? address,
+    @JsonKey(name: 'address_detail') String? addressDetail,
+    String? memo,
+    List<ParentInfo>? parents,
+  }) = _StudentUpdate;
+
+  factory StudentUpdate.fromJson(Map<String, dynamic> json) =>
+      _$StudentUpdateFromJson(json);
 }
 
 @freezed
@@ -85,9 +123,9 @@ class StudentStateChange with _$StudentStateChange {
 class StudentListParams with _$StudentListParams {
   const factory StudentListParams({
     @Default(1) int page,
-    @Default(20) int perPage,
-    String? sort,
-    String? order,
+    @Default(500) int perPage,
+    @Default('student_name') String? sort,
+    @Default('asc') String? order,
     String? search,
     @JsonKey(name: 'status_code') String? statusCode,
     int? grade,

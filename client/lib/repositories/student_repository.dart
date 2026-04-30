@@ -66,4 +66,48 @@ class StudentRepository {
 
     return Student.fromJson(response['data']);
   }
+
+  // 학생 정보 업데이트
+  Future<Student> update(int studentId, StudentUpdate data) async {
+    final body = <String, dynamic>{};
+
+    if (data.studentName != null) body['student_name'] = data.studentName;
+    if (data.phone != null) body['phone'] = data.phone;
+    if (data.email != null) body['email'] = data.email;
+    if (data.birthDate != null) body['birth_date'] = data.birthDate;
+    if (data.genderCode != null) body['gender_code'] = data.genderCode;
+    if (data.schoolId != null) body['school_id'] = data.schoolId;
+    if (data.schoolName != null) body['school_name'] = data.schoolName;
+    if (data.grade != null) body['grade'] = data.grade;
+    if (data.zipCode != null) body['zip_code'] = data.zipCode;
+    if (data.address != null) body['address'] = data.address;
+    if (data.addressDetail != null) body['address_detail'] = data.addressDetail;
+    if (data.memo != null) body['memo'] = data.memo;
+
+    if (data.parents != null) {
+      body['parents'] = data.parents!.map((p) {
+        final parent = <String, dynamic>{
+          'phone': p.phone,
+          'seq': p.seq,
+          'parent_kind': p.parentKind,
+        };
+        if (p.parentId != null) parent['parent_id'] = p.parentId;
+        return parent;
+      }).toList();
+    }
+
+    final response = await _apiClient.put<Map<String, dynamic>>(
+      '/student/$studentId',
+      data: body,
+    );
+
+    return Student.fromJson(response['data']);
+  }
+
+  // 보호자 삭제
+  Future<void> deleteParent(int studentId, int parentId) async {
+    await _apiClient.delete<Map<String, dynamic>>(
+      '/student/$studentId/parent/$parentId',
+    );
+  }
 }

@@ -77,6 +77,39 @@ export interface StudentStateChange {
   new_tc_id?: number;
 }
 
+// 보호자 정보
+export interface ParentInfo {
+  parent_id?: number;
+  phone: string;
+  seq: number;
+  parent_kind: number; // 1=부, 2=모, 3=친척, 99=기타
+  name?: string;
+}
+
+// 학생 상세 (보호자 포함)
+export interface StudentDetail extends Student {
+  zip_code?: string;
+  parents?: ParentInfo[];
+}
+
+// 학생 정보 업데이트
+export interface StudentUpdate {
+  student_id: number;
+  student_name?: string;
+  phone?: string;
+  email?: string;
+  birth_date?: string;
+  gender_code?: string;
+  school_id?: number;
+  school_name?: string;
+  grade?: number;
+  zip_code?: string;
+  address?: string;
+  address_detail?: string;
+  memo?: string;
+  parents?: ParentInfo[];
+}
+
 // Consult Types
 export interface Consult {
   consult_id: number;

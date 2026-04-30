@@ -4,7 +4,8 @@ import { validate } from '../middlewares/validate';
 import {
   validateId,
   validateStudentListQuery,
-  validateStudentStateChange
+  validateStudentStateChange,
+  validateStudentUpdate
 } from '../validators';
 
 const router = Router();
@@ -21,6 +22,20 @@ router.get(
   '/:id',
   validate([validateId('id')]),
   studentController.getById
+);
+
+// PUT /student/:id - 학생 정보 업데이트
+router.put(
+  '/:id',
+  validate([validateId('id'), ...validateStudentUpdate]),
+  studentController.update
+);
+
+// DELETE /student/:id/parent/:parentId - 보호자 삭제
+router.delete(
+  '/:id/parent/:parentId',
+  validate([validateId('id'), validateId('parentId')]),
+  studentController.deleteParent
 );
 
 // POST /student/state - 학생 상태 변경

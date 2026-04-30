@@ -26,6 +26,7 @@ _$StudentImpl _$$StudentImplFromJson(Map<String, dynamic> json) =>
         json['guardian_relation'],
       ),
       relationName: json['relation_name'] as String?,
+      zipCode: json['zip_code'] as String?,
       address: json['address'] as String?,
       addressDetail: json['address_detail'] as String?,
       statusCode: json['status_code'] as String,
@@ -45,6 +46,9 @@ _$StudentImpl _$$StudentImplFromJson(Map<String, dynamic> json) =>
       memo: json['memo'] as String?,
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
+      parents: (json['parents'] as List<dynamic>?)
+          ?.map((e) => ParentInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$$StudentImplToJson(_$StudentImpl instance) =>
@@ -67,6 +71,7 @@ Map<String, dynamic> _$$StudentImplToJson(_$StudentImpl instance) =>
         instance.guardianRelation,
       ),
       'relation_name': instance.relationName,
+      'zip_code': instance.zipCode,
       'address': instance.address,
       'address_detail': instance.addressDetail,
       'status_code': instance.statusCode,
@@ -86,6 +91,61 @@ Map<String, dynamic> _$$StudentImplToJson(_$StudentImpl instance) =>
       'memo': instance.memo,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
+      'parents': instance.parents,
+    };
+
+_$ParentInfoImpl _$$ParentInfoImplFromJson(Map<String, dynamic> json) =>
+    _$ParentInfoImpl(
+      parentId: (json['parent_id'] as num?)?.toInt(),
+      phone: json['phone'] as String,
+      seq: (json['seq'] as num?)?.toInt() ?? 1,
+      parentKind: (json['parent_kind'] as num?)?.toInt() ?? 2,
+      name: json['name'] as String?,
+    );
+
+Map<String, dynamic> _$$ParentInfoImplToJson(_$ParentInfoImpl instance) =>
+    <String, dynamic>{
+      'parent_id': instance.parentId,
+      'phone': instance.phone,
+      'seq': instance.seq,
+      'parent_kind': instance.parentKind,
+      'name': instance.name,
+    };
+
+_$StudentUpdateImpl _$$StudentUpdateImplFromJson(Map<String, dynamic> json) =>
+    _$StudentUpdateImpl(
+      studentName: json['student_name'] as String?,
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      birthDate: json['birth_date'] as String?,
+      genderCode: json['gender_code'] as String?,
+      schoolId: (json['school_id'] as num?)?.toInt(),
+      schoolName: json['school_name'] as String?,
+      grade: (json['grade'] as num?)?.toInt(),
+      zipCode: json['zip_code'] as String?,
+      address: json['address'] as String?,
+      addressDetail: json['address_detail'] as String?,
+      memo: json['memo'] as String?,
+      parents: (json['parents'] as List<dynamic>?)
+          ?.map((e) => ParentInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$$StudentUpdateImplToJson(_$StudentUpdateImpl instance) =>
+    <String, dynamic>{
+      'student_name': instance.studentName,
+      'phone': instance.phone,
+      'email': instance.email,
+      'birth_date': instance.birthDate,
+      'gender_code': instance.genderCode,
+      'school_id': instance.schoolId,
+      'school_name': instance.schoolName,
+      'grade': instance.grade,
+      'zip_code': instance.zipCode,
+      'address': instance.address,
+      'address_detail': instance.addressDetail,
+      'memo': instance.memo,
+      'parents': instance.parents,
     };
 
 _$StudentStateChangeImpl _$$StudentStateChangeImplFromJson(
@@ -112,9 +172,9 @@ _$StudentListParamsImpl _$$StudentListParamsImplFromJson(
   Map<String, dynamic> json,
 ) => _$StudentListParamsImpl(
   page: (json['page'] as num?)?.toInt() ?? 1,
-  perPage: (json['perPage'] as num?)?.toInt() ?? 20,
-  sort: json['sort'] as String?,
-  order: json['order'] as String?,
+  perPage: (json['perPage'] as num?)?.toInt() ?? 500,
+  sort: json['sort'] as String? ?? 'student_name',
+  order: json['order'] as String? ?? 'asc',
   search: json['search'] as String?,
   statusCode: json['status_code'] as String?,
   grade: (json['grade'] as num?)?.toInt(),

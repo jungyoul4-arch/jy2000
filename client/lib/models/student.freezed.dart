@@ -53,6 +53,8 @@ mixin _$Student {
   int? get guardianRelation => throw _privateConstructorUsedError;
   @JsonKey(name: 'relation_name')
   String? get relationName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'zip_code')
+  String? get zipCode => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
   @JsonKey(name: 'address_detail')
   String? get addressDetail => throw _privateConstructorUsedError;
@@ -90,6 +92,7 @@ mixin _$Student {
   String? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
   String? get updatedAt => throw _privateConstructorUsedError;
+  List<ParentInfo>? get parents => throw _privateConstructorUsedError;
 
   /// Serializes this Student to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -124,6 +127,7 @@ abstract class $StudentCopyWith<$Res> {
     @FlexibleIntConverter()
     int? guardianRelation,
     @JsonKey(name: 'relation_name') String? relationName,
+    @JsonKey(name: 'zip_code') String? zipCode,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
     @JsonKey(name: 'status_code') String statusCode,
@@ -143,6 +147,7 @@ abstract class $StudentCopyWith<$Res> {
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
+    List<ParentInfo>? parents,
   });
 }
 
@@ -177,6 +182,7 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
     Object? guardianPhone = freezed,
     Object? guardianRelation = freezed,
     Object? relationName = freezed,
+    Object? zipCode = freezed,
     Object? address = freezed,
     Object? addressDetail = freezed,
     Object? statusCode = null,
@@ -196,6 +202,7 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
     Object? memo = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? parents = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -262,6 +269,10 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
             relationName: freezed == relationName
                 ? _value.relationName
                 : relationName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            zipCode: freezed == zipCode
+                ? _value.zipCode
+                : zipCode // ignore: cast_nullable_to_non_nullable
                       as String?,
             address: freezed == address
                 ? _value.address
@@ -339,6 +350,10 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as String?,
+            parents: freezed == parents
+                ? _value.parents
+                : parents // ignore: cast_nullable_to_non_nullable
+                      as List<ParentInfo>?,
           )
           as $Val,
     );
@@ -372,6 +387,7 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @FlexibleIntConverter()
     int? guardianRelation,
     @JsonKey(name: 'relation_name') String? relationName,
+    @JsonKey(name: 'zip_code') String? zipCode,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
     @JsonKey(name: 'status_code') String statusCode,
@@ -391,6 +407,7 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
+    List<ParentInfo>? parents,
   });
 }
 
@@ -424,6 +441,7 @@ class __$$StudentImplCopyWithImpl<$Res>
     Object? guardianPhone = freezed,
     Object? guardianRelation = freezed,
     Object? relationName = freezed,
+    Object? zipCode = freezed,
     Object? address = freezed,
     Object? addressDetail = freezed,
     Object? statusCode = null,
@@ -443,6 +461,7 @@ class __$$StudentImplCopyWithImpl<$Res>
     Object? memo = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? parents = freezed,
   }) {
     return _then(
       _$StudentImpl(
@@ -509,6 +528,10 @@ class __$$StudentImplCopyWithImpl<$Res>
         relationName: freezed == relationName
             ? _value.relationName
             : relationName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        zipCode: freezed == zipCode
+            ? _value.zipCode
+            : zipCode // ignore: cast_nullable_to_non_nullable
                   as String?,
         address: freezed == address
             ? _value.address
@@ -586,6 +609,10 @@ class __$$StudentImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as String?,
+        parents: freezed == parents
+            ? _value._parents
+            : parents // ignore: cast_nullable_to_non_nullable
+                  as List<ParentInfo>?,
       ),
     );
   }
@@ -613,6 +640,7 @@ class _$StudentImpl implements _Student {
     @FlexibleIntConverter()
     this.guardianRelation,
     @JsonKey(name: 'relation_name') this.relationName,
+    @JsonKey(name: 'zip_code') this.zipCode,
     this.address,
     @JsonKey(name: 'address_detail') this.addressDetail,
     @JsonKey(name: 'status_code') required this.statusCode,
@@ -632,7 +660,8 @@ class _$StudentImpl implements _Student {
     this.memo,
     @JsonKey(name: 'created_at') this.createdAt,
     @JsonKey(name: 'updated_at') this.updatedAt,
-  });
+    final List<ParentInfo>? parents,
+  }) : _parents = parents;
 
   factory _$StudentImpl.fromJson(Map<String, dynamic> json) =>
       _$$StudentImplFromJson(json);
@@ -685,6 +714,9 @@ class _$StudentImpl implements _Student {
   @override
   @JsonKey(name: 'relation_name')
   final String? relationName;
+  @override
+  @JsonKey(name: 'zip_code')
+  final String? zipCode;
   @override
   final String? address;
   @override
@@ -741,10 +773,19 @@ class _$StudentImpl implements _Student {
   @override
   @JsonKey(name: 'updated_at')
   final String? updatedAt;
+  final List<ParentInfo>? _parents;
+  @override
+  List<ParentInfo>? get parents {
+    final value = _parents;
+    if (value == null) return null;
+    if (_parents is EqualUnmodifiableListView) return _parents;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt, parents: $parents)';
   }
 
   @override
@@ -781,6 +822,7 @@ class _$StudentImpl implements _Student {
                 other.guardianRelation == guardianRelation) &&
             (identical(other.relationName, relationName) ||
                 other.relationName == relationName) &&
+            (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.address, address) || other.address == address) &&
             (identical(other.addressDetail, addressDetail) ||
                 other.addressDetail == addressDetail) &&
@@ -814,7 +856,8 @@ class _$StudentImpl implements _Student {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            const DeepCollectionEquality().equals(other._parents, _parents));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -837,6 +880,7 @@ class _$StudentImpl implements _Student {
     guardianPhone,
     guardianRelation,
     relationName,
+    zipCode,
     address,
     addressDetail,
     statusCode,
@@ -856,6 +900,7 @@ class _$StudentImpl implements _Student {
     memo,
     createdAt,
     updatedAt,
+    const DeepCollectionEquality().hash(_parents),
   ]);
 
   /// Create a copy of Student
@@ -892,6 +937,7 @@ abstract class _Student implements Student {
     @FlexibleIntConverter()
     final int? guardianRelation,
     @JsonKey(name: 'relation_name') final String? relationName,
+    @JsonKey(name: 'zip_code') final String? zipCode,
     final String? address,
     @JsonKey(name: 'address_detail') final String? addressDetail,
     @JsonKey(name: 'status_code') required final String statusCode,
@@ -911,6 +957,7 @@ abstract class _Student implements Student {
     final String? memo,
     @JsonKey(name: 'created_at') final String? createdAt,
     @JsonKey(name: 'updated_at') final String? updatedAt,
+    final List<ParentInfo>? parents,
   }) = _$StudentImpl;
 
   factory _Student.fromJson(Map<String, dynamic> json) = _$StudentImpl.fromJson;
@@ -963,6 +1010,9 @@ abstract class _Student implements Student {
   @override
   @JsonKey(name: 'relation_name')
   String? get relationName;
+  @override
+  @JsonKey(name: 'zip_code')
+  String? get zipCode;
   @override
   String? get address;
   @override
@@ -1019,12 +1069,719 @@ abstract class _Student implements Student {
   @override
   @JsonKey(name: 'updated_at')
   String? get updatedAt;
+  @override
+  List<ParentInfo>? get parents;
 
   /// Create a copy of Student
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$StudentImplCopyWith<_$StudentImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ParentInfo _$ParentInfoFromJson(Map<String, dynamic> json) {
+  return _ParentInfo.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ParentInfo {
+  @JsonKey(name: 'parent_id')
+  int? get parentId => throw _privateConstructorUsedError;
+  String get phone => throw _privateConstructorUsedError;
+  int get seq => throw _privateConstructorUsedError;
+  @JsonKey(name: 'parent_kind')
+  int get parentKind => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+
+  /// Serializes this ParentInfo to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ParentInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ParentInfoCopyWith<ParentInfo> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ParentInfoCopyWith<$Res> {
+  factory $ParentInfoCopyWith(
+    ParentInfo value,
+    $Res Function(ParentInfo) then,
+  ) = _$ParentInfoCopyWithImpl<$Res, ParentInfo>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'parent_id') int? parentId,
+    String phone,
+    int seq,
+    @JsonKey(name: 'parent_kind') int parentKind,
+    String? name,
+  });
+}
+
+/// @nodoc
+class _$ParentInfoCopyWithImpl<$Res, $Val extends ParentInfo>
+    implements $ParentInfoCopyWith<$Res> {
+  _$ParentInfoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ParentInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? parentId = freezed,
+    Object? phone = null,
+    Object? seq = null,
+    Object? parentKind = null,
+    Object? name = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            parentId: freezed == parentId
+                ? _value.parentId
+                : parentId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            phone: null == phone
+                ? _value.phone
+                : phone // ignore: cast_nullable_to_non_nullable
+                      as String,
+            seq: null == seq
+                ? _value.seq
+                : seq // ignore: cast_nullable_to_non_nullable
+                      as int,
+            parentKind: null == parentKind
+                ? _value.parentKind
+                : parentKind // ignore: cast_nullable_to_non_nullable
+                      as int,
+            name: freezed == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ParentInfoImplCopyWith<$Res>
+    implements $ParentInfoCopyWith<$Res> {
+  factory _$$ParentInfoImplCopyWith(
+    _$ParentInfoImpl value,
+    $Res Function(_$ParentInfoImpl) then,
+  ) = __$$ParentInfoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'parent_id') int? parentId,
+    String phone,
+    int seq,
+    @JsonKey(name: 'parent_kind') int parentKind,
+    String? name,
+  });
+}
+
+/// @nodoc
+class __$$ParentInfoImplCopyWithImpl<$Res>
+    extends _$ParentInfoCopyWithImpl<$Res, _$ParentInfoImpl>
+    implements _$$ParentInfoImplCopyWith<$Res> {
+  __$$ParentInfoImplCopyWithImpl(
+    _$ParentInfoImpl _value,
+    $Res Function(_$ParentInfoImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ParentInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? parentId = freezed,
+    Object? phone = null,
+    Object? seq = null,
+    Object? parentKind = null,
+    Object? name = freezed,
+  }) {
+    return _then(
+      _$ParentInfoImpl(
+        parentId: freezed == parentId
+            ? _value.parentId
+            : parentId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        phone: null == phone
+            ? _value.phone
+            : phone // ignore: cast_nullable_to_non_nullable
+                  as String,
+        seq: null == seq
+            ? _value.seq
+            : seq // ignore: cast_nullable_to_non_nullable
+                  as int,
+        parentKind: null == parentKind
+            ? _value.parentKind
+            : parentKind // ignore: cast_nullable_to_non_nullable
+                  as int,
+        name: freezed == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ParentInfoImpl implements _ParentInfo {
+  const _$ParentInfoImpl({
+    @JsonKey(name: 'parent_id') this.parentId,
+    required this.phone,
+    this.seq = 1,
+    @JsonKey(name: 'parent_kind') this.parentKind = 2,
+    this.name,
+  });
+
+  factory _$ParentInfoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ParentInfoImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'parent_id')
+  final int? parentId;
+  @override
+  final String phone;
+  @override
+  @JsonKey()
+  final int seq;
+  @override
+  @JsonKey(name: 'parent_kind')
+  final int parentKind;
+  @override
+  final String? name;
+
+  @override
+  String toString() {
+    return 'ParentInfo(parentId: $parentId, phone: $phone, seq: $seq, parentKind: $parentKind, name: $name)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ParentInfoImpl &&
+            (identical(other.parentId, parentId) ||
+                other.parentId == parentId) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.seq, seq) || other.seq == seq) &&
+            (identical(other.parentKind, parentKind) ||
+                other.parentKind == parentKind) &&
+            (identical(other.name, name) || other.name == name));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, parentId, phone, seq, parentKind, name);
+
+  /// Create a copy of ParentInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ParentInfoImplCopyWith<_$ParentInfoImpl> get copyWith =>
+      __$$ParentInfoImplCopyWithImpl<_$ParentInfoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ParentInfoImplToJson(this);
+  }
+}
+
+abstract class _ParentInfo implements ParentInfo {
+  const factory _ParentInfo({
+    @JsonKey(name: 'parent_id') final int? parentId,
+    required final String phone,
+    final int seq,
+    @JsonKey(name: 'parent_kind') final int parentKind,
+    final String? name,
+  }) = _$ParentInfoImpl;
+
+  factory _ParentInfo.fromJson(Map<String, dynamic> json) =
+      _$ParentInfoImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'parent_id')
+  int? get parentId;
+  @override
+  String get phone;
+  @override
+  int get seq;
+  @override
+  @JsonKey(name: 'parent_kind')
+  int get parentKind;
+  @override
+  String? get name;
+
+  /// Create a copy of ParentInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ParentInfoImplCopyWith<_$ParentInfoImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+StudentUpdate _$StudentUpdateFromJson(Map<String, dynamic> json) {
+  return _StudentUpdate.fromJson(json);
+}
+
+/// @nodoc
+mixin _$StudentUpdate {
+  @JsonKey(name: 'student_name')
+  String? get studentName => throw _privateConstructorUsedError;
+  String? get phone => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'birth_date')
+  String? get birthDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gender_code')
+  String? get genderCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_id')
+  int? get schoolId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_name')
+  String? get schoolName => throw _privateConstructorUsedError;
+  int? get grade => throw _privateConstructorUsedError;
+  @JsonKey(name: 'zip_code')
+  String? get zipCode => throw _privateConstructorUsedError;
+  String? get address => throw _privateConstructorUsedError;
+  @JsonKey(name: 'address_detail')
+  String? get addressDetail => throw _privateConstructorUsedError;
+  String? get memo => throw _privateConstructorUsedError;
+  List<ParentInfo>? get parents => throw _privateConstructorUsedError;
+
+  /// Serializes this StudentUpdate to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of StudentUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $StudentUpdateCopyWith<StudentUpdate> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $StudentUpdateCopyWith<$Res> {
+  factory $StudentUpdateCopyWith(
+    StudentUpdate value,
+    $Res Function(StudentUpdate) then,
+  ) = _$StudentUpdateCopyWithImpl<$Res, StudentUpdate>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'student_name') String? studentName,
+    String? phone,
+    String? email,
+    @JsonKey(name: 'birth_date') String? birthDate,
+    @JsonKey(name: 'gender_code') String? genderCode,
+    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_name') String? schoolName,
+    int? grade,
+    @JsonKey(name: 'zip_code') String? zipCode,
+    String? address,
+    @JsonKey(name: 'address_detail') String? addressDetail,
+    String? memo,
+    List<ParentInfo>? parents,
+  });
+}
+
+/// @nodoc
+class _$StudentUpdateCopyWithImpl<$Res, $Val extends StudentUpdate>
+    implements $StudentUpdateCopyWith<$Res> {
+  _$StudentUpdateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of StudentUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? studentName = freezed,
+    Object? phone = freezed,
+    Object? email = freezed,
+    Object? birthDate = freezed,
+    Object? genderCode = freezed,
+    Object? schoolId = freezed,
+    Object? schoolName = freezed,
+    Object? grade = freezed,
+    Object? zipCode = freezed,
+    Object? address = freezed,
+    Object? addressDetail = freezed,
+    Object? memo = freezed,
+    Object? parents = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            studentName: freezed == studentName
+                ? _value.studentName
+                : studentName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            phone: freezed == phone
+                ? _value.phone
+                : phone // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            email: freezed == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            birthDate: freezed == birthDate
+                ? _value.birthDate
+                : birthDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            genderCode: freezed == genderCode
+                ? _value.genderCode
+                : genderCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            schoolId: freezed == schoolId
+                ? _value.schoolId
+                : schoolId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            schoolName: freezed == schoolName
+                ? _value.schoolName
+                : schoolName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            grade: freezed == grade
+                ? _value.grade
+                : grade // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            zipCode: freezed == zipCode
+                ? _value.zipCode
+                : zipCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            address: freezed == address
+                ? _value.address
+                : address // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            addressDetail: freezed == addressDetail
+                ? _value.addressDetail
+                : addressDetail // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            memo: freezed == memo
+                ? _value.memo
+                : memo // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            parents: freezed == parents
+                ? _value.parents
+                : parents // ignore: cast_nullable_to_non_nullable
+                      as List<ParentInfo>?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$StudentUpdateImplCopyWith<$Res>
+    implements $StudentUpdateCopyWith<$Res> {
+  factory _$$StudentUpdateImplCopyWith(
+    _$StudentUpdateImpl value,
+    $Res Function(_$StudentUpdateImpl) then,
+  ) = __$$StudentUpdateImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'student_name') String? studentName,
+    String? phone,
+    String? email,
+    @JsonKey(name: 'birth_date') String? birthDate,
+    @JsonKey(name: 'gender_code') String? genderCode,
+    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_name') String? schoolName,
+    int? grade,
+    @JsonKey(name: 'zip_code') String? zipCode,
+    String? address,
+    @JsonKey(name: 'address_detail') String? addressDetail,
+    String? memo,
+    List<ParentInfo>? parents,
+  });
+}
+
+/// @nodoc
+class __$$StudentUpdateImplCopyWithImpl<$Res>
+    extends _$StudentUpdateCopyWithImpl<$Res, _$StudentUpdateImpl>
+    implements _$$StudentUpdateImplCopyWith<$Res> {
+  __$$StudentUpdateImplCopyWithImpl(
+    _$StudentUpdateImpl _value,
+    $Res Function(_$StudentUpdateImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of StudentUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? studentName = freezed,
+    Object? phone = freezed,
+    Object? email = freezed,
+    Object? birthDate = freezed,
+    Object? genderCode = freezed,
+    Object? schoolId = freezed,
+    Object? schoolName = freezed,
+    Object? grade = freezed,
+    Object? zipCode = freezed,
+    Object? address = freezed,
+    Object? addressDetail = freezed,
+    Object? memo = freezed,
+    Object? parents = freezed,
+  }) {
+    return _then(
+      _$StudentUpdateImpl(
+        studentName: freezed == studentName
+            ? _value.studentName
+            : studentName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        phone: freezed == phone
+            ? _value.phone
+            : phone // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        email: freezed == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        birthDate: freezed == birthDate
+            ? _value.birthDate
+            : birthDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        genderCode: freezed == genderCode
+            ? _value.genderCode
+            : genderCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        schoolId: freezed == schoolId
+            ? _value.schoolId
+            : schoolId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        schoolName: freezed == schoolName
+            ? _value.schoolName
+            : schoolName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        grade: freezed == grade
+            ? _value.grade
+            : grade // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        zipCode: freezed == zipCode
+            ? _value.zipCode
+            : zipCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        address: freezed == address
+            ? _value.address
+            : address // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        addressDetail: freezed == addressDetail
+            ? _value.addressDetail
+            : addressDetail // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        memo: freezed == memo
+            ? _value.memo
+            : memo // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        parents: freezed == parents
+            ? _value._parents
+            : parents // ignore: cast_nullable_to_non_nullable
+                  as List<ParentInfo>?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$StudentUpdateImpl implements _StudentUpdate {
+  const _$StudentUpdateImpl({
+    @JsonKey(name: 'student_name') this.studentName,
+    this.phone,
+    this.email,
+    @JsonKey(name: 'birth_date') this.birthDate,
+    @JsonKey(name: 'gender_code') this.genderCode,
+    @JsonKey(name: 'school_id') this.schoolId,
+    @JsonKey(name: 'school_name') this.schoolName,
+    this.grade,
+    @JsonKey(name: 'zip_code') this.zipCode,
+    this.address,
+    @JsonKey(name: 'address_detail') this.addressDetail,
+    this.memo,
+    final List<ParentInfo>? parents,
+  }) : _parents = parents;
+
+  factory _$StudentUpdateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$StudentUpdateImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'student_name')
+  final String? studentName;
+  @override
+  final String? phone;
+  @override
+  final String? email;
+  @override
+  @JsonKey(name: 'birth_date')
+  final String? birthDate;
+  @override
+  @JsonKey(name: 'gender_code')
+  final String? genderCode;
+  @override
+  @JsonKey(name: 'school_id')
+  final int? schoolId;
+  @override
+  @JsonKey(name: 'school_name')
+  final String? schoolName;
+  @override
+  final int? grade;
+  @override
+  @JsonKey(name: 'zip_code')
+  final String? zipCode;
+  @override
+  final String? address;
+  @override
+  @JsonKey(name: 'address_detail')
+  final String? addressDetail;
+  @override
+  final String? memo;
+  final List<ParentInfo>? _parents;
+  @override
+  List<ParentInfo>? get parents {
+    final value = _parents;
+    if (value == null) return null;
+    if (_parents is EqualUnmodifiableListView) return _parents;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  String toString() {
+    return 'StudentUpdate(studentName: $studentName, phone: $phone, email: $email, birthDate: $birthDate, genderCode: $genderCode, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, memo: $memo, parents: $parents)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$StudentUpdateImpl &&
+            (identical(other.studentName, studentName) ||
+                other.studentName == studentName) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.birthDate, birthDate) ||
+                other.birthDate == birthDate) &&
+            (identical(other.genderCode, genderCode) ||
+                other.genderCode == genderCode) &&
+            (identical(other.schoolId, schoolId) ||
+                other.schoolId == schoolId) &&
+            (identical(other.schoolName, schoolName) ||
+                other.schoolName == schoolName) &&
+            (identical(other.grade, grade) || other.grade == grade) &&
+            (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
+            (identical(other.address, address) || other.address == address) &&
+            (identical(other.addressDetail, addressDetail) ||
+                other.addressDetail == addressDetail) &&
+            (identical(other.memo, memo) || other.memo == memo) &&
+            const DeepCollectionEquality().equals(other._parents, _parents));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    studentName,
+    phone,
+    email,
+    birthDate,
+    genderCode,
+    schoolId,
+    schoolName,
+    grade,
+    zipCode,
+    address,
+    addressDetail,
+    memo,
+    const DeepCollectionEquality().hash(_parents),
+  );
+
+  /// Create a copy of StudentUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$StudentUpdateImplCopyWith<_$StudentUpdateImpl> get copyWith =>
+      __$$StudentUpdateImplCopyWithImpl<_$StudentUpdateImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$StudentUpdateImplToJson(this);
+  }
+}
+
+abstract class _StudentUpdate implements StudentUpdate {
+  const factory _StudentUpdate({
+    @JsonKey(name: 'student_name') final String? studentName,
+    final String? phone,
+    final String? email,
+    @JsonKey(name: 'birth_date') final String? birthDate,
+    @JsonKey(name: 'gender_code') final String? genderCode,
+    @JsonKey(name: 'school_id') final int? schoolId,
+    @JsonKey(name: 'school_name') final String? schoolName,
+    final int? grade,
+    @JsonKey(name: 'zip_code') final String? zipCode,
+    final String? address,
+    @JsonKey(name: 'address_detail') final String? addressDetail,
+    final String? memo,
+    final List<ParentInfo>? parents,
+  }) = _$StudentUpdateImpl;
+
+  factory _StudentUpdate.fromJson(Map<String, dynamic> json) =
+      _$StudentUpdateImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'student_name')
+  String? get studentName;
+  @override
+  String? get phone;
+  @override
+  String? get email;
+  @override
+  @JsonKey(name: 'birth_date')
+  String? get birthDate;
+  @override
+  @JsonKey(name: 'gender_code')
+  String? get genderCode;
+  @override
+  @JsonKey(name: 'school_id')
+  int? get schoolId;
+  @override
+  @JsonKey(name: 'school_name')
+  String? get schoolName;
+  @override
+  int? get grade;
+  @override
+  @JsonKey(name: 'zip_code')
+  String? get zipCode;
+  @override
+  String? get address;
+  @override
+  @JsonKey(name: 'address_detail')
+  String? get addressDetail;
+  @override
+  String? get memo;
+  @override
+  List<ParentInfo>? get parents;
+
+  /// Create a copy of StudentUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$StudentUpdateImplCopyWith<_$StudentUpdateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -1526,9 +2283,9 @@ class __$$StudentListParamsImplCopyWithImpl<$Res>
 class _$StudentListParamsImpl implements _StudentListParams {
   const _$StudentListParamsImpl({
     this.page = 1,
-    this.perPage = 20,
-    this.sort,
-    this.order,
+    this.perPage = 500,
+    this.sort = 'student_name',
+    this.order = 'asc',
     this.search,
     @JsonKey(name: 'status_code') this.statusCode,
     this.grade,
@@ -1547,8 +2304,10 @@ class _$StudentListParamsImpl implements _StudentListParams {
   @JsonKey()
   final int perPage;
   @override
+  @JsonKey()
   final String? sort;
   @override
+  @JsonKey()
   final String? order;
   @override
   final String? search;

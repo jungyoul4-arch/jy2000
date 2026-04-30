@@ -14,8 +14,8 @@ export const validatePagination: ValidationChain[] = [
     .withMessage('page must be a positive integer'),
   query('perPage')
     .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('perPage must be between 1 and 100'),
+    .isInt({ min: 1, max: 1000 })
+    .withMessage('perPage must be between 1 and 1000'),
   query('sort')
     .optional()
     .isString()
@@ -77,6 +77,70 @@ export const validateStudentListQuery: ValidationChain[] = [
     .optional()
     .isISO8601()
     .withMessage('to_date must be a valid date')
+];
+
+export const validateStudentUpdate: ValidationChain[] = [
+  body('student_name')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 50 }),
+  body('phone')
+    .optional()
+    .isString()
+    .trim(),
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('email must be a valid email'),
+  body('birth_date')
+    .optional()
+    .isISO8601()
+    .withMessage('birth_date must be a valid date'),
+  body('gender_code')
+    .optional()
+    .isString()
+    .trim(),
+  body('school_id')
+    .optional()
+    .isInt({ min: 1 }),
+  body('school_name')
+    .optional()
+    .isString()
+    .trim(),
+  body('grade')
+    .optional()
+    .isInt({ min: 1, max: 14 }),
+  body('zip_code')
+    .optional()
+    .isString()
+    .trim(),
+  body('address')
+    .optional()
+    .isString()
+    .trim(),
+  body('address_detail')
+    .optional()
+    .isString()
+    .trim(),
+  body('memo')
+    .optional()
+    .isString()
+    .trim(),
+  body('parents')
+    .optional()
+    .isArray()
+    .withMessage('parents must be an array'),
+  body('parents.*.phone')
+    .optional()
+    .isString()
+    .trim(),
+  body('parents.*.seq')
+    .optional()
+    .isInt({ min: 1, max: 2 }),
+  body('parents.*.parent_kind')
+    .optional()
+    .isInt({ min: 1, max: 99 })
 ];
 
 // Consult Validators

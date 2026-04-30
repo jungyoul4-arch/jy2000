@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import studentService from '../services/studentService';
 import { asyncHandler } from '../middlewares/errorHandler';
 import { sendSuccess, sendPaginated } from '../utils/responseHelper';
-import { StudentListQuery, StudentStateChange } from '../types';
+import { StudentListQuery, StudentStateChange, StudentUpdate } from '../types';
 
 export class StudentController {
   // GET /student/list
@@ -49,6 +49,27 @@ export class StudentController {
     const student = await studentService.changeState(data, userId);
 
     return sendSuccess(res, student, 'Student status changed successfully');
+  });
+
+  // PUT /student/:id - 학생 정보 업데이트
+  update = asyncHandler(async (req: Request, res: Response) => {
+    const studentId = parseInt(req.params.id);
+    const data: StudentUpdate = { ...req.body, student_id: studentId };
+    const userId = (req as any).userId || 1;
+
+    const student = await studentService.update(data, userId);
+
+    return sendSuccess(res, student, 'Student updated successfully');
+  });
+
+  // DELETE /student/:id/parent/:parentId - 보호자 삭제
+  deleteParent = asyncHandler(async (req: Request, res: Response) => {
+    const studentId = parseInt(req.params.id);
+    const parentId = parseInt(req.params.parentId);
+
+    await studentService.deleteParent(studentId, parentId);
+
+    return sendSuccess(res, null, 'Parent deleted successfully');
   });
 }
 
