@@ -3,6 +3,26 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'student.freezed.dart';
 part 'student.g.dart';
 
+/// 숫자 또는 문자열을 int?로 변환하는 컨버터
+class FlexibleIntConverter implements JsonConverter<int?, dynamic> {
+  const FlexibleIntConverter();
+
+  @override
+  int? fromJson(dynamic json) {
+    if (json == null) return null;
+    if (json is int) return json;
+    if (json is num) return json.toInt();
+    if (json is String) {
+      final parsed = int.tryParse(json);
+      return parsed;
+    }
+    return null;
+  }
+
+  @override
+  dynamic toJson(int? object) => object;
+}
+
 @freezed
 class Student with _$Student {
   const factory Student({
@@ -14,13 +34,13 @@ class Student with _$Student {
     @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'gender_code') String? genderCode,
     @JsonKey(name: 'gender_name') String? genderName,
-    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_id') @FlexibleIntConverter() int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
-    int? grade,
+    @FlexibleIntConverter() int? grade,
     @JsonKey(name: 'grade_name') String? gradeName,
     @JsonKey(name: 'guardian_name') String? guardianName,
     @JsonKey(name: 'guardian_phone') String? guardianPhone,
-    @JsonKey(name: 'guardian_relation') String? guardianRelation,
+    @JsonKey(name: 'guardian_relation') @FlexibleIntConverter() int? guardianRelation,
     @JsonKey(name: 'relation_name') String? relationName,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
@@ -31,7 +51,7 @@ class Student with _$Student {
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_name') String? sourceName,
     @JsonKey(name: 'source_detail') String? sourceDetail,
-    @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'tc_id') @FlexibleIntConverter() int? tcId,
     @JsonKey(name: 'tc_name') String? tcName,
     @JsonKey(name: 'first_contact_date') String? firstContactDate,
     @JsonKey(name: 'consult_date') String? consultDate,

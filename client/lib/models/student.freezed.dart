@@ -36,9 +36,11 @@ mixin _$Student {
   @JsonKey(name: 'gender_name')
   String? get genderName => throw _privateConstructorUsedError;
   @JsonKey(name: 'school_id')
+  @FlexibleIntConverter()
   int? get schoolId => throw _privateConstructorUsedError;
   @JsonKey(name: 'school_name')
   String? get schoolName => throw _privateConstructorUsedError;
+  @FlexibleIntConverter()
   int? get grade => throw _privateConstructorUsedError;
   @JsonKey(name: 'grade_name')
   String? get gradeName => throw _privateConstructorUsedError;
@@ -47,7 +49,8 @@ mixin _$Student {
   @JsonKey(name: 'guardian_phone')
   String? get guardianPhone => throw _privateConstructorUsedError;
   @JsonKey(name: 'guardian_relation')
-  String? get guardianRelation => throw _privateConstructorUsedError;
+  @FlexibleIntConverter()
+  int? get guardianRelation => throw _privateConstructorUsedError;
   @JsonKey(name: 'relation_name')
   String? get relationName => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
@@ -68,6 +71,7 @@ mixin _$Student {
   @JsonKey(name: 'source_detail')
   String? get sourceDetail => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
+  @FlexibleIntConverter()
   int? get tcId => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_name')
   String? get tcName => throw _privateConstructorUsedError;
@@ -110,13 +114,15 @@ abstract class $StudentCopyWith<$Res> {
     @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'gender_code') String? genderCode,
     @JsonKey(name: 'gender_name') String? genderName,
-    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_id') @FlexibleIntConverter() int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
-    int? grade,
+    @FlexibleIntConverter() int? grade,
     @JsonKey(name: 'grade_name') String? gradeName,
     @JsonKey(name: 'guardian_name') String? guardianName,
     @JsonKey(name: 'guardian_phone') String? guardianPhone,
-    @JsonKey(name: 'guardian_relation') String? guardianRelation,
+    @JsonKey(name: 'guardian_relation')
+    @FlexibleIntConverter()
+    int? guardianRelation,
     @JsonKey(name: 'relation_name') String? relationName,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
@@ -127,7 +133,7 @@ abstract class $StudentCopyWith<$Res> {
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_name') String? sourceName,
     @JsonKey(name: 'source_detail') String? sourceDetail,
-    @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'tc_id') @FlexibleIntConverter() int? tcId,
     @JsonKey(name: 'tc_name') String? tcName,
     @JsonKey(name: 'first_contact_date') String? firstContactDate,
     @JsonKey(name: 'consult_date') String? consultDate,
@@ -252,7 +258,7 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
             guardianRelation: freezed == guardianRelation
                 ? _value.guardianRelation
                 : guardianRelation // ignore: cast_nullable_to_non_nullable
-                      as String?,
+                      as int?,
             relationName: freezed == relationName
                 ? _value.relationName
                 : relationName // ignore: cast_nullable_to_non_nullable
@@ -356,13 +362,15 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'gender_code') String? genderCode,
     @JsonKey(name: 'gender_name') String? genderName,
-    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_id') @FlexibleIntConverter() int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
-    int? grade,
+    @FlexibleIntConverter() int? grade,
     @JsonKey(name: 'grade_name') String? gradeName,
     @JsonKey(name: 'guardian_name') String? guardianName,
     @JsonKey(name: 'guardian_phone') String? guardianPhone,
-    @JsonKey(name: 'guardian_relation') String? guardianRelation,
+    @JsonKey(name: 'guardian_relation')
+    @FlexibleIntConverter()
+    int? guardianRelation,
     @JsonKey(name: 'relation_name') String? relationName,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
@@ -373,7 +381,7 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_name') String? sourceName,
     @JsonKey(name: 'source_detail') String? sourceDetail,
-    @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'tc_id') @FlexibleIntConverter() int? tcId,
     @JsonKey(name: 'tc_name') String? tcName,
     @JsonKey(name: 'first_contact_date') String? firstContactDate,
     @JsonKey(name: 'consult_date') String? consultDate,
@@ -497,7 +505,7 @@ class __$$StudentImplCopyWithImpl<$Res>
         guardianRelation: freezed == guardianRelation
             ? _value.guardianRelation
             : guardianRelation // ignore: cast_nullable_to_non_nullable
-                  as String?,
+                  as int?,
         relationName: freezed == relationName
             ? _value.relationName
             : relationName // ignore: cast_nullable_to_non_nullable
@@ -595,13 +603,15 @@ class _$StudentImpl implements _Student {
     @JsonKey(name: 'birth_date') this.birthDate,
     @JsonKey(name: 'gender_code') this.genderCode,
     @JsonKey(name: 'gender_name') this.genderName,
-    @JsonKey(name: 'school_id') this.schoolId,
+    @JsonKey(name: 'school_id') @FlexibleIntConverter() this.schoolId,
     @JsonKey(name: 'school_name') this.schoolName,
-    this.grade,
+    @FlexibleIntConverter() this.grade,
     @JsonKey(name: 'grade_name') this.gradeName,
     @JsonKey(name: 'guardian_name') this.guardianName,
     @JsonKey(name: 'guardian_phone') this.guardianPhone,
-    @JsonKey(name: 'guardian_relation') this.guardianRelation,
+    @JsonKey(name: 'guardian_relation')
+    @FlexibleIntConverter()
+    this.guardianRelation,
     @JsonKey(name: 'relation_name') this.relationName,
     this.address,
     @JsonKey(name: 'address_detail') this.addressDetail,
@@ -612,7 +622,7 @@ class _$StudentImpl implements _Student {
     @JsonKey(name: 'source_code') this.sourceCode,
     @JsonKey(name: 'source_name') this.sourceName,
     @JsonKey(name: 'source_detail') this.sourceDetail,
-    @JsonKey(name: 'tc_id') this.tcId,
+    @JsonKey(name: 'tc_id') @FlexibleIntConverter() this.tcId,
     @JsonKey(name: 'tc_name') this.tcName,
     @JsonKey(name: 'first_contact_date') this.firstContactDate,
     @JsonKey(name: 'consult_date') this.consultDate,
@@ -651,11 +661,13 @@ class _$StudentImpl implements _Student {
   final String? genderName;
   @override
   @JsonKey(name: 'school_id')
+  @FlexibleIntConverter()
   final int? schoolId;
   @override
   @JsonKey(name: 'school_name')
   final String? schoolName;
   @override
+  @FlexibleIntConverter()
   final int? grade;
   @override
   @JsonKey(name: 'grade_name')
@@ -668,7 +680,8 @@ class _$StudentImpl implements _Student {
   final String? guardianPhone;
   @override
   @JsonKey(name: 'guardian_relation')
-  final String? guardianRelation;
+  @FlexibleIntConverter()
+  final int? guardianRelation;
   @override
   @JsonKey(name: 'relation_name')
   final String? relationName;
@@ -700,6 +713,7 @@ class _$StudentImpl implements _Student {
   final String? sourceDetail;
   @override
   @JsonKey(name: 'tc_id')
+  @FlexibleIntConverter()
   final int? tcId;
   @override
   @JsonKey(name: 'tc_name')
@@ -868,13 +882,15 @@ abstract class _Student implements Student {
     @JsonKey(name: 'birth_date') final String? birthDate,
     @JsonKey(name: 'gender_code') final String? genderCode,
     @JsonKey(name: 'gender_name') final String? genderName,
-    @JsonKey(name: 'school_id') final int? schoolId,
+    @JsonKey(name: 'school_id') @FlexibleIntConverter() final int? schoolId,
     @JsonKey(name: 'school_name') final String? schoolName,
-    final int? grade,
+    @FlexibleIntConverter() final int? grade,
     @JsonKey(name: 'grade_name') final String? gradeName,
     @JsonKey(name: 'guardian_name') final String? guardianName,
     @JsonKey(name: 'guardian_phone') final String? guardianPhone,
-    @JsonKey(name: 'guardian_relation') final String? guardianRelation,
+    @JsonKey(name: 'guardian_relation')
+    @FlexibleIntConverter()
+    final int? guardianRelation,
     @JsonKey(name: 'relation_name') final String? relationName,
     final String? address,
     @JsonKey(name: 'address_detail') final String? addressDetail,
@@ -885,7 +901,7 @@ abstract class _Student implements Student {
     @JsonKey(name: 'source_code') final String? sourceCode,
     @JsonKey(name: 'source_name') final String? sourceName,
     @JsonKey(name: 'source_detail') final String? sourceDetail,
-    @JsonKey(name: 'tc_id') final int? tcId,
+    @JsonKey(name: 'tc_id') @FlexibleIntConverter() final int? tcId,
     @JsonKey(name: 'tc_name') final String? tcName,
     @JsonKey(name: 'first_contact_date') final String? firstContactDate,
     @JsonKey(name: 'consult_date') final String? consultDate,
@@ -923,11 +939,13 @@ abstract class _Student implements Student {
   String? get genderName;
   @override
   @JsonKey(name: 'school_id')
+  @FlexibleIntConverter()
   int? get schoolId;
   @override
   @JsonKey(name: 'school_name')
   String? get schoolName;
   @override
+  @FlexibleIntConverter()
   int? get grade;
   @override
   @JsonKey(name: 'grade_name')
@@ -940,7 +958,8 @@ abstract class _Student implements Student {
   String? get guardianPhone;
   @override
   @JsonKey(name: 'guardian_relation')
-  String? get guardianRelation;
+  @FlexibleIntConverter()
+  int? get guardianRelation;
   @override
   @JsonKey(name: 'relation_name')
   String? get relationName;
@@ -972,6 +991,7 @@ abstract class _Student implements Student {
   String? get sourceDetail;
   @override
   @JsonKey(name: 'tc_id')
+  @FlexibleIntConverter()
   int? get tcId;
   @override
   @JsonKey(name: 'tc_name')
