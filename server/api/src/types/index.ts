@@ -110,6 +110,26 @@ export interface StudentUpdate {
   parents?: ParentInfo[];
 }
 
+// 학생 신규 등록
+export interface StudentCreate {
+  student_name: string;
+  phone: string;
+  email?: string;
+  birth_date?: string;
+  gender_code?: string;
+  school_id?: number;
+  school_name?: string;
+  grade?: number;
+  status_code?: string;
+  source_code?: string;
+  source_detail?: string;
+  tc_id?: number;
+  memo?: string;
+  guardian_name?: string;
+  guardian_phone?: string;
+  parent_kind?: number;
+}
+
 // Consult Types
 export interface Consult {
   consult_id: number;

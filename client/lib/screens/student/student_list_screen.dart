@@ -34,6 +34,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   final _searchController = TextEditingController();
   String? _selectedStatus;
   int? _selectedGrade;
+  bool _sortByRecent = false; // false: 이름순, true: 최근등록순
 
   @override
   void initState() {
@@ -160,6 +161,28 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     },
                   ),
                 ),
+                const SizedBox(width: 16),
+
+                // 정렬 토글
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: false,
+                      label: Text('이름순'),
+                      icon: Icon(Icons.sort_by_alpha),
+                    ),
+                    ButtonSegment(
+                      value: true,
+                      label: Text('최근등록순'),
+                      icon: Icon(Icons.access_time),
+                    ),
+                  ],
+                  selected: {_sortByRecent},
+                  onSelectionChanged: (selected) {
+                    setState(() => _sortByRecent = selected.first);
+                    _applyFilter();
+                  },
+                ),
                 const Spacer(),
 
                 // 결과 수
@@ -203,6 +226,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
       columns: const [
         DataColumn2(label: Text('No.'), fixedWidth: 60),
         DataColumn2(label: Text('이름'), size: ColumnSize.S),
+        DataColumn2(label: Text('ID'), fixedWidth: 60),
         DataColumn2(label: Text('전화번호'), size: ColumnSize.M),
         DataColumn2(label: Text('학년'), size: ColumnSize.S),
         DataColumn2(label: Text('상태'), size: ColumnSize.S),
@@ -222,6 +246,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
     ref.read(studentListProvider.notifier).updateFilter(
           statusCode: _selectedStatus,
           grade: _selectedGrade,
+          sort: _sortByRecent ? 'student_id' : 'student_name',
+          order: _sortByRecent ? 'desc' : 'asc',
         );
   }
 }
@@ -240,11 +266,16 @@ class _StudentDataSource extends DataTableSource {
     if (index >= students.length) return null;
     final student = students[index];
 
+    // 재원/퇴원 상태에서는 담당TC 표시 안함
+    final isEnrolledOrWithdrawn = student.statusCode == 'STATUS_ENROLLED' ||
+        student.statusCode == 'STATUS_WITHDRAW';
+
     return DataRow2(
       onTap: () => onTap(student),
       cells: [
         DataCell(Text('${index + 1}')),
         DataCell(Text(student.studentName)),
+        DataCell(Text('${student.studentId}')),
         DataCell(Text(formatPhone(student.phone))),
         DataCell(Text(student.gradeName ?? '-')),
         DataCell(
@@ -253,7 +284,7 @@ class _StudentDataSource extends DataTableSource {
             statusName: student.statusName ?? '',
           ),
         ),
-        DataCell(Text(student.tcName ?? '-')),
+        DataCell(Text(isEnrolledOrWithdrawn ? '-' : (student.tcName ?? '-'))),
         DataCell(Text(formatDateTime(student.firstContactDate))),
         DataCell(Text(formatDate(student.registerDate))),
         DataCell(

@@ -168,6 +168,46 @@ Map<String, dynamic> _$$StudentStateChangeImplToJson(
   'new_tc_id': instance.newTcId,
 };
 
+_$StudentCreateImpl _$$StudentCreateImplFromJson(Map<String, dynamic> json) =>
+    _$StudentCreateImpl(
+      studentName: json['student_name'] as String,
+      phone: json['phone'] as String,
+      email: json['email'] as String?,
+      birthDate: json['birth_date'] as String?,
+      genderCode: json['gender_code'] as String?,
+      schoolId: (json['school_id'] as num?)?.toInt(),
+      schoolName: json['school_name'] as String?,
+      grade: (json['grade'] as num?)?.toInt(),
+      statusCode: json['status_code'] as String?,
+      sourceCode: json['source_code'] as String?,
+      sourceDetail: json['source_detail'] as String?,
+      tcId: (json['tc_id'] as num?)?.toInt(),
+      memo: json['memo'] as String?,
+      guardianName: json['guardian_name'] as String?,
+      guardianPhone: json['guardian_phone'] as String?,
+      parentKind: (json['parent_kind'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$$StudentCreateImplToJson(_$StudentCreateImpl instance) =>
+    <String, dynamic>{
+      'student_name': instance.studentName,
+      'phone': instance.phone,
+      'email': instance.email,
+      'birth_date': instance.birthDate,
+      'gender_code': instance.genderCode,
+      'school_id': instance.schoolId,
+      'school_name': instance.schoolName,
+      'grade': instance.grade,
+      'status_code': instance.statusCode,
+      'source_code': instance.sourceCode,
+      'source_detail': instance.sourceDetail,
+      'tc_id': instance.tcId,
+      'memo': instance.memo,
+      'guardian_name': instance.guardianName,
+      'guardian_phone': instance.guardianPhone,
+      'parent_kind': instance.parentKind,
+    };
+
 _$StudentListParamsImpl _$$StudentListParamsImplFromJson(
   Map<String, dynamic> json,
 ) => _$StudentListParamsImpl(

@@ -79,6 +79,68 @@ export const validateStudentListQuery: ValidationChain[] = [
     .withMessage('to_date must be a valid date')
 ];
 
+export const validateStudentCreate: ValidationChain[] = [
+  body('student_name')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('student_name is required')
+    .isLength({ min: 1, max: 50 }),
+  body('phone')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('phone is required'),
+  body('email')
+    .optional({ nullable: true })
+    .isEmail()
+    .withMessage('email must be a valid email'),
+  body('birth_date')
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage('birth_date must be a valid date'),
+  body('gender_code')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('school_id')
+    .optional({ nullable: true })
+    .isInt({ min: 1 }),
+  body('school_name')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('grade')
+    .optional({ nullable: true })
+    .isInt({ min: 1, max: 14 }),
+  body('status_code')
+    .optional()
+    .isString()
+    .trim(),
+  body('source_code')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('tc_id')
+    .optional({ nullable: true })
+    .isInt({ min: 1 }),
+  body('memo')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('guardian_name')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('guardian_phone')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('parent_kind')
+    .optional({ nullable: true })
+    .isInt({ min: 1, max: 99 })
+];
+
 export const validateStudentUpdate: ValidationChain[] = [
   body('student_name')
     .optional()

@@ -5,6 +5,36 @@ import '../models/student.dart';
 class StudentRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
+  // 학생 신규 등록
+  Future<Student> create(StudentCreate data) async {
+    final body = <String, dynamic>{
+      'student_name': data.studentName,
+      'phone': data.phone,
+    };
+
+    if (data.email != null) body['email'] = data.email;
+    if (data.birthDate != null) body['birth_date'] = data.birthDate;
+    if (data.genderCode != null) body['gender_code'] = data.genderCode;
+    if (data.schoolId != null) body['school_id'] = data.schoolId;
+    if (data.schoolName != null) body['school_name'] = data.schoolName;
+    if (data.grade != null) body['grade'] = data.grade;
+    if (data.statusCode != null) body['status_code'] = data.statusCode;
+    if (data.sourceCode != null) body['source_code'] = data.sourceCode;
+    if (data.sourceDetail != null) body['source_detail'] = data.sourceDetail;
+    if (data.tcId != null) body['tc_id'] = data.tcId;
+    if (data.memo != null) body['memo'] = data.memo;
+    if (data.guardianName != null) body['guardian_name'] = data.guardianName;
+    if (data.guardianPhone != null) body['guardian_phone'] = data.guardianPhone;
+    if (data.parentKind != null) body['parent_kind'] = data.parentKind;
+
+    final response = await _apiClient.post<Map<String, dynamic>>(
+      '/student',
+      data: body,
+    );
+
+    return Student.fromJson(response['data']);
+  }
+
   // 학생 목록 조회
   Future<PaginatedResult<Student>> getList(StudentListParams params) async {
     final queryParams = <String, dynamic>{
@@ -108,6 +138,15 @@ class StudentRepository {
   Future<void> deleteParent(int studentId, int parentId) async {
     await _apiClient.delete<Map<String, dynamic>>(
       '/student/$studentId/parent/$parentId',
+    );
+  }
+
+  // 학생 삭제 (관리자만)
+  // hard: true면 완전 삭제, false면 soft delete
+  Future<void> delete(int studentId, {bool hard = false}) async {
+    await _apiClient.delete<Map<String, dynamic>>(
+      '/student/$studentId',
+      queryParameters: hard ? {'hard': 'true'} : null,
     );
   }
 }

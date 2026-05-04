@@ -2,9 +2,19 @@ import { Request, Response } from 'express';
 import studentService from '../services/studentService';
 import { asyncHandler } from '../middlewares/errorHandler';
 import { sendSuccess, sendPaginated } from '../utils/responseHelper';
-import { StudentListQuery, StudentStateChange, StudentUpdate } from '../types';
+import { StudentListQuery, StudentStateChange, StudentUpdate, StudentCreate } from '../types';
 
 export class StudentController {
+  // POST /student - 학생 신규 등록
+  create = asyncHandler(async (req: Request, res: Response) => {
+    const data: StudentCreate = req.body;
+    const userId = (req as any).userId || 1;
+
+    const student = await studentService.create(data, userId);
+
+    return sendSuccess(res, student, 'Student created successfully', 201);
+  });
+
   // GET /student/list
   getList = asyncHandler(async (req: Request, res: Response) => {
     const query: StudentListQuery = {
@@ -70,6 +80,31 @@ export class StudentController {
     await studentService.deleteParent(studentId, parentId);
 
     return sendSuccess(res, null, 'Parent deleted successfully');
+  });
+
+  // DELETE /student/:id - 학생 삭제 (관리자만)
+  // ?hard=true 쿼리 파라미터로 완전 삭제
+  delete = asyncHandler(async (req: Request, res: Response) => {
+    const studentId = parseInt(req.params.id);
+    const userId = (req as any).userId || 1;
+    const userKind = (req as any).userKind;
+    const hardDelete = req.query.hard === 'true';
+
+    console.log(`Delete request: studentId=${studentId}, userId=${userId}, userKind=${userKind}, hard=${hardDelete}`);
+
+    // 관리자(kind=1) 권한 체크
+    if (userKind !== 1) {
+      console.log(`Permission denied: userKind=${userKind} is not admin`);
+      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+    }
+
+    if (hardDelete) {
+      await studentService.hardDelete(studentId);
+      return sendSuccess(res, null, 'Student permanently deleted');
+    } else {
+      await studentService.delete(studentId, userId);
+      return sendSuccess(res, null, 'Student deleted successfully');
+    }
   });
 }
 

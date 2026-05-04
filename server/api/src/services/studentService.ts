@@ -1,9 +1,120 @@
 import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import { Student, StudentDetail, StudentListQuery, StudentStateChange, StudentUpdate, ParentInfo } from '../types';
+import { Student, StudentDetail, StudentListQuery, StudentStateChange, StudentUpdate, StudentCreate, ParentInfo } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 
+// 전화번호에서 '-' 제거
+const cleanPhone = (phone: string | undefined | null): string | null => {
+  if (!phone) return null;
+  return phone.replace(/-/g, '');
+};
+
 export class StudentService {
+  // 학생 신규 등록
+  async create(data: StudentCreate, userId: number): Promise<StudentDetail> {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // 1. User 테이블에 학생 추가 (kind=2, active_flag=0)
+      // 트리거가 자동으로 student_info 생성
+      const [userResult] = await connection.query<ResultSetHeader>(
+        `INSERT INTO User (name, kind, phone, grade, user_pw_hash, active_flag, reg_dt)
+         VALUES (?, 2, ?, ?, '', 0, NOW())`,
+        [data.student_name, cleanPhone(data.phone), data.grade || null]
+      );
+
+      const studentId = userResult.insertId;
+
+      // 2. student_info 추가 정보 업데이트 (트리거가 기본 레코드 생성)
+      const updateFields: string[] = [];
+      const updateParams: any[] = [];
+
+      if (data.status_code && data.status_code !== 'STATUS_PROSPECT') {
+        updateFields.push('status_code = ?');
+        updateParams.push(data.status_code);
+      }
+      if (data.gender_code) {
+        updateFields.push('gender_code = ?');
+        updateParams.push(data.gender_code);
+      }
+      if (data.birth_date) {
+        updateFields.push('birth_date = ?');
+        updateParams.push(data.birth_date);
+      }
+      if (data.school_id) {
+        updateFields.push('school_id = ?');
+        updateParams.push(data.school_id);
+      }
+      if (data.school_name) {
+        updateFields.push('school_name = ?');
+        updateParams.push(data.school_name);
+      }
+      if (data.source_code) {
+        updateFields.push('source_code = ?');
+        updateParams.push(data.source_code);
+      }
+      if (data.source_detail) {
+        updateFields.push('source_detail = ?');
+        updateParams.push(data.source_detail);
+      }
+      if (data.tc_id) {
+        updateFields.push('tc_id = ?');
+        updateParams.push(data.tc_id);
+      }
+      if (data.memo) {
+        updateFields.push('memo = ?');
+        updateParams.push(data.memo);
+      }
+
+      // created_by는 유효한 userId가 있을 때만 설정
+      if (userId && userId > 1) {
+        updateFields.push('created_by = ?');
+        updateParams.push(userId);
+      }
+
+      if (updateFields.length > 0) {
+        updateParams.push(studentId);
+        await connection.query(
+          `UPDATE student_info SET ${updateFields.join(', ')} WHERE student_id = ?`,
+          updateParams
+        );
+      }
+
+      // 3. 보호자 정보 추가
+      if (data.guardian_phone) {
+        const guardianPhoneClean = cleanPhone(data.guardian_phone);
+
+        // 보호자 User 생성 (kind=4)
+        const [parentResult] = await connection.query<ResultSetHeader>(
+          `INSERT INTO User (name, kind, phone, user_pw_hash, reg_dt)
+           VALUES (?, 4, ?, '', NOW())`,
+          [data.guardian_name || data.student_name, guardianPhoneClean]
+        );
+
+        const parentId = parentResult.insertId;
+
+        // ParentPhone 연결
+        await connection.query(
+          `INSERT INTO ParentPhone (parent_id, student_id, phone, seq, parent_kind, reg_dt)
+           VALUES (?, ?, ?, 1, ?, NOW())`,
+          [parentId, studentId, guardianPhoneClean, data.parent_kind || 2]
+        );
+      }
+
+      await connection.commit();
+
+      return this.getById(studentId);
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
   // 학생 목록 조회
   async getList(query: StudentListQuery): Promise<{ data: Student[]; total: number }> {
     const page = query.page || 1;
@@ -254,7 +365,7 @@ export class StudentService {
         }
         if (data.phone) {
           userUpdates.push('phone = ?');
-          userParams.push(data.phone);
+          userParams.push(cleanPhone(data.phone));
         }
         if (data.email !== undefined) {
           userUpdates.push('email = ?');
@@ -335,23 +446,25 @@ export class StudentService {
         for (const parent of data.parents) {
           if (!parent.phone) continue; // 전화번호 필수
 
+          const parentPhoneClean = cleanPhone(parent.phone);
+
           if (parent.parent_id) {
             // 기존 보호자 업데이트
             await connection.query(
               `UPDATE ParentPhone SET phone = ?, parent_kind = ? WHERE parent_id = ? AND student_id = ?`,
-              [parent.phone, parent.parent_kind, parent.parent_id, data.student_id]
+              [parentPhoneClean, parent.parent_kind, parent.parent_id, data.student_id]
             );
             // User 테이블의 전화번호도 업데이트
             await connection.query(
               `UPDATE User SET phone = ?, updated_at = NOW() WHERE user_id = ?`,
-              [parent.phone, parent.parent_id]
+              [parentPhoneClean, parent.parent_id]
             );
           } else {
             // 새 보호자 추가
             // 먼저 해당 전화번호로 기존 User가 있는지 확인
             const [existingUser] = await connection.query<RowDataPacket[]>(
               'SELECT user_id FROM User WHERE phone = ?',
-              [parent.phone]
+              [parentPhoneClean]
             );
 
             let newParentId: number;
@@ -363,7 +476,7 @@ export class StudentService {
               // 1. User 테이블에 추가 (kind=4: 학부모)
               const [userResult] = await connection.query<ResultSetHeader>(
                 `INSERT INTO User (name, kind, phone, user_pw_hash, reg_dt) VALUES (?, 4, ?, '', NOW())`,
-                [studentName, parent.phone]
+                [studentName, parentPhoneClean]
               );
               newParentId = userResult.insertId;
             }
@@ -373,7 +486,7 @@ export class StudentService {
               `INSERT INTO ParentPhone (parent_id, student_id, phone, seq, parent_kind, reg_dt)
                VALUES (?, ?, ?, ?, ?, NOW())
                ON DUPLICATE KEY UPDATE phone = VALUES(phone), seq = VALUES(seq), parent_kind = VALUES(parent_kind)`,
-              [newParentId, data.student_id, parent.phone, parent.seq, parent.parent_kind]
+              [newParentId, data.student_id, parentPhoneClean, parent.seq, parent.parent_kind]
             );
           }
         }
@@ -481,6 +594,145 @@ export class StudentService {
 
       // Return updated student
       return this.getById(data.student_id);
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  // 학생 삭제 (soft delete)
+  async delete(studentId: number, userId: number): Promise<void> {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // 학생 존재 확인
+      const [existing] = await connection.query<RowDataPacket[]>(
+        'SELECT student_id FROM student_info WHERE student_id = ? AND deleted_at IS NULL',
+        [studentId]
+      );
+
+      if (existing.length === 0) {
+        throw new AppError('Student not found', 404);
+      }
+
+      // student_info soft delete
+      await connection.query(
+        'UPDATE student_info SET deleted_at = NOW(), updated_by = ? WHERE student_id = ?',
+        [userId, studentId]
+      );
+
+      // User 테이블도 soft delete
+      await connection.query(
+        'UPDATE User SET deleted_at = NOW() WHERE user_id = ? AND kind = 2',
+        [studentId]
+      );
+
+      // 연관된 보호자 연결 삭제 (ParentPhone)
+      await connection.query(
+        'DELETE FROM ParentPhone WHERE student_id = ?',
+        [studentId]
+      );
+
+      await connection.commit();
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
+  // 학생 완전 삭제 (hard delete) - 관리자 전용
+  async hardDelete(studentId: number): Promise<void> {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // 학생 존재 확인 (soft deleted 포함)
+      const [existing] = await connection.query<RowDataPacket[]>(
+        'SELECT student_id FROM student_info WHERE student_id = ?',
+        [studentId]
+      );
+
+      if (existing.length === 0) {
+        throw new AppError('Student not found', 404);
+      }
+
+      // 1. 상담 첨부파일 삭제
+      await connection.query(
+        'DELETE ca FROM consult_attachment ca JOIN consult c ON ca.consult_id = c.consult_id WHERE c.student_id = ?',
+        [studentId]
+      );
+
+      // 2. 상담 기록 삭제
+      await connection.query(
+        'DELETE FROM consult WHERE student_id = ?',
+        [studentId]
+      );
+
+      // 3. 학생 상태 변경 이력 삭제
+      await connection.query(
+        'DELETE FROM student_history WHERE student_id = ?',
+        [studentId]
+      );
+
+      // 4. 학생-프로모션 연결 삭제
+      await connection.query(
+        'DELETE FROM student_promotion WHERE student_id = ?',
+        [studentId]
+      );
+
+      // 5. 이전 학원 정보 삭제
+      await connection.query(
+        'DELETE FROM former_academy WHERE student_id = ?',
+        [studentId]
+      );
+
+      // 6. 보호자 연결 삭제 및 고아 보호자 정리
+      const [parents] = await connection.query<RowDataPacket[]>(
+        'SELECT parent_id FROM ParentPhone WHERE student_id = ?',
+        [studentId]
+      );
+
+      await connection.query(
+        'DELETE FROM ParentPhone WHERE student_id = ?',
+        [studentId]
+      );
+
+      // 다른 학생과 연결되지 않은 보호자 삭제
+      for (const parent of parents) {
+        const [otherLinks] = await connection.query<RowDataPacket[]>(
+          'SELECT COUNT(*) as cnt FROM ParentPhone WHERE parent_id = ?',
+          [parent.parent_id]
+        );
+        if (otherLinks[0].cnt === 0) {
+          await connection.query(
+            'DELETE FROM User WHERE user_id = ? AND kind = 4',
+            [parent.parent_id]
+          );
+        }
+      }
+
+      // 7. student_info 삭제
+      await connection.query(
+        'DELETE FROM student_info WHERE student_id = ?',
+        [studentId]
+      );
+
+      // 8. User 삭제
+      await connection.query(
+        'DELETE FROM User WHERE user_id = ? AND kind = 2',
+        [studentId]
+      );
+
+      await connection.commit();
 
     } catch (error) {
       await connection.rollback();

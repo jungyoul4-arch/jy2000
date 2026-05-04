@@ -5,10 +5,18 @@ import {
   validateId,
   validateStudentListQuery,
   validateStudentStateChange,
+  validateStudentCreate,
   validateStudentUpdate
 } from '../validators';
 
 const router = Router();
+
+// POST /student - 학생 신규 등록
+router.post(
+  '/',
+  validate(validateStudentCreate),
+  studentController.create
+);
 
 // GET /student/list - 학생 목록 조회
 router.get(
@@ -29,6 +37,13 @@ router.put(
   '/:id',
   validate([validateId('id'), ...validateStudentUpdate]),
   studentController.update
+);
+
+// DELETE /student/:id - 학생 삭제 (관리자만)
+router.delete(
+  '/:id',
+  validate([validateId('id')]),
+  studentController.delete
 );
 
 // DELETE /student/:id/parent/:parentId - 보호자 삭제

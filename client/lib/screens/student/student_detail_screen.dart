@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../models/student.dart';
 import '../../models/school.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/code_provider.dart';
 import '../../providers/student_provider.dart';
 import '../../providers/school_provider.dart';
 import '../../repositories/student_repository.dart';
@@ -19,6 +21,8 @@ class StudentDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final studentAsync = ref.watch(studentDetailProvider(studentId));
+    final authState = ref.watch(authProvider);
+    final isAdmin = authState.user?.kind == 1;
 
     return Scaffold(
       appBar: AppBar(
@@ -42,6 +46,13 @@ class StudentDetailScreen extends ConsumerWidget {
             icon: const Icon(Icons.add),
             label: const Text('상담 등록'),
           ),
+          // 관리자만 삭제 버튼 표시
+          if (isAdmin)
+            TextButton.icon(
+              onPressed: () => _showDeleteConfirmDialog(context, ref),
+              icon: const Icon(Icons.delete, color: Colors.red),
+              label: const Text('삭제', style: TextStyle(color: Colors.red)),
+            ),
           const SizedBox(width: 16),
         ],
       ),
@@ -103,9 +114,7 @@ class StudentDetailScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   OutlinedButton(
-                    onPressed: () {
-                      // TODO: 상태 변경 다이얼로그
-                    },
+                    onPressed: () => _showStatusChangeDialog(context, ref, student),
                     child: const Text('상태 변경'),
                   ),
                 ],
@@ -232,6 +241,226 @@ class StudentDetailScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  void _showDeleteConfirmDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('학생 삭제'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('삭제 방식을 선택하세요:'),
+            SizedBox(height: 16),
+            Text(
+              '• 숨김 처리: 목록에서 숨기지만 데이터는 보존',
+              style: TextStyle(fontSize: 14),
+            ),
+            SizedBox(height: 8),
+            Text(
+              '• 완전 삭제: 모든 관련 데이터를 영구 삭제 (복구 불가)',
+              style: TextStyle(fontSize: 14, color: Colors.red),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('취소'),
+          ),
+          OutlinedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _deleteStudent(context, ref, hard: false);
+            },
+            child: const Text('숨김 처리'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => _showHardDeleteConfirmDialog(context, ref),
+            child: const Text('완전 삭제'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHardDeleteConfirmDialog(BuildContext context, WidgetRef ref) {
+    Navigator.of(context).pop(); // 이전 다이얼로그 닫기
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 8),
+            Text('경고: 완전 삭제'),
+          ],
+        ),
+        content: const Text(
+          '정말로 완전 삭제하시겠습니까?\n\n'
+          '다음 데이터가 모두 삭제됩니다:\n'
+          '• 학생 정보\n'
+          '• 상담 기록\n'
+          '• 상태 변경 이력\n'
+          '• 보호자 연결\n\n'
+          '이 작업은 되돌릴 수 없습니다!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _deleteStudent(context, ref, hard: true);
+            },
+            child: const Text('완전 삭제 확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteStudent(BuildContext context, WidgetRef ref, {required bool hard}) async {
+    try {
+      final repository = StudentRepository();
+      await repository.delete(studentId, hard: hard);
+
+      // 목록 새로고침
+      ref.read(studentListProvider.notifier).refresh();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(hard ? '학생이 완전히 삭제되었습니다' : '학생이 숨김 처리되었습니다'),
+          ),
+        );
+        context.go('/students');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('삭제 오류: $e')),
+        );
+      }
+    }
+  }
+
+  void _showStatusChangeDialog(BuildContext context, WidgetRef ref, Student student) {
+    String? selectedStatus = student.statusCode;
+    final reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        final statusCodes = ref.read(statusCodesProvider);
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('상태 변경'),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('현재 상태: ${student.statusName ?? "-"}'),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedStatus,
+                      decoration: const InputDecoration(
+                        labelText: '변경할 상태',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: statusCodes
+                          .map((code) => DropdownMenuItem(
+                                value: code.codeId,
+                                child: Text(code.codeName),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => selectedStatus = value);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: reasonController,
+                      decoration: const InputDecoration(
+                        labelText: '변경 사유 (선택)',
+                        border: OutlineInputBorder(),
+                        hintText: '상태 변경 사유를 입력하세요',
+                      ),
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('취소'),
+                ),
+                FilledButton(
+                  onPressed: selectedStatus == student.statusCode
+                      ? null
+                      : () async {
+                          Navigator.pop(context);
+                          await _changeStatus(
+                            context,
+                            ref,
+                            student.studentId,
+                            selectedStatus!,
+                            reasonController.text.isEmpty ? null : reasonController.text,
+                          );
+                        },
+                  child: const Text('변경'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _changeStatus(
+    BuildContext context,
+    WidgetRef ref,
+    int studentId,
+    String newStatusCode,
+    String? reason,
+  ) async {
+    try {
+      final repository = StudentRepository();
+      await repository.changeState(StudentStateChange(
+        studentId: studentId,
+        newStatusCode: newStatusCode,
+        changeReason: reason,
+      ));
+
+      // 상세 정보 새로고침
+      ref.invalidate(studentDetailProvider(studentId));
+      // 목록도 새로고침
+      ref.read(studentListProvider.notifier).refresh();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('상태가 변경되었습니다')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('상태 변경 오류: $e')),
+        );
+      }
+    }
   }
 
   Widget _buildInfoCard(

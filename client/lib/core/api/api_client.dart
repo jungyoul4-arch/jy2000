@@ -8,6 +8,8 @@ class ApiClient {
   static ApiClient? _instance;
   late final Dio _dio;
   final Logger _logger = Logger();
+  int? _userId;
+  int? _userKind;
 
   ApiClient._() {
     _dio = Dio(
@@ -27,11 +29,13 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           _logger.d('REQUEST[${options.method}] => PATH: ${options.path}');
-          // TODO: 토큰 추가
-          // final token = await _getToken();
-          // if (token != null) {
-          //   options.headers['Authorization'] = 'Bearer $token';
-          // }
+          // 사용자 정보 헤더 추가
+          if (_userId != null) {
+            options.headers['X-User-Id'] = _userId.toString();
+          }
+          if (_userKind != null) {
+            options.headers['X-User-Kind'] = _userKind.toString();
+          }
           return handler.next(options);
         },
         onResponse: (response, handler) {
@@ -65,6 +69,18 @@ class ApiClient {
   // 토큰 제거
   void clearToken() {
     _dio.options.headers.remove('Authorization');
+  }
+
+  // 사용자 정보 설정
+  void setUser(int userId, int kind) {
+    _userId = userId;
+    _userKind = kind;
+  }
+
+  // 사용자 정보 제거
+  void clearUser() {
+    _userId = null;
+    _userKind = null;
   }
 
   // GET 요청

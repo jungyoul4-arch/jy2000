@@ -69,6 +69,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (autoLogin && userJson != null) {
       try {
         final user = AuthUser.fromJson(json.decode(userJson));
+        // API 클라이언트에 사용자 정보 설정
+        ApiClient.instance.setUser(user.userId, user.kind);
         state = AuthState(
           status: AuthStatus.authenticated,
           user: user,
@@ -114,6 +116,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await prefs.setBool('autoLogin', autoLogin);
       await prefs.setString('user', json.encode(response.user.toJson()));
 
+      // API 클라이언트에 사용자 정보 설정
+      ApiClient.instance.setUser(response.user.userId, response.user.kind);
+
       state = AuthState(
         status: AuthStatus.authenticated,
         user: response.user,
@@ -133,6 +138,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('autoLogin');
     await prefs.remove('user');
+
+    // API 클라이언트에서 사용자 정보 제거
+    ApiClient.instance.clearUser();
 
     state = const AuthState(status: AuthStatus.unauthenticated);
   }

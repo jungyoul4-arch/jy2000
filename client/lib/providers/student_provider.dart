@@ -101,6 +101,8 @@ class StudentListNotifier extends StateNotifier<StudentListState> {
     int? grade,
     int? tcId,
     String? search,
+    String? sort,
+    String? order,
   }) {
     fetchList(
       params: state.params.copyWith(
@@ -109,6 +111,8 @@ class StudentListNotifier extends StateNotifier<StudentListState> {
         grade: grade,
         tcId: tcId,
         search: search,
+        sort: sort,
+        order: order,
       ),
       refresh: true,
     );
@@ -136,4 +140,11 @@ final changeStudentStateProvider =
     FutureProvider.family<Student, StudentStateChange>((ref, data) async {
   final repository = ref.read(studentRepositoryProvider);
   return repository.changeState(data);
+});
+
+// 학생 신규 등록 Provider
+final createStudentProvider =
+    FutureProvider.family<Student, StudentCreate>((ref, data) async {
+  final repository = ref.read(studentRepositoryProvider);
+  return repository.create(data);
 });

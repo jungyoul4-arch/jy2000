@@ -2057,6 +2057,534 @@ abstract class _StudentStateChange implements StudentStateChange {
       throw _privateConstructorUsedError;
 }
 
+StudentCreate _$StudentCreateFromJson(Map<String, dynamic> json) {
+  return _StudentCreate.fromJson(json);
+}
+
+/// @nodoc
+mixin _$StudentCreate {
+  @JsonKey(name: 'student_name')
+  String get studentName => throw _privateConstructorUsedError;
+  String get phone => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'birth_date')
+  String? get birthDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gender_code')
+  String? get genderCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_id')
+  int? get schoolId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_name')
+  String? get schoolName => throw _privateConstructorUsedError;
+  int? get grade => throw _privateConstructorUsedError;
+  @JsonKey(name: 'status_code')
+  String? get statusCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'source_code')
+  String? get sourceCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'source_detail')
+  String? get sourceDetail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tc_id')
+  int? get tcId => throw _privateConstructorUsedError;
+  String? get memo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'guardian_name')
+  String? get guardianName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'guardian_phone')
+  String? get guardianPhone => throw _privateConstructorUsedError;
+  @JsonKey(name: 'parent_kind')
+  int? get parentKind => throw _privateConstructorUsedError;
+
+  /// Serializes this StudentCreate to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of StudentCreate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $StudentCreateCopyWith<StudentCreate> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $StudentCreateCopyWith<$Res> {
+  factory $StudentCreateCopyWith(
+    StudentCreate value,
+    $Res Function(StudentCreate) then,
+  ) = _$StudentCreateCopyWithImpl<$Res, StudentCreate>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'student_name') String studentName,
+    String phone,
+    String? email,
+    @JsonKey(name: 'birth_date') String? birthDate,
+    @JsonKey(name: 'gender_code') String? genderCode,
+    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_name') String? schoolName,
+    int? grade,
+    @JsonKey(name: 'status_code') String? statusCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
+    @JsonKey(name: 'source_detail') String? sourceDetail,
+    @JsonKey(name: 'tc_id') int? tcId,
+    String? memo,
+    @JsonKey(name: 'guardian_name') String? guardianName,
+    @JsonKey(name: 'guardian_phone') String? guardianPhone,
+    @JsonKey(name: 'parent_kind') int? parentKind,
+  });
+}
+
+/// @nodoc
+class _$StudentCreateCopyWithImpl<$Res, $Val extends StudentCreate>
+    implements $StudentCreateCopyWith<$Res> {
+  _$StudentCreateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of StudentCreate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? studentName = null,
+    Object? phone = null,
+    Object? email = freezed,
+    Object? birthDate = freezed,
+    Object? genderCode = freezed,
+    Object? schoolId = freezed,
+    Object? schoolName = freezed,
+    Object? grade = freezed,
+    Object? statusCode = freezed,
+    Object? sourceCode = freezed,
+    Object? sourceDetail = freezed,
+    Object? tcId = freezed,
+    Object? memo = freezed,
+    Object? guardianName = freezed,
+    Object? guardianPhone = freezed,
+    Object? parentKind = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            studentName: null == studentName
+                ? _value.studentName
+                : studentName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            phone: null == phone
+                ? _value.phone
+                : phone // ignore: cast_nullable_to_non_nullable
+                      as String,
+            email: freezed == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            birthDate: freezed == birthDate
+                ? _value.birthDate
+                : birthDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            genderCode: freezed == genderCode
+                ? _value.genderCode
+                : genderCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            schoolId: freezed == schoolId
+                ? _value.schoolId
+                : schoolId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            schoolName: freezed == schoolName
+                ? _value.schoolName
+                : schoolName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            grade: freezed == grade
+                ? _value.grade
+                : grade // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            statusCode: freezed == statusCode
+                ? _value.statusCode
+                : statusCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            sourceCode: freezed == sourceCode
+                ? _value.sourceCode
+                : sourceCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            sourceDetail: freezed == sourceDetail
+                ? _value.sourceDetail
+                : sourceDetail // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            tcId: freezed == tcId
+                ? _value.tcId
+                : tcId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            memo: freezed == memo
+                ? _value.memo
+                : memo // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            guardianName: freezed == guardianName
+                ? _value.guardianName
+                : guardianName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            guardianPhone: freezed == guardianPhone
+                ? _value.guardianPhone
+                : guardianPhone // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            parentKind: freezed == parentKind
+                ? _value.parentKind
+                : parentKind // ignore: cast_nullable_to_non_nullable
+                      as int?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$StudentCreateImplCopyWith<$Res>
+    implements $StudentCreateCopyWith<$Res> {
+  factory _$$StudentCreateImplCopyWith(
+    _$StudentCreateImpl value,
+    $Res Function(_$StudentCreateImpl) then,
+  ) = __$$StudentCreateImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'student_name') String studentName,
+    String phone,
+    String? email,
+    @JsonKey(name: 'birth_date') String? birthDate,
+    @JsonKey(name: 'gender_code') String? genderCode,
+    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_name') String? schoolName,
+    int? grade,
+    @JsonKey(name: 'status_code') String? statusCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
+    @JsonKey(name: 'source_detail') String? sourceDetail,
+    @JsonKey(name: 'tc_id') int? tcId,
+    String? memo,
+    @JsonKey(name: 'guardian_name') String? guardianName,
+    @JsonKey(name: 'guardian_phone') String? guardianPhone,
+    @JsonKey(name: 'parent_kind') int? parentKind,
+  });
+}
+
+/// @nodoc
+class __$$StudentCreateImplCopyWithImpl<$Res>
+    extends _$StudentCreateCopyWithImpl<$Res, _$StudentCreateImpl>
+    implements _$$StudentCreateImplCopyWith<$Res> {
+  __$$StudentCreateImplCopyWithImpl(
+    _$StudentCreateImpl _value,
+    $Res Function(_$StudentCreateImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of StudentCreate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? studentName = null,
+    Object? phone = null,
+    Object? email = freezed,
+    Object? birthDate = freezed,
+    Object? genderCode = freezed,
+    Object? schoolId = freezed,
+    Object? schoolName = freezed,
+    Object? grade = freezed,
+    Object? statusCode = freezed,
+    Object? sourceCode = freezed,
+    Object? sourceDetail = freezed,
+    Object? tcId = freezed,
+    Object? memo = freezed,
+    Object? guardianName = freezed,
+    Object? guardianPhone = freezed,
+    Object? parentKind = freezed,
+  }) {
+    return _then(
+      _$StudentCreateImpl(
+        studentName: null == studentName
+            ? _value.studentName
+            : studentName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        phone: null == phone
+            ? _value.phone
+            : phone // ignore: cast_nullable_to_non_nullable
+                  as String,
+        email: freezed == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        birthDate: freezed == birthDate
+            ? _value.birthDate
+            : birthDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        genderCode: freezed == genderCode
+            ? _value.genderCode
+            : genderCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        schoolId: freezed == schoolId
+            ? _value.schoolId
+            : schoolId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        schoolName: freezed == schoolName
+            ? _value.schoolName
+            : schoolName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        grade: freezed == grade
+            ? _value.grade
+            : grade // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        statusCode: freezed == statusCode
+            ? _value.statusCode
+            : statusCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        sourceCode: freezed == sourceCode
+            ? _value.sourceCode
+            : sourceCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        sourceDetail: freezed == sourceDetail
+            ? _value.sourceDetail
+            : sourceDetail // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        tcId: freezed == tcId
+            ? _value.tcId
+            : tcId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        memo: freezed == memo
+            ? _value.memo
+            : memo // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        guardianName: freezed == guardianName
+            ? _value.guardianName
+            : guardianName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        guardianPhone: freezed == guardianPhone
+            ? _value.guardianPhone
+            : guardianPhone // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        parentKind: freezed == parentKind
+            ? _value.parentKind
+            : parentKind // ignore: cast_nullable_to_non_nullable
+                  as int?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$StudentCreateImpl implements _StudentCreate {
+  const _$StudentCreateImpl({
+    @JsonKey(name: 'student_name') required this.studentName,
+    required this.phone,
+    this.email,
+    @JsonKey(name: 'birth_date') this.birthDate,
+    @JsonKey(name: 'gender_code') this.genderCode,
+    @JsonKey(name: 'school_id') this.schoolId,
+    @JsonKey(name: 'school_name') this.schoolName,
+    this.grade,
+    @JsonKey(name: 'status_code') this.statusCode,
+    @JsonKey(name: 'source_code') this.sourceCode,
+    @JsonKey(name: 'source_detail') this.sourceDetail,
+    @JsonKey(name: 'tc_id') this.tcId,
+    this.memo,
+    @JsonKey(name: 'guardian_name') this.guardianName,
+    @JsonKey(name: 'guardian_phone') this.guardianPhone,
+    @JsonKey(name: 'parent_kind') this.parentKind,
+  });
+
+  factory _$StudentCreateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$StudentCreateImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'student_name')
+  final String studentName;
+  @override
+  final String phone;
+  @override
+  final String? email;
+  @override
+  @JsonKey(name: 'birth_date')
+  final String? birthDate;
+  @override
+  @JsonKey(name: 'gender_code')
+  final String? genderCode;
+  @override
+  @JsonKey(name: 'school_id')
+  final int? schoolId;
+  @override
+  @JsonKey(name: 'school_name')
+  final String? schoolName;
+  @override
+  final int? grade;
+  @override
+  @JsonKey(name: 'status_code')
+  final String? statusCode;
+  @override
+  @JsonKey(name: 'source_code')
+  final String? sourceCode;
+  @override
+  @JsonKey(name: 'source_detail')
+  final String? sourceDetail;
+  @override
+  @JsonKey(name: 'tc_id')
+  final int? tcId;
+  @override
+  final String? memo;
+  @override
+  @JsonKey(name: 'guardian_name')
+  final String? guardianName;
+  @override
+  @JsonKey(name: 'guardian_phone')
+  final String? guardianPhone;
+  @override
+  @JsonKey(name: 'parent_kind')
+  final int? parentKind;
+
+  @override
+  String toString() {
+    return 'StudentCreate(studentName: $studentName, phone: $phone, email: $email, birthDate: $birthDate, genderCode: $genderCode, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, statusCode: $statusCode, sourceCode: $sourceCode, sourceDetail: $sourceDetail, tcId: $tcId, memo: $memo, guardianName: $guardianName, guardianPhone: $guardianPhone, parentKind: $parentKind)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$StudentCreateImpl &&
+            (identical(other.studentName, studentName) ||
+                other.studentName == studentName) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.birthDate, birthDate) ||
+                other.birthDate == birthDate) &&
+            (identical(other.genderCode, genderCode) ||
+                other.genderCode == genderCode) &&
+            (identical(other.schoolId, schoolId) ||
+                other.schoolId == schoolId) &&
+            (identical(other.schoolName, schoolName) ||
+                other.schoolName == schoolName) &&
+            (identical(other.grade, grade) || other.grade == grade) &&
+            (identical(other.statusCode, statusCode) ||
+                other.statusCode == statusCode) &&
+            (identical(other.sourceCode, sourceCode) ||
+                other.sourceCode == sourceCode) &&
+            (identical(other.sourceDetail, sourceDetail) ||
+                other.sourceDetail == sourceDetail) &&
+            (identical(other.tcId, tcId) || other.tcId == tcId) &&
+            (identical(other.memo, memo) || other.memo == memo) &&
+            (identical(other.guardianName, guardianName) ||
+                other.guardianName == guardianName) &&
+            (identical(other.guardianPhone, guardianPhone) ||
+                other.guardianPhone == guardianPhone) &&
+            (identical(other.parentKind, parentKind) ||
+                other.parentKind == parentKind));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    studentName,
+    phone,
+    email,
+    birthDate,
+    genderCode,
+    schoolId,
+    schoolName,
+    grade,
+    statusCode,
+    sourceCode,
+    sourceDetail,
+    tcId,
+    memo,
+    guardianName,
+    guardianPhone,
+    parentKind,
+  );
+
+  /// Create a copy of StudentCreate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$StudentCreateImplCopyWith<_$StudentCreateImpl> get copyWith =>
+      __$$StudentCreateImplCopyWithImpl<_$StudentCreateImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$StudentCreateImplToJson(this);
+  }
+}
+
+abstract class _StudentCreate implements StudentCreate {
+  const factory _StudentCreate({
+    @JsonKey(name: 'student_name') required final String studentName,
+    required final String phone,
+    final String? email,
+    @JsonKey(name: 'birth_date') final String? birthDate,
+    @JsonKey(name: 'gender_code') final String? genderCode,
+    @JsonKey(name: 'school_id') final int? schoolId,
+    @JsonKey(name: 'school_name') final String? schoolName,
+    final int? grade,
+    @JsonKey(name: 'status_code') final String? statusCode,
+    @JsonKey(name: 'source_code') final String? sourceCode,
+    @JsonKey(name: 'source_detail') final String? sourceDetail,
+    @JsonKey(name: 'tc_id') final int? tcId,
+    final String? memo,
+    @JsonKey(name: 'guardian_name') final String? guardianName,
+    @JsonKey(name: 'guardian_phone') final String? guardianPhone,
+    @JsonKey(name: 'parent_kind') final int? parentKind,
+  }) = _$StudentCreateImpl;
+
+  factory _StudentCreate.fromJson(Map<String, dynamic> json) =
+      _$StudentCreateImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'student_name')
+  String get studentName;
+  @override
+  String get phone;
+  @override
+  String? get email;
+  @override
+  @JsonKey(name: 'birth_date')
+  String? get birthDate;
+  @override
+  @JsonKey(name: 'gender_code')
+  String? get genderCode;
+  @override
+  @JsonKey(name: 'school_id')
+  int? get schoolId;
+  @override
+  @JsonKey(name: 'school_name')
+  String? get schoolName;
+  @override
+  int? get grade;
+  @override
+  @JsonKey(name: 'status_code')
+  String? get statusCode;
+  @override
+  @JsonKey(name: 'source_code')
+  String? get sourceCode;
+  @override
+  @JsonKey(name: 'source_detail')
+  String? get sourceDetail;
+  @override
+  @JsonKey(name: 'tc_id')
+  int? get tcId;
+  @override
+  String? get memo;
+  @override
+  @JsonKey(name: 'guardian_name')
+  String? get guardianName;
+  @override
+  @JsonKey(name: 'guardian_phone')
+  String? get guardianPhone;
+  @override
+  @JsonKey(name: 'parent_kind')
+  int? get parentKind;
+
+  /// Create a copy of StudentCreate
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$StudentCreateImplCopyWith<_$StudentCreateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 StudentListParams _$StudentListParamsFromJson(Map<String, dynamic> json) {
   return _StudentListParams.fromJson(json);
 }

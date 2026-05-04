@@ -182,6 +182,15 @@ ORDER BY month DESC;
 -- TRIGGERS
 -- ============================================================
 
+-- 기존 트리거 삭제 (재생성을 위해)
+DROP TRIGGER IF EXISTS trg_student_status_change;
+DROP TRIGGER IF EXISTS trg_student_date_auto;
+DROP TRIGGER IF EXISTS trg_student_first_contact;
+DROP TRIGGER IF EXISTS trg_user_student_insert;
+DROP TRIGGER IF EXISTS trg_user_active_flag_change;
+DROP TRIGGER IF EXISTS trg_sync_user_active_on_update;
+DROP TRIGGER IF EXISTS trg_sync_user_active_on_insert;
+
 -- ============================================================
 -- 트리거 1: 학생 상태 변경 시 자동 히스토리 기록
 -- ============================================================
@@ -216,7 +225,7 @@ BEGIN
             'CHANGE_STATUS',
             OLD.tc_id,
             NEW.tc_id,
-            COALESCE(NEW.updated_by, 1)
+            COALESCE(NEW.updated_by, (SELECT MIN(user_id) FROM User WHERE kind = 1))
         );
     END IF;
 
@@ -240,7 +249,7 @@ BEGIN
             'CHANGE_TC',
             OLD.tc_id,
             NEW.tc_id,
-            COALESCE(NEW.updated_by, 1)
+            COALESCE(NEW.updated_by, (SELECT MIN(user_id) FROM User WHERE kind = 1))
         );
     END IF;
 END//
@@ -298,6 +307,59 @@ FOR EACH ROW
 BEGIN
     IF NEW.first_contact_date IS NULL THEN
         SET NEW.first_contact_date = CURDATE();
+    END IF;
+END//
+
+DELIMITER ;
+
+-- ============================================================
+-- 트리거 4: User에 학생(kind=2) 추가 시 student_info 자동 생성
+-- User 테이블이 마스터 테이블로서 학생 데이터의 진입점 역할
+-- active_flag에 따라 초기 status_code 결정
+-- ============================================================
+DELIMITER //
+
+CREATE TRIGGER trg_user_student_insert
+AFTER INSERT ON User
+FOR EACH ROW
+BEGIN
+    IF NEW.kind = 2 THEN  -- 학생인 경우
+        INSERT INTO student_info (student_id, status_code)
+        VALUES (NEW.user_id,
+            CASE WHEN NEW.active_flag = 1 THEN 'STATUS_ENROLLED' ELSE 'STATUS_PROSPECT' END
+        );
+    END IF;
+END//
+
+DELIMITER ;
+
+-- ============================================================
+-- 트리거 5: User.active_flag 변경 시 student_info.status_code 동기화
+-- 방향: User → student_info (User.active_flag가 마스터)
+-- active_flag 1 → STATUS_ENROLLED (재원)
+-- active_flag 0 → STATUS_WITHDRAW (퇴원, 기존 재원인 경우만)
+-- ============================================================
+DELIMITER //
+
+CREATE TRIGGER trg_user_active_flag_change
+AFTER UPDATE ON User
+FOR EACH ROW
+BEGIN
+    IF NEW.kind = 2 AND OLD.active_flag != NEW.active_flag THEN
+        IF NEW.active_flag = 1 THEN
+            -- 활성화: 재원으로 변경
+            UPDATE student_info
+            SET status_code = 'STATUS_ENROLLED',
+                enroll_date = COALESCE(enroll_date, CURDATE())
+            WHERE student_id = NEW.user_id;
+        ELSE
+            -- 비활성화: 퇴원으로 변경 (기존 재원인 경우만)
+            UPDATE student_info
+            SET status_code = 'STATUS_WITHDRAW',
+                withdraw_date = COALESCE(withdraw_date, CURDATE())
+            WHERE student_id = NEW.user_id
+              AND status_code = 'STATUS_ENROLLED';
+        END IF;
     END IF;
 END//
 

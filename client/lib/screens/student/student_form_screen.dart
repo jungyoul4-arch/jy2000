@@ -5,8 +5,10 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../models/school.dart';
+import '../../models/student.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/school_provider.dart';
+import '../../providers/student_provider.dart';
 
 // 학년 정보 클래스
 class GradeItem {
@@ -162,35 +164,28 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: FormBuilderTextField(
-                          name: 'email',
-                          decoration: const InputDecoration(
-                            labelText: '이메일',
-                          ),
-                          validator: FormBuilderValidators.email(
-                            errorText: '올바른 이메일을 입력하세요',
-                          ),
-                        ),
+                        child: _buildSchoolAutocomplete(),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: FormBuilderDateTimePicker(
-                          name: 'birth_date',
-                          inputType: InputType.date,
+                        child: FormBuilderDropdown<int>(
+                          name: 'birth_year',
                           decoration: const InputDecoration(
-                            labelText: '생년월일',
+                            labelText: '생년',
                           ),
+                          items: List.generate(20, (index) {
+                            final year = DateTime.now().year - 10 - index;
+                            return DropdownMenuItem(
+                              value: year,
+                              child: Text('$year년'),
+                            );
+                          }),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(
-                        child: _buildSchoolAutocomplete(),
-                      ),
-                      const SizedBox(width: 16),
                       Expanded(
                         child: FormBuilderDropdown<int>(
                           name: 'grade',
@@ -207,6 +202,8 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                               .toList(),
                         ),
                       ),
+                      const SizedBox(width: 16),
+                      const Expanded(child: SizedBox()),
                     ],
                   ),
                 ],
@@ -220,15 +217,6 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: FormBuilderTextField(
-                          name: 'guardian_name',
-                          decoration: const InputDecoration(
-                            labelText: '보호자명',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
                       Expanded(
                         child: FormBuilderTextField(
                           name: 'guardian_phone',
@@ -254,6 +242,8 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                           ],
                         ),
                       ),
+                      const SizedBox(width: 16),
+                      const Expanded(child: SizedBox()),
                     ],
                   ),
                 ],
@@ -440,16 +430,57 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
         final values = Map<String, dynamic>.from(_formKey.currentState!.value);
 
         // 학교 정보 추가
+        int? schoolId;
+        String? schoolName;
         if (_selectedSchool != null) {
-          values['school_id'] = _selectedSchool!.schoolId;
-          values['school_name'] = _selectedSchool!.schoolName;
+          schoolId = _selectedSchool!.schoolId;
+          schoolName = _selectedSchool!.schoolName;
         } else if (_schoolController.text.isNotEmpty) {
-          // 직접 입력한 경우
-          values['school_name'] = _schoolController.text;
+          schoolName = _schoolController.text;
         }
 
-        // TODO: API 호출
-        debugPrint('Form values: $values');
+        // 생년 변환 (birth_year -> birth_date 형식)
+        String? birthDate;
+        if (values['birth_year'] != null) {
+          birthDate = '${values['birth_year']}-01-01';
+        }
+
+        if (isEdit) {
+          // 수정 모드
+          final updateData = StudentUpdate(
+            studentName: values['student_name'],
+            phone: values['phone'],
+            birthDate: birthDate,
+            schoolId: schoolId,
+            schoolName: schoolName,
+            grade: values['grade'],
+            memo: values['memo'],
+          );
+
+          final repository = ref.read(studentRepositoryProvider);
+          await repository.update(widget.studentId!, updateData);
+        } else {
+          // 신규 등록 모드
+          final createData = StudentCreate(
+            studentName: values['student_name'],
+            phone: values['phone'],
+            birthDate: birthDate,
+            schoolId: schoolId,
+            schoolName: schoolName,
+            grade: values['grade'],
+            statusCode: values['status_code'] ?? 'STATUS_PROSPECT',
+            memo: values['memo'],
+            guardianName: values['student_name'], // 보호자명 = 학생명
+            guardianPhone: values['guardian_phone'],
+            parentKind: values['parent_kind'],
+          );
+
+          final repository = ref.read(studentRepositoryProvider);
+          await repository.create(createData);
+        }
+
+        // 목록 새로고침
+        ref.read(studentListProvider.notifier).refresh();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

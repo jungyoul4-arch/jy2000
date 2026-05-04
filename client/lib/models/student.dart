@@ -120,6 +120,31 @@ class StudentStateChange with _$StudentStateChange {
 }
 
 @freezed
+class StudentCreate with _$StudentCreate {
+  const factory StudentCreate({
+    @JsonKey(name: 'student_name') required String studentName,
+    required String phone,
+    String? email,
+    @JsonKey(name: 'birth_date') String? birthDate,
+    @JsonKey(name: 'gender_code') String? genderCode,
+    @JsonKey(name: 'school_id') int? schoolId,
+    @JsonKey(name: 'school_name') String? schoolName,
+    int? grade,
+    @JsonKey(name: 'status_code') String? statusCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
+    @JsonKey(name: 'source_detail') String? sourceDetail,
+    @JsonKey(name: 'tc_id') int? tcId,
+    String? memo,
+    @JsonKey(name: 'guardian_name') String? guardianName,
+    @JsonKey(name: 'guardian_phone') String? guardianPhone,
+    @JsonKey(name: 'parent_kind') int? parentKind,
+  }) = _StudentCreate;
+
+  factory StudentCreate.fromJson(Map<String, dynamic> json) =>
+      _$StudentCreateFromJson(json);
+}
+
+@freezed
 class StudentListParams with _$StudentListParams {
   const factory StudentListParams({
     @Default(1) int page,

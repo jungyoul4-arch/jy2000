@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
+import { extractUserInfo } from './middlewares/authMiddleware';
 import routes from './routes';
 
 dotenv.config();
@@ -21,6 +22,9 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 사용자 정보 추출 미들웨어
+app.use(extractUserInfo);
 
 // Routes
 app.use('/node-api/v1', routes);
