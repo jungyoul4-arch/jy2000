@@ -80,3 +80,26 @@ class ConsultListParams with _$ConsultListParams {
   factory ConsultListParams.fromJson(Map<String, dynamic> json) =>
       _$ConsultListParamsFromJson(json);
 }
+
+@freezed
+class ConsultUpdate with _$ConsultUpdate {
+  const factory ConsultUpdate({
+    @JsonKey(name: 'consult_type_code') String? consultTypeCode,
+    @JsonKey(name: 'consult_date') String? consultDate,
+    @JsonKey(name: 'consult_duration') int? consultDuration,
+    @JsonKey(name: 'channel_code') String? channelCode,
+    @JsonKey(name: 'tc_id') int? tcId,
+    String? content,
+    @JsonKey(name: 'student_needs') String? studentNeeds,
+    @JsonKey(name: 'consult_result_code') String? consultResultCode,
+    @JsonKey(name: 'result_detail') String? resultDetail,
+    @JsonKey(name: 'next_action_code') String? nextActionCode,
+    @JsonKey(name: 'next_action_detail') String? nextActionDetail,
+    @JsonKey(name: 'next_consult_date') String? nextConsultDate,
+    @JsonKey(name: 'interest_subject') String? interestSubject,
+    @JsonKey(name: 'interest_program') String? interestProgram,
+  }) = _ConsultUpdate;
+
+  factory ConsultUpdate.fromJson(Map<String, dynamic> json) =>
+      _$ConsultUpdateFromJson(json);
+}

@@ -148,3 +148,10 @@ final createStudentProvider =
   final repository = ref.read(studentRepositoryProvider);
   return repository.create(data);
 });
+
+// 학생 변동 내역 Provider
+final studentHistoryProvider =
+    FutureProvider.family<List<StudentHistory>, int>((ref, studentId) async {
+  final repository = ref.read(studentRepositoryProvider);
+  return repository.getHistory(studentId);
+});

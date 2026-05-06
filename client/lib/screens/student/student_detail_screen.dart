@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../models/student.dart';
 import '../../models/school.dart';
+import '../../models/consult.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/student_provider.dart';
 import '../../providers/school_provider.dart';
+import '../../providers/consult_provider.dart';
 import '../../repositories/student_repository.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../utils/formatters.dart';
@@ -41,7 +43,7 @@ class StudentDetailScreen extends ConsumerWidget {
           ) ?? const SizedBox.shrink(),
           TextButton.icon(
             onPressed: () {
-              context.go('/consults/create?studentId=$studentId');
+              context.push('/consults/create?studentId=$studentId');
             },
             icon: const Icon(Icons.add),
             label: const Text('상담 등록'),
@@ -194,11 +196,383 @@ class StudentDetailScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+
+              const SizedBox(height: 24),
+
+              // 상담 내역
+              _buildConsultSection(context, ref),
+
+              const SizedBox(height: 24),
+
+              // 변동 내역
+              _buildHistorySection(context, ref),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildConsultSection(BuildContext context, WidgetRef ref) {
+    final consultAsync = ref.watch(studentConsultListProvider(studentId));
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '상담 내역',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 20),
+                  onPressed: () => ref.invalidate(studentConsultListProvider(studentId)),
+                  tooltip: '새로고침',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add, size: 20),
+                  onPressed: () => context.push('/consults/create?studentId=$studentId'),
+                  tooltip: '상담 등록',
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            consultAsync.when(
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (error, stack) => Center(
+                child: Text('오류: $error', style: const TextStyle(color: Colors.red)),
+              ),
+              data: (consultList) {
+                if (consultList.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        '상담 내역이 없습니다',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: consultList.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final consult = consultList[index];
+                    return InkWell(
+                      onTap: () => context.push('/consults/${consult.consultId}'),
+                      child: _buildConsultItem(context, consult),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConsultItem(BuildContext context, Consult consult) {
+    final consultDate = DateTime.tryParse(consult.consultDate);
+    final dateStr = consultDate != null
+        ? '${consultDate.year}-${consultDate.month.toString().padLeft(2, '0')}-${consultDate.day.toString().padLeft(2, '0')} ${consultDate.hour.toString().padLeft(2, '0')}:${consultDate.minute.toString().padLeft(2, '0')}'
+        : consult.consultDate;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 아이콘
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.chat_bubble_outline,
+              size: 16,
+              color: Colors.blue,
+            ),
+          ),
+          const SizedBox(width: 12),
+          // 내용
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      consult.consultTypeName ?? consult.consultTypeCode,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      dateStr,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    if (consult.consultResultName != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          consult.consultResultName!,
+                          style: const TextStyle(fontSize: 11, color: Colors.green),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (consult.content != null && consult.content!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      consult.content!,
+                      style: const TextStyle(fontSize: 14),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                if (consult.interestSubject != null && consult.interestSubject!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '관심 과목: ${consult.interestSubject}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                Text(
+                  '담당: ${consult.tcName ?? '-'}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistorySection(BuildContext context, WidgetRef ref) {
+    final historyAsync = ref.watch(studentHistoryProvider(studentId));
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '변동 내역',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 20),
+                  onPressed: () => ref.invalidate(studentHistoryProvider(studentId)),
+                  tooltip: '새로고침',
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            historyAsync.when(
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (error, stack) => Center(
+                child: Text('오류: $error', style: const TextStyle(color: Colors.red)),
+              ),
+              data: (historyList) {
+                if (historyList.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        '변동 내역이 없습니다',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: historyList.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final history = historyList[index];
+                    return _buildHistoryItem(context, history);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryItem(BuildContext context, StudentHistory history) {
+    final changedAt = DateTime.tryParse(history.changedAt);
+    final dateStr = changedAt != null
+        ? '${changedAt.year}-${changedAt.month.toString().padLeft(2, '0')}-${changedAt.day.toString().padLeft(2, '0')} ${changedAt.hour.toString().padLeft(2, '0')}:${changedAt.minute.toString().padLeft(2, '0')}'
+        : history.changedAt;
+
+    // 변경 내용 텍스트 생성
+    String changeText = '';
+    if (history.changeTypeCode == 'CHANGE_STATUS') {
+      final prevStatus = history.prevStatusName ?? '-';
+      final newStatus = history.newStatusName ?? '-';
+      changeText = '$prevStatus → $newStatus';
+    } else if (history.changeTypeCode == 'CHANGE_TC') {
+      final prevTc = history.prevTcName ?? '-';
+      final newTc = history.newTcName ?? '-';
+      changeText = '담당자: $prevTc → $newTc';
+    } else {
+      changeText = history.changeTypeName ?? history.changeTypeCode;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 아이콘
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: _getChangeTypeColor(history.changeTypeCode).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              _getChangeTypeIcon(history.changeTypeCode),
+              size: 16,
+              color: _getChangeTypeColor(history.changeTypeCode),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // 내용
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      history.changeTypeName ?? history.changeTypeCode,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      dateStr,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  changeText,
+                  style: const TextStyle(fontSize: 14),
+                ),
+                if (history.changeReason != null && history.changeReason!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '사유: ${history.changeReason}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[700],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                Text(
+                  '변경자: ${history.changedByName ?? '-'}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getChangeTypeColor(String changeTypeCode) {
+    switch (changeTypeCode) {
+      case 'CHANGE_STATUS':
+        return Colors.blue;
+      case 'CHANGE_TC':
+        return Colors.orange;
+      case 'CHANGE_REGISTER':
+        return Colors.green;
+      case 'CHANGE_WITHDRAW':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getChangeTypeIcon(String changeTypeCode) {
+    switch (changeTypeCode) {
+      case 'CHANGE_STATUS':
+        return Icons.swap_horiz;
+      case 'CHANGE_TC':
+        return Icons.person_outline;
+      case 'CHANGE_REGISTER':
+        return Icons.person_add;
+      case 'CHANGE_WITHDRAW':
+        return Icons.person_remove;
+      default:
+        return Icons.history;
+    }
   }
 
   List<_InfoItem> _buildParentItems(Student student) {

@@ -1691,3 +1691,493 @@ abstract class _ConsultListParams implements ConsultListParams {
   _$$ConsultListParamsImplCopyWith<_$ConsultListParamsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+ConsultUpdate _$ConsultUpdateFromJson(Map<String, dynamic> json) {
+  return _ConsultUpdate.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ConsultUpdate {
+  @JsonKey(name: 'consult_type_code')
+  String? get consultTypeCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'consult_date')
+  String? get consultDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'consult_duration')
+  int? get consultDuration => throw _privateConstructorUsedError;
+  @JsonKey(name: 'channel_code')
+  String? get channelCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tc_id')
+  int? get tcId => throw _privateConstructorUsedError;
+  String? get content => throw _privateConstructorUsedError;
+  @JsonKey(name: 'student_needs')
+  String? get studentNeeds => throw _privateConstructorUsedError;
+  @JsonKey(name: 'consult_result_code')
+  String? get consultResultCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'result_detail')
+  String? get resultDetail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'next_action_code')
+  String? get nextActionCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'next_action_detail')
+  String? get nextActionDetail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'next_consult_date')
+  String? get nextConsultDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'interest_subject')
+  String? get interestSubject => throw _privateConstructorUsedError;
+  @JsonKey(name: 'interest_program')
+  String? get interestProgram => throw _privateConstructorUsedError;
+
+  /// Serializes this ConsultUpdate to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ConsultUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ConsultUpdateCopyWith<ConsultUpdate> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ConsultUpdateCopyWith<$Res> {
+  factory $ConsultUpdateCopyWith(
+    ConsultUpdate value,
+    $Res Function(ConsultUpdate) then,
+  ) = _$ConsultUpdateCopyWithImpl<$Res, ConsultUpdate>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'consult_type_code') String? consultTypeCode,
+    @JsonKey(name: 'consult_date') String? consultDate,
+    @JsonKey(name: 'consult_duration') int? consultDuration,
+    @JsonKey(name: 'channel_code') String? channelCode,
+    @JsonKey(name: 'tc_id') int? tcId,
+    String? content,
+    @JsonKey(name: 'student_needs') String? studentNeeds,
+    @JsonKey(name: 'consult_result_code') String? consultResultCode,
+    @JsonKey(name: 'result_detail') String? resultDetail,
+    @JsonKey(name: 'next_action_code') String? nextActionCode,
+    @JsonKey(name: 'next_action_detail') String? nextActionDetail,
+    @JsonKey(name: 'next_consult_date') String? nextConsultDate,
+    @JsonKey(name: 'interest_subject') String? interestSubject,
+    @JsonKey(name: 'interest_program') String? interestProgram,
+  });
+}
+
+/// @nodoc
+class _$ConsultUpdateCopyWithImpl<$Res, $Val extends ConsultUpdate>
+    implements $ConsultUpdateCopyWith<$Res> {
+  _$ConsultUpdateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ConsultUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? consultTypeCode = freezed,
+    Object? consultDate = freezed,
+    Object? consultDuration = freezed,
+    Object? channelCode = freezed,
+    Object? tcId = freezed,
+    Object? content = freezed,
+    Object? studentNeeds = freezed,
+    Object? consultResultCode = freezed,
+    Object? resultDetail = freezed,
+    Object? nextActionCode = freezed,
+    Object? nextActionDetail = freezed,
+    Object? nextConsultDate = freezed,
+    Object? interestSubject = freezed,
+    Object? interestProgram = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            consultTypeCode: freezed == consultTypeCode
+                ? _value.consultTypeCode
+                : consultTypeCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            consultDate: freezed == consultDate
+                ? _value.consultDate
+                : consultDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            consultDuration: freezed == consultDuration
+                ? _value.consultDuration
+                : consultDuration // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            channelCode: freezed == channelCode
+                ? _value.channelCode
+                : channelCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            tcId: freezed == tcId
+                ? _value.tcId
+                : tcId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            content: freezed == content
+                ? _value.content
+                : content // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            studentNeeds: freezed == studentNeeds
+                ? _value.studentNeeds
+                : studentNeeds // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            consultResultCode: freezed == consultResultCode
+                ? _value.consultResultCode
+                : consultResultCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            resultDetail: freezed == resultDetail
+                ? _value.resultDetail
+                : resultDetail // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            nextActionCode: freezed == nextActionCode
+                ? _value.nextActionCode
+                : nextActionCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            nextActionDetail: freezed == nextActionDetail
+                ? _value.nextActionDetail
+                : nextActionDetail // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            nextConsultDate: freezed == nextConsultDate
+                ? _value.nextConsultDate
+                : nextConsultDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            interestSubject: freezed == interestSubject
+                ? _value.interestSubject
+                : interestSubject // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            interestProgram: freezed == interestProgram
+                ? _value.interestProgram
+                : interestProgram // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ConsultUpdateImplCopyWith<$Res>
+    implements $ConsultUpdateCopyWith<$Res> {
+  factory _$$ConsultUpdateImplCopyWith(
+    _$ConsultUpdateImpl value,
+    $Res Function(_$ConsultUpdateImpl) then,
+  ) = __$$ConsultUpdateImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'consult_type_code') String? consultTypeCode,
+    @JsonKey(name: 'consult_date') String? consultDate,
+    @JsonKey(name: 'consult_duration') int? consultDuration,
+    @JsonKey(name: 'channel_code') String? channelCode,
+    @JsonKey(name: 'tc_id') int? tcId,
+    String? content,
+    @JsonKey(name: 'student_needs') String? studentNeeds,
+    @JsonKey(name: 'consult_result_code') String? consultResultCode,
+    @JsonKey(name: 'result_detail') String? resultDetail,
+    @JsonKey(name: 'next_action_code') String? nextActionCode,
+    @JsonKey(name: 'next_action_detail') String? nextActionDetail,
+    @JsonKey(name: 'next_consult_date') String? nextConsultDate,
+    @JsonKey(name: 'interest_subject') String? interestSubject,
+    @JsonKey(name: 'interest_program') String? interestProgram,
+  });
+}
+
+/// @nodoc
+class __$$ConsultUpdateImplCopyWithImpl<$Res>
+    extends _$ConsultUpdateCopyWithImpl<$Res, _$ConsultUpdateImpl>
+    implements _$$ConsultUpdateImplCopyWith<$Res> {
+  __$$ConsultUpdateImplCopyWithImpl(
+    _$ConsultUpdateImpl _value,
+    $Res Function(_$ConsultUpdateImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ConsultUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? consultTypeCode = freezed,
+    Object? consultDate = freezed,
+    Object? consultDuration = freezed,
+    Object? channelCode = freezed,
+    Object? tcId = freezed,
+    Object? content = freezed,
+    Object? studentNeeds = freezed,
+    Object? consultResultCode = freezed,
+    Object? resultDetail = freezed,
+    Object? nextActionCode = freezed,
+    Object? nextActionDetail = freezed,
+    Object? nextConsultDate = freezed,
+    Object? interestSubject = freezed,
+    Object? interestProgram = freezed,
+  }) {
+    return _then(
+      _$ConsultUpdateImpl(
+        consultTypeCode: freezed == consultTypeCode
+            ? _value.consultTypeCode
+            : consultTypeCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        consultDate: freezed == consultDate
+            ? _value.consultDate
+            : consultDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        consultDuration: freezed == consultDuration
+            ? _value.consultDuration
+            : consultDuration // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        channelCode: freezed == channelCode
+            ? _value.channelCode
+            : channelCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        tcId: freezed == tcId
+            ? _value.tcId
+            : tcId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        content: freezed == content
+            ? _value.content
+            : content // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        studentNeeds: freezed == studentNeeds
+            ? _value.studentNeeds
+            : studentNeeds // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        consultResultCode: freezed == consultResultCode
+            ? _value.consultResultCode
+            : consultResultCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        resultDetail: freezed == resultDetail
+            ? _value.resultDetail
+            : resultDetail // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        nextActionCode: freezed == nextActionCode
+            ? _value.nextActionCode
+            : nextActionCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        nextActionDetail: freezed == nextActionDetail
+            ? _value.nextActionDetail
+            : nextActionDetail // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        nextConsultDate: freezed == nextConsultDate
+            ? _value.nextConsultDate
+            : nextConsultDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        interestSubject: freezed == interestSubject
+            ? _value.interestSubject
+            : interestSubject // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        interestProgram: freezed == interestProgram
+            ? _value.interestProgram
+            : interestProgram // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ConsultUpdateImpl implements _ConsultUpdate {
+  const _$ConsultUpdateImpl({
+    @JsonKey(name: 'consult_type_code') this.consultTypeCode,
+    @JsonKey(name: 'consult_date') this.consultDate,
+    @JsonKey(name: 'consult_duration') this.consultDuration,
+    @JsonKey(name: 'channel_code') this.channelCode,
+    @JsonKey(name: 'tc_id') this.tcId,
+    this.content,
+    @JsonKey(name: 'student_needs') this.studentNeeds,
+    @JsonKey(name: 'consult_result_code') this.consultResultCode,
+    @JsonKey(name: 'result_detail') this.resultDetail,
+    @JsonKey(name: 'next_action_code') this.nextActionCode,
+    @JsonKey(name: 'next_action_detail') this.nextActionDetail,
+    @JsonKey(name: 'next_consult_date') this.nextConsultDate,
+    @JsonKey(name: 'interest_subject') this.interestSubject,
+    @JsonKey(name: 'interest_program') this.interestProgram,
+  });
+
+  factory _$ConsultUpdateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ConsultUpdateImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'consult_type_code')
+  final String? consultTypeCode;
+  @override
+  @JsonKey(name: 'consult_date')
+  final String? consultDate;
+  @override
+  @JsonKey(name: 'consult_duration')
+  final int? consultDuration;
+  @override
+  @JsonKey(name: 'channel_code')
+  final String? channelCode;
+  @override
+  @JsonKey(name: 'tc_id')
+  final int? tcId;
+  @override
+  final String? content;
+  @override
+  @JsonKey(name: 'student_needs')
+  final String? studentNeeds;
+  @override
+  @JsonKey(name: 'consult_result_code')
+  final String? consultResultCode;
+  @override
+  @JsonKey(name: 'result_detail')
+  final String? resultDetail;
+  @override
+  @JsonKey(name: 'next_action_code')
+  final String? nextActionCode;
+  @override
+  @JsonKey(name: 'next_action_detail')
+  final String? nextActionDetail;
+  @override
+  @JsonKey(name: 'next_consult_date')
+  final String? nextConsultDate;
+  @override
+  @JsonKey(name: 'interest_subject')
+  final String? interestSubject;
+  @override
+  @JsonKey(name: 'interest_program')
+  final String? interestProgram;
+
+  @override
+  String toString() {
+    return 'ConsultUpdate(consultTypeCode: $consultTypeCode, consultDate: $consultDate, consultDuration: $consultDuration, channelCode: $channelCode, tcId: $tcId, content: $content, studentNeeds: $studentNeeds, consultResultCode: $consultResultCode, resultDetail: $resultDetail, nextActionCode: $nextActionCode, nextActionDetail: $nextActionDetail, nextConsultDate: $nextConsultDate, interestSubject: $interestSubject, interestProgram: $interestProgram)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ConsultUpdateImpl &&
+            (identical(other.consultTypeCode, consultTypeCode) ||
+                other.consultTypeCode == consultTypeCode) &&
+            (identical(other.consultDate, consultDate) ||
+                other.consultDate == consultDate) &&
+            (identical(other.consultDuration, consultDuration) ||
+                other.consultDuration == consultDuration) &&
+            (identical(other.channelCode, channelCode) ||
+                other.channelCode == channelCode) &&
+            (identical(other.tcId, tcId) || other.tcId == tcId) &&
+            (identical(other.content, content) || other.content == content) &&
+            (identical(other.studentNeeds, studentNeeds) ||
+                other.studentNeeds == studentNeeds) &&
+            (identical(other.consultResultCode, consultResultCode) ||
+                other.consultResultCode == consultResultCode) &&
+            (identical(other.resultDetail, resultDetail) ||
+                other.resultDetail == resultDetail) &&
+            (identical(other.nextActionCode, nextActionCode) ||
+                other.nextActionCode == nextActionCode) &&
+            (identical(other.nextActionDetail, nextActionDetail) ||
+                other.nextActionDetail == nextActionDetail) &&
+            (identical(other.nextConsultDate, nextConsultDate) ||
+                other.nextConsultDate == nextConsultDate) &&
+            (identical(other.interestSubject, interestSubject) ||
+                other.interestSubject == interestSubject) &&
+            (identical(other.interestProgram, interestProgram) ||
+                other.interestProgram == interestProgram));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    consultTypeCode,
+    consultDate,
+    consultDuration,
+    channelCode,
+    tcId,
+    content,
+    studentNeeds,
+    consultResultCode,
+    resultDetail,
+    nextActionCode,
+    nextActionDetail,
+    nextConsultDate,
+    interestSubject,
+    interestProgram,
+  );
+
+  /// Create a copy of ConsultUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ConsultUpdateImplCopyWith<_$ConsultUpdateImpl> get copyWith =>
+      __$$ConsultUpdateImplCopyWithImpl<_$ConsultUpdateImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ConsultUpdateImplToJson(this);
+  }
+}
+
+abstract class _ConsultUpdate implements ConsultUpdate {
+  const factory _ConsultUpdate({
+    @JsonKey(name: 'consult_type_code') final String? consultTypeCode,
+    @JsonKey(name: 'consult_date') final String? consultDate,
+    @JsonKey(name: 'consult_duration') final int? consultDuration,
+    @JsonKey(name: 'channel_code') final String? channelCode,
+    @JsonKey(name: 'tc_id') final int? tcId,
+    final String? content,
+    @JsonKey(name: 'student_needs') final String? studentNeeds,
+    @JsonKey(name: 'consult_result_code') final String? consultResultCode,
+    @JsonKey(name: 'result_detail') final String? resultDetail,
+    @JsonKey(name: 'next_action_code') final String? nextActionCode,
+    @JsonKey(name: 'next_action_detail') final String? nextActionDetail,
+    @JsonKey(name: 'next_consult_date') final String? nextConsultDate,
+    @JsonKey(name: 'interest_subject') final String? interestSubject,
+    @JsonKey(name: 'interest_program') final String? interestProgram,
+  }) = _$ConsultUpdateImpl;
+
+  factory _ConsultUpdate.fromJson(Map<String, dynamic> json) =
+      _$ConsultUpdateImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'consult_type_code')
+  String? get consultTypeCode;
+  @override
+  @JsonKey(name: 'consult_date')
+  String? get consultDate;
+  @override
+  @JsonKey(name: 'consult_duration')
+  int? get consultDuration;
+  @override
+  @JsonKey(name: 'channel_code')
+  String? get channelCode;
+  @override
+  @JsonKey(name: 'tc_id')
+  int? get tcId;
+  @override
+  String? get content;
+  @override
+  @JsonKey(name: 'student_needs')
+  String? get studentNeeds;
+  @override
+  @JsonKey(name: 'consult_result_code')
+  String? get consultResultCode;
+  @override
+  @JsonKey(name: 'result_detail')
+  String? get resultDetail;
+  @override
+  @JsonKey(name: 'next_action_code')
+  String? get nextActionCode;
+  @override
+  @JsonKey(name: 'next_action_detail')
+  String? get nextActionDetail;
+  @override
+  @JsonKey(name: 'next_consult_date')
+  String? get nextConsultDate;
+  @override
+  @JsonKey(name: 'interest_subject')
+  String? get interestSubject;
+  @override
+  @JsonKey(name: 'interest_program')
+  String? get interestProgram;
+
+  /// Create a copy of ConsultUpdate
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ConsultUpdateImplCopyWith<_$ConsultUpdateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

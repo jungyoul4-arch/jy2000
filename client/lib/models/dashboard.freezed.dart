@@ -22,16 +22,22 @@ DashboardKPI _$DashboardKPIFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$DashboardKPI {
   @JsonKey(name: 'total_students')
+  @_IntConverter()
   int get totalStudents => throw _privateConstructorUsedError;
   @JsonKey(name: 'new_students_this_month')
+  @_IntConverter()
   int get newStudentsThisMonth => throw _privateConstructorUsedError;
   @JsonKey(name: 'consults_this_month')
+  @_IntConverter()
   int get consultsThisMonth => throw _privateConstructorUsedError;
   @JsonKey(name: 'registers_this_month')
+  @_IntConverter()
   int get registersThisMonth => throw _privateConstructorUsedError;
   @JsonKey(name: 'enrolled_count')
+  @_IntConverter()
   int get enrolledCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'conversion_rate')
+  @_DoubleConverter()
   double get conversionRate => throw _privateConstructorUsedError;
 
   /// Serializes this DashboardKPI to a JSON map.
@@ -52,12 +58,18 @@ abstract class $DashboardKPICopyWith<$Res> {
   ) = _$DashboardKPICopyWithImpl<$Res, DashboardKPI>;
   @useResult
   $Res call({
-    @JsonKey(name: 'total_students') int totalStudents,
-    @JsonKey(name: 'new_students_this_month') int newStudentsThisMonth,
-    @JsonKey(name: 'consults_this_month') int consultsThisMonth,
-    @JsonKey(name: 'registers_this_month') int registersThisMonth,
-    @JsonKey(name: 'enrolled_count') int enrolledCount,
-    @JsonKey(name: 'conversion_rate') double conversionRate,
+    @JsonKey(name: 'total_students') @_IntConverter() int totalStudents,
+    @JsonKey(name: 'new_students_this_month')
+    @_IntConverter()
+    int newStudentsThisMonth,
+    @JsonKey(name: 'consults_this_month')
+    @_IntConverter()
+    int consultsThisMonth,
+    @JsonKey(name: 'registers_this_month')
+    @_IntConverter()
+    int registersThisMonth,
+    @JsonKey(name: 'enrolled_count') @_IntConverter() int enrolledCount,
+    @JsonKey(name: 'conversion_rate') @_DoubleConverter() double conversionRate,
   });
 }
 
@@ -125,12 +137,18 @@ abstract class _$$DashboardKPIImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: 'total_students') int totalStudents,
-    @JsonKey(name: 'new_students_this_month') int newStudentsThisMonth,
-    @JsonKey(name: 'consults_this_month') int consultsThisMonth,
-    @JsonKey(name: 'registers_this_month') int registersThisMonth,
-    @JsonKey(name: 'enrolled_count') int enrolledCount,
-    @JsonKey(name: 'conversion_rate') double conversionRate,
+    @JsonKey(name: 'total_students') @_IntConverter() int totalStudents,
+    @JsonKey(name: 'new_students_this_month')
+    @_IntConverter()
+    int newStudentsThisMonth,
+    @JsonKey(name: 'consults_this_month')
+    @_IntConverter()
+    int consultsThisMonth,
+    @JsonKey(name: 'registers_this_month')
+    @_IntConverter()
+    int registersThisMonth,
+    @JsonKey(name: 'enrolled_count') @_IntConverter() int enrolledCount,
+    @JsonKey(name: 'conversion_rate') @_DoubleConverter() double conversionRate,
   });
 }
 
@@ -190,13 +208,24 @@ class __$$DashboardKPIImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DashboardKPIImpl implements _DashboardKPI {
   const _$DashboardKPIImpl({
-    @JsonKey(name: 'total_students') required this.totalStudents,
+    @JsonKey(name: 'total_students')
+    @_IntConverter()
+    required this.totalStudents,
     @JsonKey(name: 'new_students_this_month')
+    @_IntConverter()
     required this.newStudentsThisMonth,
-    @JsonKey(name: 'consults_this_month') required this.consultsThisMonth,
-    @JsonKey(name: 'registers_this_month') required this.registersThisMonth,
-    @JsonKey(name: 'enrolled_count') required this.enrolledCount,
-    @JsonKey(name: 'conversion_rate') required this.conversionRate,
+    @JsonKey(name: 'consults_this_month')
+    @_IntConverter()
+    required this.consultsThisMonth,
+    @JsonKey(name: 'registers_this_month')
+    @_IntConverter()
+    required this.registersThisMonth,
+    @JsonKey(name: 'enrolled_count')
+    @_IntConverter()
+    required this.enrolledCount,
+    @JsonKey(name: 'conversion_rate')
+    @_DoubleConverter()
+    required this.conversionRate,
   });
 
   factory _$DashboardKPIImpl.fromJson(Map<String, dynamic> json) =>
@@ -204,21 +233,27 @@ class _$DashboardKPIImpl implements _DashboardKPI {
 
   @override
   @JsonKey(name: 'total_students')
+  @_IntConverter()
   final int totalStudents;
   @override
   @JsonKey(name: 'new_students_this_month')
+  @_IntConverter()
   final int newStudentsThisMonth;
   @override
   @JsonKey(name: 'consults_this_month')
+  @_IntConverter()
   final int consultsThisMonth;
   @override
   @JsonKey(name: 'registers_this_month')
+  @_IntConverter()
   final int registersThisMonth;
   @override
   @JsonKey(name: 'enrolled_count')
+  @_IntConverter()
   final int enrolledCount;
   @override
   @JsonKey(name: 'conversion_rate')
+  @_DoubleConverter()
   final double conversionRate;
 
   @override
@@ -273,14 +308,24 @@ class _$DashboardKPIImpl implements _DashboardKPI {
 
 abstract class _DashboardKPI implements DashboardKPI {
   const factory _DashboardKPI({
-    @JsonKey(name: 'total_students') required final int totalStudents,
+    @JsonKey(name: 'total_students')
+    @_IntConverter()
+    required final int totalStudents,
     @JsonKey(name: 'new_students_this_month')
+    @_IntConverter()
     required final int newStudentsThisMonth,
-    @JsonKey(name: 'consults_this_month') required final int consultsThisMonth,
+    @JsonKey(name: 'consults_this_month')
+    @_IntConverter()
+    required final int consultsThisMonth,
     @JsonKey(name: 'registers_this_month')
+    @_IntConverter()
     required final int registersThisMonth,
-    @JsonKey(name: 'enrolled_count') required final int enrolledCount,
-    @JsonKey(name: 'conversion_rate') required final double conversionRate,
+    @JsonKey(name: 'enrolled_count')
+    @_IntConverter()
+    required final int enrolledCount,
+    @JsonKey(name: 'conversion_rate')
+    @_DoubleConverter()
+    required final double conversionRate,
   }) = _$DashboardKPIImpl;
 
   factory _DashboardKPI.fromJson(Map<String, dynamic> json) =
@@ -288,21 +333,27 @@ abstract class _DashboardKPI implements DashboardKPI {
 
   @override
   @JsonKey(name: 'total_students')
+  @_IntConverter()
   int get totalStudents;
   @override
   @JsonKey(name: 'new_students_this_month')
+  @_IntConverter()
   int get newStudentsThisMonth;
   @override
   @JsonKey(name: 'consults_this_month')
+  @_IntConverter()
   int get consultsThisMonth;
   @override
   @JsonKey(name: 'registers_this_month')
+  @_IntConverter()
   int get registersThisMonth;
   @override
   @JsonKey(name: 'enrolled_count')
+  @_IntConverter()
   int get enrolledCount;
   @override
   @JsonKey(name: 'conversion_rate')
+  @_DoubleConverter()
   double get conversionRate;
 
   /// Create a copy of DashboardKPI
@@ -323,7 +374,9 @@ mixin _$FunnelData {
   String get statusCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'status_name')
   String get statusName => throw _privateConstructorUsedError;
+  @_IntConverter()
   int get count => throw _privateConstructorUsedError;
+  @_DoubleConverter()
   double get percentage => throw _privateConstructorUsedError;
 
   /// Serializes this FunnelData to a JSON map.
@@ -346,8 +399,8 @@ abstract class $FunnelDataCopyWith<$Res> {
   $Res call({
     @JsonKey(name: 'status_code') String statusCode,
     @JsonKey(name: 'status_name') String statusName,
-    int count,
-    double percentage,
+    @_IntConverter() int count,
+    @_DoubleConverter() double percentage,
   });
 }
 
@@ -407,8 +460,8 @@ abstract class _$$FunnelDataImplCopyWith<$Res>
   $Res call({
     @JsonKey(name: 'status_code') String statusCode,
     @JsonKey(name: 'status_name') String statusName,
-    int count,
-    double percentage,
+    @_IntConverter() int count,
+    @_DoubleConverter() double percentage,
   });
 }
 
@@ -460,8 +513,8 @@ class _$FunnelDataImpl implements _FunnelData {
   const _$FunnelDataImpl({
     @JsonKey(name: 'status_code') required this.statusCode,
     @JsonKey(name: 'status_name') required this.statusName,
-    required this.count,
-    required this.percentage,
+    @_IntConverter() required this.count,
+    @_DoubleConverter() required this.percentage,
   });
 
   factory _$FunnelDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -474,8 +527,10 @@ class _$FunnelDataImpl implements _FunnelData {
   @JsonKey(name: 'status_name')
   final String statusName;
   @override
+  @_IntConverter()
   final int count;
   @override
+  @_DoubleConverter()
   final double percentage;
 
   @override
@@ -520,8 +575,8 @@ abstract class _FunnelData implements FunnelData {
   const factory _FunnelData({
     @JsonKey(name: 'status_code') required final String statusCode,
     @JsonKey(name: 'status_name') required final String statusName,
-    required final int count,
-    required final double percentage,
+    @_IntConverter() required final int count,
+    @_DoubleConverter() required final double percentage,
   }) = _$FunnelDataImpl;
 
   factory _FunnelData.fromJson(Map<String, dynamic> json) =
@@ -534,8 +589,10 @@ abstract class _FunnelData implements FunnelData {
   @JsonKey(name: 'status_name')
   String get statusName;
   @override
+  @_IntConverter()
   int get count;
   @override
+  @_DoubleConverter()
   double get percentage;
 
   /// Create a copy of FunnelData
@@ -553,18 +610,24 @@ TCPerformance _$TCPerformanceFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$TCPerformance {
   @JsonKey(name: 'tc_id')
+  @_IntConverter()
   int get tcId => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_name')
   String get tcName => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_students')
+  @_IntConverter()
   int get totalStudents => throw _privateConstructorUsedError;
   @JsonKey(name: 'prospect_count')
+  @_IntConverter()
   int get prospectCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'consult_count')
+  @_IntConverter()
   int get consultCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'register_count')
+  @_IntConverter()
   int get registerCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'consult_total')
+  @_IntConverter()
   int get consultTotal => throw _privateConstructorUsedError;
 
   /// Serializes this TCPerformance to a JSON map.
@@ -585,13 +648,13 @@ abstract class $TCPerformanceCopyWith<$Res> {
   ) = _$TCPerformanceCopyWithImpl<$Res, TCPerformance>;
   @useResult
   $Res call({
-    @JsonKey(name: 'tc_id') int tcId,
+    @JsonKey(name: 'tc_id') @_IntConverter() int tcId,
     @JsonKey(name: 'tc_name') String tcName,
-    @JsonKey(name: 'total_students') int totalStudents,
-    @JsonKey(name: 'prospect_count') int prospectCount,
-    @JsonKey(name: 'consult_count') int consultCount,
-    @JsonKey(name: 'register_count') int registerCount,
-    @JsonKey(name: 'consult_total') int consultTotal,
+    @JsonKey(name: 'total_students') @_IntConverter() int totalStudents,
+    @JsonKey(name: 'prospect_count') @_IntConverter() int prospectCount,
+    @JsonKey(name: 'consult_count') @_IntConverter() int consultCount,
+    @JsonKey(name: 'register_count') @_IntConverter() int registerCount,
+    @JsonKey(name: 'consult_total') @_IntConverter() int consultTotal,
   });
 }
 
@@ -664,13 +727,13 @@ abstract class _$$TCPerformanceImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: 'tc_id') int tcId,
+    @JsonKey(name: 'tc_id') @_IntConverter() int tcId,
     @JsonKey(name: 'tc_name') String tcName,
-    @JsonKey(name: 'total_students') int totalStudents,
-    @JsonKey(name: 'prospect_count') int prospectCount,
-    @JsonKey(name: 'consult_count') int consultCount,
-    @JsonKey(name: 'register_count') int registerCount,
-    @JsonKey(name: 'consult_total') int consultTotal,
+    @JsonKey(name: 'total_students') @_IntConverter() int totalStudents,
+    @JsonKey(name: 'prospect_count') @_IntConverter() int prospectCount,
+    @JsonKey(name: 'consult_count') @_IntConverter() int consultCount,
+    @JsonKey(name: 'register_count') @_IntConverter() int registerCount,
+    @JsonKey(name: 'consult_total') @_IntConverter() int consultTotal,
   });
 }
 
@@ -735,13 +798,19 @@ class __$$TCPerformanceImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$TCPerformanceImpl implements _TCPerformance {
   const _$TCPerformanceImpl({
-    @JsonKey(name: 'tc_id') required this.tcId,
+    @JsonKey(name: 'tc_id') @_IntConverter() required this.tcId,
     @JsonKey(name: 'tc_name') required this.tcName,
-    @JsonKey(name: 'total_students') required this.totalStudents,
-    @JsonKey(name: 'prospect_count') required this.prospectCount,
-    @JsonKey(name: 'consult_count') required this.consultCount,
-    @JsonKey(name: 'register_count') required this.registerCount,
-    @JsonKey(name: 'consult_total') required this.consultTotal,
+    @JsonKey(name: 'total_students')
+    @_IntConverter()
+    required this.totalStudents,
+    @JsonKey(name: 'prospect_count')
+    @_IntConverter()
+    required this.prospectCount,
+    @JsonKey(name: 'consult_count') @_IntConverter() required this.consultCount,
+    @JsonKey(name: 'register_count')
+    @_IntConverter()
+    required this.registerCount,
+    @JsonKey(name: 'consult_total') @_IntConverter() required this.consultTotal,
   });
 
   factory _$TCPerformanceImpl.fromJson(Map<String, dynamic> json) =>
@@ -749,24 +818,30 @@ class _$TCPerformanceImpl implements _TCPerformance {
 
   @override
   @JsonKey(name: 'tc_id')
+  @_IntConverter()
   final int tcId;
   @override
   @JsonKey(name: 'tc_name')
   final String tcName;
   @override
   @JsonKey(name: 'total_students')
+  @_IntConverter()
   final int totalStudents;
   @override
   @JsonKey(name: 'prospect_count')
+  @_IntConverter()
   final int prospectCount;
   @override
   @JsonKey(name: 'consult_count')
+  @_IntConverter()
   final int consultCount;
   @override
   @JsonKey(name: 'register_count')
+  @_IntConverter()
   final int registerCount;
   @override
   @JsonKey(name: 'consult_total')
+  @_IntConverter()
   final int consultTotal;
 
   @override
@@ -822,13 +897,23 @@ class _$TCPerformanceImpl implements _TCPerformance {
 
 abstract class _TCPerformance implements TCPerformance {
   const factory _TCPerformance({
-    @JsonKey(name: 'tc_id') required final int tcId,
+    @JsonKey(name: 'tc_id') @_IntConverter() required final int tcId,
     @JsonKey(name: 'tc_name') required final String tcName,
-    @JsonKey(name: 'total_students') required final int totalStudents,
-    @JsonKey(name: 'prospect_count') required final int prospectCount,
-    @JsonKey(name: 'consult_count') required final int consultCount,
-    @JsonKey(name: 'register_count') required final int registerCount,
-    @JsonKey(name: 'consult_total') required final int consultTotal,
+    @JsonKey(name: 'total_students')
+    @_IntConverter()
+    required final int totalStudents,
+    @JsonKey(name: 'prospect_count')
+    @_IntConverter()
+    required final int prospectCount,
+    @JsonKey(name: 'consult_count')
+    @_IntConverter()
+    required final int consultCount,
+    @JsonKey(name: 'register_count')
+    @_IntConverter()
+    required final int registerCount,
+    @JsonKey(name: 'consult_total')
+    @_IntConverter()
+    required final int consultTotal,
   }) = _$TCPerformanceImpl;
 
   factory _TCPerformance.fromJson(Map<String, dynamic> json) =
@@ -836,24 +921,30 @@ abstract class _TCPerformance implements TCPerformance {
 
   @override
   @JsonKey(name: 'tc_id')
+  @_IntConverter()
   int get tcId;
   @override
   @JsonKey(name: 'tc_name')
   String get tcName;
   @override
   @JsonKey(name: 'total_students')
+  @_IntConverter()
   int get totalStudents;
   @override
   @JsonKey(name: 'prospect_count')
+  @_IntConverter()
   int get prospectCount;
   @override
   @JsonKey(name: 'consult_count')
+  @_IntConverter()
   int get consultCount;
   @override
   @JsonKey(name: 'register_count')
+  @_IntConverter()
   int get registerCount;
   @override
   @JsonKey(name: 'consult_total')
+  @_IntConverter()
   int get consultTotal;
 
   /// Create a copy of TCPerformance
@@ -872,6 +963,7 @@ MonthlyTrend _$MonthlyTrendFromJson(Map<String, dynamic> json) {
 mixin _$MonthlyTrend {
   String get month => throw _privateConstructorUsedError;
   @JsonKey(name: 'register_count')
+  @_IntConverter()
   int get registerCount => throw _privateConstructorUsedError;
 
   /// Serializes this MonthlyTrend to a JSON map.
@@ -891,7 +983,10 @@ abstract class $MonthlyTrendCopyWith<$Res> {
     $Res Function(MonthlyTrend) then,
   ) = _$MonthlyTrendCopyWithImpl<$Res, MonthlyTrend>;
   @useResult
-  $Res call({String month, @JsonKey(name: 'register_count') int registerCount});
+  $Res call({
+    String month,
+    @JsonKey(name: 'register_count') @_IntConverter() int registerCount,
+  });
 }
 
 /// @nodoc
@@ -934,7 +1029,10 @@ abstract class _$$MonthlyTrendImplCopyWith<$Res>
   ) = __$$MonthlyTrendImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String month, @JsonKey(name: 'register_count') int registerCount});
+  $Res call({
+    String month,
+    @JsonKey(name: 'register_count') @_IntConverter() int registerCount,
+  });
 }
 
 /// @nodoc
@@ -971,7 +1069,9 @@ class __$$MonthlyTrendImplCopyWithImpl<$Res>
 class _$MonthlyTrendImpl implements _MonthlyTrend {
   const _$MonthlyTrendImpl({
     required this.month,
-    @JsonKey(name: 'register_count') required this.registerCount,
+    @JsonKey(name: 'register_count')
+    @_IntConverter()
+    required this.registerCount,
   });
 
   factory _$MonthlyTrendImpl.fromJson(Map<String, dynamic> json) =>
@@ -981,6 +1081,7 @@ class _$MonthlyTrendImpl implements _MonthlyTrend {
   final String month;
   @override
   @JsonKey(name: 'register_count')
+  @_IntConverter()
   final int registerCount;
 
   @override
@@ -1019,7 +1120,9 @@ class _$MonthlyTrendImpl implements _MonthlyTrend {
 abstract class _MonthlyTrend implements MonthlyTrend {
   const factory _MonthlyTrend({
     required final String month,
-    @JsonKey(name: 'register_count') required final int registerCount,
+    @JsonKey(name: 'register_count')
+    @_IntConverter()
+    required final int registerCount,
   }) = _$MonthlyTrendImpl;
 
   factory _MonthlyTrend.fromJson(Map<String, dynamic> json) =
@@ -1029,6 +1132,7 @@ abstract class _MonthlyTrend implements MonthlyTrend {
   String get month;
   @override
   @JsonKey(name: 'register_count')
+  @_IntConverter()
   int get registerCount;
 
   /// Create a copy of MonthlyTrend

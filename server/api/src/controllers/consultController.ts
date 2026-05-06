@@ -36,12 +36,30 @@ export class ConsultController {
   // POST /consult
   create = asyncHandler(async (req: Request, res: Response) => {
     const data: ConsultCreate = req.body;
-    // TODO: Get actual user ID from auth middleware
     const userId = (req as any).userId || 1;
 
     const consult = await consultService.create(data, userId);
 
     return sendCreated(res, consult, 'Consult created successfully');
+  });
+
+  // GET /consult/:id
+  getById = asyncHandler(async (req: Request, res: Response) => {
+    const consultId = parseInt(req.params.id);
+    const consult = await consultService.getById(consultId);
+
+    return sendSuccess(res, consult, 'Consult retrieved successfully');
+  });
+
+  // PUT /consult/:id
+  update = asyncHandler(async (req: Request, res: Response) => {
+    const consultId = parseInt(req.params.id);
+    const data = req.body;
+    const userId = (req as any).userId || 1;
+
+    const consult = await consultService.update(consultId, data, userId);
+
+    return sendSuccess(res, consult, 'Consult updated successfully');
   });
 }
 

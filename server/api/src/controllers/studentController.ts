@@ -50,6 +50,14 @@ export class StudentController {
     return sendSuccess(res, student, 'Student retrieved successfully');
   });
 
+  // GET /student/:id/history - 학생 변동 내역 조회
+  getHistory = asyncHandler(async (req: Request, res: Response) => {
+    const studentId = parseInt(req.params.id);
+    const history = await studentService.getHistory(studentId);
+
+    return sendSuccess(res, history, 'Student history retrieved successfully');
+  });
+
   // POST /student/state
   changeState = asyncHandler(async (req: Request, res: Response) => {
     const data: StudentStateChange = req.body;

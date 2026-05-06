@@ -7,6 +7,7 @@ import { SchoolListQuery, SchoolCreate } from '../types';
 export class SchoolController {
   // GET /school/list - 학교 목록 조회
   getList = asyncHandler(async (req: Request, res: Response) => {
+    const regionKindStr = req.query.region_kind as string;
     const query: SchoolListQuery = {
       page: parseInt(req.query.page as string) || 1,
       perPage: parseInt(req.query.perPage as string) || 100,
@@ -14,7 +15,7 @@ export class SchoolController {
       order: req.query.order as 'asc' | 'desc',
       search: req.query.search as string,
       school_kind: parseInt(req.query.school_kind as string) || undefined,
-      region_kind: req.query.region_kind as string
+      region_kind: regionKindStr ? parseInt(regionKindStr) : undefined
     };
 
     const result = await schoolService.getList(query);

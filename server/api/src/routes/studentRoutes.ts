@@ -25,6 +25,13 @@ router.get(
   studentController.getList
 );
 
+// GET /student/:id/history - 학생 변동 내역 조회 (/:id 보다 먼저 정의해야 함)
+router.get(
+  '/:id/history',
+  validate([validateId('id')]),
+  studentController.getHistory
+);
+
 // GET /student/:id - 학생 상세 조회
 router.get(
   '/:id',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/routes.dart';
 import '../../providers/student_provider.dart';
@@ -31,6 +32,8 @@ const _gradeFilterItems = [
 ];
 
 class _StudentListScreenState extends ConsumerState<StudentListScreen> {
+  static const _sortPrefKey = 'student_list_sort_by_recent';
+
   final _searchController = TextEditingController();
   String? _selectedStatus;
   int? _selectedGrade;
@@ -39,9 +42,27 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(studentListProvider.notifier).fetchList(refresh: true);
-    });
+    _loadSortPreference();
+  }
+
+  Future<void> _loadSortPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedSort = prefs.getBool(_sortPrefKey) ?? false;
+    setState(() => _sortByRecent = savedSort);
+
+    // 저장된 정렬 옵션으로 목록 조회
+    ref.read(studentListProvider.notifier).fetchList(
+      params: StudentListParams(
+        sort: _sortByRecent ? 'student_id' : 'student_name',
+        order: _sortByRecent ? 'desc' : 'asc',
+      ),
+      refresh: true,
+    );
+  }
+
+  Future<void> _saveSortPreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sortPrefKey, value);
   }
 
   @override
@@ -180,6 +201,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   selected: {_sortByRecent},
                   onSelectionChanged: (selected) {
                     setState(() => _sortByRecent = selected.first);
+                    _saveSortPreference(selected.first);
                     _applyFilter();
                   },
                 ),

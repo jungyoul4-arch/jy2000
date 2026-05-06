@@ -162,3 +162,34 @@ class StudentListParams with _$StudentListParams {
   factory StudentListParams.fromJson(Map<String, dynamic> json) =>
       _$StudentListParamsFromJson(json);
 }
+
+@freezed
+class StudentHistory with _$StudentHistory {
+  const factory StudentHistory({
+    @JsonKey(name: 'history_id') required int historyId,
+    @JsonKey(name: 'student_id') required int studentId,
+    @JsonKey(name: 'prev_status_code') String? prevStatusCode,
+    @JsonKey(name: 'prev_status_name') String? prevStatusName,
+    @JsonKey(name: 'new_status_code') required String newStatusCode,
+    @JsonKey(name: 'new_status_name') String? newStatusName,
+    @JsonKey(name: 'prev_sub_status') String? prevSubStatus,
+    @JsonKey(name: 'prev_sub_status_name') String? prevSubStatusName,
+    @JsonKey(name: 'new_sub_status') String? newSubStatus,
+    @JsonKey(name: 'new_sub_status_name') String? newSubStatusName,
+    @JsonKey(name: 'change_type_code') required String changeTypeCode,
+    @JsonKey(name: 'change_type_name') String? changeTypeName,
+    @JsonKey(name: 'change_reason_code') String? changeReasonCode,
+    @JsonKey(name: 'change_reason_name') String? changeReasonName,
+    @JsonKey(name: 'change_reason') String? changeReason,
+    @JsonKey(name: 'prev_tc_id') int? prevTcId,
+    @JsonKey(name: 'prev_tc_name') String? prevTcName,
+    @JsonKey(name: 'new_tc_id') int? newTcId,
+    @JsonKey(name: 'new_tc_name') String? newTcName,
+    @JsonKey(name: 'changed_by') required int changedBy,
+    @JsonKey(name: 'changed_by_name') String? changedByName,
+    @JsonKey(name: 'changed_at') required String changedAt,
+  }) = _StudentHistory;
+
+  factory StudentHistory.fromJson(Map<String, dynamic> json) =>
+      _$StudentHistoryFromJson(json);
+}

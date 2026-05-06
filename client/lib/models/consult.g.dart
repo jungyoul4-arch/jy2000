@@ -133,3 +133,39 @@ Map<String, dynamic> _$$ConsultListParamsImplToJson(
   'from_date': instance.fromDate,
   'to_date': instance.toDate,
 };
+
+_$ConsultUpdateImpl _$$ConsultUpdateImplFromJson(Map<String, dynamic> json) =>
+    _$ConsultUpdateImpl(
+      consultTypeCode: json['consult_type_code'] as String?,
+      consultDate: json['consult_date'] as String?,
+      consultDuration: (json['consult_duration'] as num?)?.toInt(),
+      channelCode: json['channel_code'] as String?,
+      tcId: (json['tc_id'] as num?)?.toInt(),
+      content: json['content'] as String?,
+      studentNeeds: json['student_needs'] as String?,
+      consultResultCode: json['consult_result_code'] as String?,
+      resultDetail: json['result_detail'] as String?,
+      nextActionCode: json['next_action_code'] as String?,
+      nextActionDetail: json['next_action_detail'] as String?,
+      nextConsultDate: json['next_consult_date'] as String?,
+      interestSubject: json['interest_subject'] as String?,
+      interestProgram: json['interest_program'] as String?,
+    );
+
+Map<String, dynamic> _$$ConsultUpdateImplToJson(_$ConsultUpdateImpl instance) =>
+    <String, dynamic>{
+      'consult_type_code': instance.consultTypeCode,
+      'consult_date': instance.consultDate,
+      'consult_duration': instance.consultDuration,
+      'channel_code': instance.channelCode,
+      'tc_id': instance.tcId,
+      'content': instance.content,
+      'student_needs': instance.studentNeeds,
+      'consult_result_code': instance.consultResultCode,
+      'result_detail': instance.resultDetail,
+      'next_action_code': instance.nextActionCode,
+      'next_action_detail': instance.nextActionDetail,
+      'next_consult_date': instance.nextConsultDate,
+      'interest_subject': instance.interestSubject,
+      'interest_program': instance.interestProgram,
+    };

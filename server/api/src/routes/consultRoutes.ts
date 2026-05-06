@@ -2,6 +2,7 @@ import { Router } from 'express';
 import consultController from '../controllers/consultController';
 import { validate } from '../middlewares/validate';
 import {
+  validateId,
   validateConsultCreate,
   validateConsultListQuery
 } from '../validators';
@@ -20,6 +21,20 @@ router.post(
   '/',
   validate(validateConsultCreate),
   consultController.create
+);
+
+// GET /consult/:id - 상담 상세 조회
+router.get(
+  '/:id',
+  validate([validateId('id')]),
+  consultController.getById
+);
+
+// PUT /consult/:id - 상담 수정
+router.put(
+  '/:id',
+  validate([validateId('id')]),
+  consultController.update
 );
 
 export default router;

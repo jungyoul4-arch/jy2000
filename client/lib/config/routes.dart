@@ -10,6 +10,7 @@ import '../screens/student/student_detail_screen.dart';
 import '../screens/student/student_form_screen.dart';
 import '../screens/consult/consult_list_screen.dart';
 import '../screens/consult/consult_form_screen.dart';
+import '../screens/consult/consult_detail_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/promotion/promotion_list_screen.dart';
 import '../screens/school/school_list_screen.dart';
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String studentCreate = '/students/create';
   static const String consultList = '/consults';
   static const String consultCreate = '/consults/create';
+  static const String consultDetail = '/consults/:id';
   static const String promotionList = '/promotions';
   static const String schoolList = '/schools';
 }
@@ -102,6 +104,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               return ConsultFormScreen(
                 studentId: studentId != null ? int.parse(studentId) : null,
               );
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.consultDetail,
+            name: 'consultDetail',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              return ConsultDetailScreen(consultId: id);
             },
           ),
 

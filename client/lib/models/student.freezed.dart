@@ -2960,3 +2960,700 @@ abstract class _StudentListParams implements StudentListParams {
   _$$StudentListParamsImplCopyWith<_$StudentListParamsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+StudentHistory _$StudentHistoryFromJson(Map<String, dynamic> json) {
+  return _StudentHistory.fromJson(json);
+}
+
+/// @nodoc
+mixin _$StudentHistory {
+  @JsonKey(name: 'history_id')
+  int get historyId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'student_id')
+  int get studentId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prev_status_code')
+  String? get prevStatusCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prev_status_name')
+  String? get prevStatusName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'new_status_code')
+  String get newStatusCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'new_status_name')
+  String? get newStatusName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prev_sub_status')
+  String? get prevSubStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prev_sub_status_name')
+  String? get prevSubStatusName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'new_sub_status')
+  String? get newSubStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'new_sub_status_name')
+  String? get newSubStatusName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'change_type_code')
+  String get changeTypeCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'change_type_name')
+  String? get changeTypeName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'change_reason_code')
+  String? get changeReasonCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'change_reason_name')
+  String? get changeReasonName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'change_reason')
+  String? get changeReason => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prev_tc_id')
+  int? get prevTcId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'prev_tc_name')
+  String? get prevTcName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'new_tc_id')
+  int? get newTcId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'new_tc_name')
+  String? get newTcName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'changed_by')
+  int get changedBy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'changed_by_name')
+  String? get changedByName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'changed_at')
+  String get changedAt => throw _privateConstructorUsedError;
+
+  /// Serializes this StudentHistory to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of StudentHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $StudentHistoryCopyWith<StudentHistory> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $StudentHistoryCopyWith<$Res> {
+  factory $StudentHistoryCopyWith(
+    StudentHistory value,
+    $Res Function(StudentHistory) then,
+  ) = _$StudentHistoryCopyWithImpl<$Res, StudentHistory>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'history_id') int historyId,
+    @JsonKey(name: 'student_id') int studentId,
+    @JsonKey(name: 'prev_status_code') String? prevStatusCode,
+    @JsonKey(name: 'prev_status_name') String? prevStatusName,
+    @JsonKey(name: 'new_status_code') String newStatusCode,
+    @JsonKey(name: 'new_status_name') String? newStatusName,
+    @JsonKey(name: 'prev_sub_status') String? prevSubStatus,
+    @JsonKey(name: 'prev_sub_status_name') String? prevSubStatusName,
+    @JsonKey(name: 'new_sub_status') String? newSubStatus,
+    @JsonKey(name: 'new_sub_status_name') String? newSubStatusName,
+    @JsonKey(name: 'change_type_code') String changeTypeCode,
+    @JsonKey(name: 'change_type_name') String? changeTypeName,
+    @JsonKey(name: 'change_reason_code') String? changeReasonCode,
+    @JsonKey(name: 'change_reason_name') String? changeReasonName,
+    @JsonKey(name: 'change_reason') String? changeReason,
+    @JsonKey(name: 'prev_tc_id') int? prevTcId,
+    @JsonKey(name: 'prev_tc_name') String? prevTcName,
+    @JsonKey(name: 'new_tc_id') int? newTcId,
+    @JsonKey(name: 'new_tc_name') String? newTcName,
+    @JsonKey(name: 'changed_by') int changedBy,
+    @JsonKey(name: 'changed_by_name') String? changedByName,
+    @JsonKey(name: 'changed_at') String changedAt,
+  });
+}
+
+/// @nodoc
+class _$StudentHistoryCopyWithImpl<$Res, $Val extends StudentHistory>
+    implements $StudentHistoryCopyWith<$Res> {
+  _$StudentHistoryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of StudentHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? historyId = null,
+    Object? studentId = null,
+    Object? prevStatusCode = freezed,
+    Object? prevStatusName = freezed,
+    Object? newStatusCode = null,
+    Object? newStatusName = freezed,
+    Object? prevSubStatus = freezed,
+    Object? prevSubStatusName = freezed,
+    Object? newSubStatus = freezed,
+    Object? newSubStatusName = freezed,
+    Object? changeTypeCode = null,
+    Object? changeTypeName = freezed,
+    Object? changeReasonCode = freezed,
+    Object? changeReasonName = freezed,
+    Object? changeReason = freezed,
+    Object? prevTcId = freezed,
+    Object? prevTcName = freezed,
+    Object? newTcId = freezed,
+    Object? newTcName = freezed,
+    Object? changedBy = null,
+    Object? changedByName = freezed,
+    Object? changedAt = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            historyId: null == historyId
+                ? _value.historyId
+                : historyId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            studentId: null == studentId
+                ? _value.studentId
+                : studentId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            prevStatusCode: freezed == prevStatusCode
+                ? _value.prevStatusCode
+                : prevStatusCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            prevStatusName: freezed == prevStatusName
+                ? _value.prevStatusName
+                : prevStatusName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            newStatusCode: null == newStatusCode
+                ? _value.newStatusCode
+                : newStatusCode // ignore: cast_nullable_to_non_nullable
+                      as String,
+            newStatusName: freezed == newStatusName
+                ? _value.newStatusName
+                : newStatusName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            prevSubStatus: freezed == prevSubStatus
+                ? _value.prevSubStatus
+                : prevSubStatus // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            prevSubStatusName: freezed == prevSubStatusName
+                ? _value.prevSubStatusName
+                : prevSubStatusName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            newSubStatus: freezed == newSubStatus
+                ? _value.newSubStatus
+                : newSubStatus // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            newSubStatusName: freezed == newSubStatusName
+                ? _value.newSubStatusName
+                : newSubStatusName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changeTypeCode: null == changeTypeCode
+                ? _value.changeTypeCode
+                : changeTypeCode // ignore: cast_nullable_to_non_nullable
+                      as String,
+            changeTypeName: freezed == changeTypeName
+                ? _value.changeTypeName
+                : changeTypeName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changeReasonCode: freezed == changeReasonCode
+                ? _value.changeReasonCode
+                : changeReasonCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changeReasonName: freezed == changeReasonName
+                ? _value.changeReasonName
+                : changeReasonName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changeReason: freezed == changeReason
+                ? _value.changeReason
+                : changeReason // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            prevTcId: freezed == prevTcId
+                ? _value.prevTcId
+                : prevTcId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            prevTcName: freezed == prevTcName
+                ? _value.prevTcName
+                : prevTcName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            newTcId: freezed == newTcId
+                ? _value.newTcId
+                : newTcId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            newTcName: freezed == newTcName
+                ? _value.newTcName
+                : newTcName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changedBy: null == changedBy
+                ? _value.changedBy
+                : changedBy // ignore: cast_nullable_to_non_nullable
+                      as int,
+            changedByName: freezed == changedByName
+                ? _value.changedByName
+                : changedByName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            changedAt: null == changedAt
+                ? _value.changedAt
+                : changedAt // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$StudentHistoryImplCopyWith<$Res>
+    implements $StudentHistoryCopyWith<$Res> {
+  factory _$$StudentHistoryImplCopyWith(
+    _$StudentHistoryImpl value,
+    $Res Function(_$StudentHistoryImpl) then,
+  ) = __$$StudentHistoryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'history_id') int historyId,
+    @JsonKey(name: 'student_id') int studentId,
+    @JsonKey(name: 'prev_status_code') String? prevStatusCode,
+    @JsonKey(name: 'prev_status_name') String? prevStatusName,
+    @JsonKey(name: 'new_status_code') String newStatusCode,
+    @JsonKey(name: 'new_status_name') String? newStatusName,
+    @JsonKey(name: 'prev_sub_status') String? prevSubStatus,
+    @JsonKey(name: 'prev_sub_status_name') String? prevSubStatusName,
+    @JsonKey(name: 'new_sub_status') String? newSubStatus,
+    @JsonKey(name: 'new_sub_status_name') String? newSubStatusName,
+    @JsonKey(name: 'change_type_code') String changeTypeCode,
+    @JsonKey(name: 'change_type_name') String? changeTypeName,
+    @JsonKey(name: 'change_reason_code') String? changeReasonCode,
+    @JsonKey(name: 'change_reason_name') String? changeReasonName,
+    @JsonKey(name: 'change_reason') String? changeReason,
+    @JsonKey(name: 'prev_tc_id') int? prevTcId,
+    @JsonKey(name: 'prev_tc_name') String? prevTcName,
+    @JsonKey(name: 'new_tc_id') int? newTcId,
+    @JsonKey(name: 'new_tc_name') String? newTcName,
+    @JsonKey(name: 'changed_by') int changedBy,
+    @JsonKey(name: 'changed_by_name') String? changedByName,
+    @JsonKey(name: 'changed_at') String changedAt,
+  });
+}
+
+/// @nodoc
+class __$$StudentHistoryImplCopyWithImpl<$Res>
+    extends _$StudentHistoryCopyWithImpl<$Res, _$StudentHistoryImpl>
+    implements _$$StudentHistoryImplCopyWith<$Res> {
+  __$$StudentHistoryImplCopyWithImpl(
+    _$StudentHistoryImpl _value,
+    $Res Function(_$StudentHistoryImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of StudentHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? historyId = null,
+    Object? studentId = null,
+    Object? prevStatusCode = freezed,
+    Object? prevStatusName = freezed,
+    Object? newStatusCode = null,
+    Object? newStatusName = freezed,
+    Object? prevSubStatus = freezed,
+    Object? prevSubStatusName = freezed,
+    Object? newSubStatus = freezed,
+    Object? newSubStatusName = freezed,
+    Object? changeTypeCode = null,
+    Object? changeTypeName = freezed,
+    Object? changeReasonCode = freezed,
+    Object? changeReasonName = freezed,
+    Object? changeReason = freezed,
+    Object? prevTcId = freezed,
+    Object? prevTcName = freezed,
+    Object? newTcId = freezed,
+    Object? newTcName = freezed,
+    Object? changedBy = null,
+    Object? changedByName = freezed,
+    Object? changedAt = null,
+  }) {
+    return _then(
+      _$StudentHistoryImpl(
+        historyId: null == historyId
+            ? _value.historyId
+            : historyId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        studentId: null == studentId
+            ? _value.studentId
+            : studentId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        prevStatusCode: freezed == prevStatusCode
+            ? _value.prevStatusCode
+            : prevStatusCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        prevStatusName: freezed == prevStatusName
+            ? _value.prevStatusName
+            : prevStatusName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        newStatusCode: null == newStatusCode
+            ? _value.newStatusCode
+            : newStatusCode // ignore: cast_nullable_to_non_nullable
+                  as String,
+        newStatusName: freezed == newStatusName
+            ? _value.newStatusName
+            : newStatusName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        prevSubStatus: freezed == prevSubStatus
+            ? _value.prevSubStatus
+            : prevSubStatus // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        prevSubStatusName: freezed == prevSubStatusName
+            ? _value.prevSubStatusName
+            : prevSubStatusName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        newSubStatus: freezed == newSubStatus
+            ? _value.newSubStatus
+            : newSubStatus // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        newSubStatusName: freezed == newSubStatusName
+            ? _value.newSubStatusName
+            : newSubStatusName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changeTypeCode: null == changeTypeCode
+            ? _value.changeTypeCode
+            : changeTypeCode // ignore: cast_nullable_to_non_nullable
+                  as String,
+        changeTypeName: freezed == changeTypeName
+            ? _value.changeTypeName
+            : changeTypeName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changeReasonCode: freezed == changeReasonCode
+            ? _value.changeReasonCode
+            : changeReasonCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changeReasonName: freezed == changeReasonName
+            ? _value.changeReasonName
+            : changeReasonName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changeReason: freezed == changeReason
+            ? _value.changeReason
+            : changeReason // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        prevTcId: freezed == prevTcId
+            ? _value.prevTcId
+            : prevTcId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        prevTcName: freezed == prevTcName
+            ? _value.prevTcName
+            : prevTcName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        newTcId: freezed == newTcId
+            ? _value.newTcId
+            : newTcId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        newTcName: freezed == newTcName
+            ? _value.newTcName
+            : newTcName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changedBy: null == changedBy
+            ? _value.changedBy
+            : changedBy // ignore: cast_nullable_to_non_nullable
+                  as int,
+        changedByName: freezed == changedByName
+            ? _value.changedByName
+            : changedByName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        changedAt: null == changedAt
+            ? _value.changedAt
+            : changedAt // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$StudentHistoryImpl implements _StudentHistory {
+  const _$StudentHistoryImpl({
+    @JsonKey(name: 'history_id') required this.historyId,
+    @JsonKey(name: 'student_id') required this.studentId,
+    @JsonKey(name: 'prev_status_code') this.prevStatusCode,
+    @JsonKey(name: 'prev_status_name') this.prevStatusName,
+    @JsonKey(name: 'new_status_code') required this.newStatusCode,
+    @JsonKey(name: 'new_status_name') this.newStatusName,
+    @JsonKey(name: 'prev_sub_status') this.prevSubStatus,
+    @JsonKey(name: 'prev_sub_status_name') this.prevSubStatusName,
+    @JsonKey(name: 'new_sub_status') this.newSubStatus,
+    @JsonKey(name: 'new_sub_status_name') this.newSubStatusName,
+    @JsonKey(name: 'change_type_code') required this.changeTypeCode,
+    @JsonKey(name: 'change_type_name') this.changeTypeName,
+    @JsonKey(name: 'change_reason_code') this.changeReasonCode,
+    @JsonKey(name: 'change_reason_name') this.changeReasonName,
+    @JsonKey(name: 'change_reason') this.changeReason,
+    @JsonKey(name: 'prev_tc_id') this.prevTcId,
+    @JsonKey(name: 'prev_tc_name') this.prevTcName,
+    @JsonKey(name: 'new_tc_id') this.newTcId,
+    @JsonKey(name: 'new_tc_name') this.newTcName,
+    @JsonKey(name: 'changed_by') required this.changedBy,
+    @JsonKey(name: 'changed_by_name') this.changedByName,
+    @JsonKey(name: 'changed_at') required this.changedAt,
+  });
+
+  factory _$StudentHistoryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$StudentHistoryImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'history_id')
+  final int historyId;
+  @override
+  @JsonKey(name: 'student_id')
+  final int studentId;
+  @override
+  @JsonKey(name: 'prev_status_code')
+  final String? prevStatusCode;
+  @override
+  @JsonKey(name: 'prev_status_name')
+  final String? prevStatusName;
+  @override
+  @JsonKey(name: 'new_status_code')
+  final String newStatusCode;
+  @override
+  @JsonKey(name: 'new_status_name')
+  final String? newStatusName;
+  @override
+  @JsonKey(name: 'prev_sub_status')
+  final String? prevSubStatus;
+  @override
+  @JsonKey(name: 'prev_sub_status_name')
+  final String? prevSubStatusName;
+  @override
+  @JsonKey(name: 'new_sub_status')
+  final String? newSubStatus;
+  @override
+  @JsonKey(name: 'new_sub_status_name')
+  final String? newSubStatusName;
+  @override
+  @JsonKey(name: 'change_type_code')
+  final String changeTypeCode;
+  @override
+  @JsonKey(name: 'change_type_name')
+  final String? changeTypeName;
+  @override
+  @JsonKey(name: 'change_reason_code')
+  final String? changeReasonCode;
+  @override
+  @JsonKey(name: 'change_reason_name')
+  final String? changeReasonName;
+  @override
+  @JsonKey(name: 'change_reason')
+  final String? changeReason;
+  @override
+  @JsonKey(name: 'prev_tc_id')
+  final int? prevTcId;
+  @override
+  @JsonKey(name: 'prev_tc_name')
+  final String? prevTcName;
+  @override
+  @JsonKey(name: 'new_tc_id')
+  final int? newTcId;
+  @override
+  @JsonKey(name: 'new_tc_name')
+  final String? newTcName;
+  @override
+  @JsonKey(name: 'changed_by')
+  final int changedBy;
+  @override
+  @JsonKey(name: 'changed_by_name')
+  final String? changedByName;
+  @override
+  @JsonKey(name: 'changed_at')
+  final String changedAt;
+
+  @override
+  String toString() {
+    return 'StudentHistory(historyId: $historyId, studentId: $studentId, prevStatusCode: $prevStatusCode, prevStatusName: $prevStatusName, newStatusCode: $newStatusCode, newStatusName: $newStatusName, prevSubStatus: $prevSubStatus, prevSubStatusName: $prevSubStatusName, newSubStatus: $newSubStatus, newSubStatusName: $newSubStatusName, changeTypeCode: $changeTypeCode, changeTypeName: $changeTypeName, changeReasonCode: $changeReasonCode, changeReasonName: $changeReasonName, changeReason: $changeReason, prevTcId: $prevTcId, prevTcName: $prevTcName, newTcId: $newTcId, newTcName: $newTcName, changedBy: $changedBy, changedByName: $changedByName, changedAt: $changedAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$StudentHistoryImpl &&
+            (identical(other.historyId, historyId) ||
+                other.historyId == historyId) &&
+            (identical(other.studentId, studentId) ||
+                other.studentId == studentId) &&
+            (identical(other.prevStatusCode, prevStatusCode) ||
+                other.prevStatusCode == prevStatusCode) &&
+            (identical(other.prevStatusName, prevStatusName) ||
+                other.prevStatusName == prevStatusName) &&
+            (identical(other.newStatusCode, newStatusCode) ||
+                other.newStatusCode == newStatusCode) &&
+            (identical(other.newStatusName, newStatusName) ||
+                other.newStatusName == newStatusName) &&
+            (identical(other.prevSubStatus, prevSubStatus) ||
+                other.prevSubStatus == prevSubStatus) &&
+            (identical(other.prevSubStatusName, prevSubStatusName) ||
+                other.prevSubStatusName == prevSubStatusName) &&
+            (identical(other.newSubStatus, newSubStatus) ||
+                other.newSubStatus == newSubStatus) &&
+            (identical(other.newSubStatusName, newSubStatusName) ||
+                other.newSubStatusName == newSubStatusName) &&
+            (identical(other.changeTypeCode, changeTypeCode) ||
+                other.changeTypeCode == changeTypeCode) &&
+            (identical(other.changeTypeName, changeTypeName) ||
+                other.changeTypeName == changeTypeName) &&
+            (identical(other.changeReasonCode, changeReasonCode) ||
+                other.changeReasonCode == changeReasonCode) &&
+            (identical(other.changeReasonName, changeReasonName) ||
+                other.changeReasonName == changeReasonName) &&
+            (identical(other.changeReason, changeReason) ||
+                other.changeReason == changeReason) &&
+            (identical(other.prevTcId, prevTcId) ||
+                other.prevTcId == prevTcId) &&
+            (identical(other.prevTcName, prevTcName) ||
+                other.prevTcName == prevTcName) &&
+            (identical(other.newTcId, newTcId) || other.newTcId == newTcId) &&
+            (identical(other.newTcName, newTcName) ||
+                other.newTcName == newTcName) &&
+            (identical(other.changedBy, changedBy) ||
+                other.changedBy == changedBy) &&
+            (identical(other.changedByName, changedByName) ||
+                other.changedByName == changedByName) &&
+            (identical(other.changedAt, changedAt) ||
+                other.changedAt == changedAt));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hashAll([
+    runtimeType,
+    historyId,
+    studentId,
+    prevStatusCode,
+    prevStatusName,
+    newStatusCode,
+    newStatusName,
+    prevSubStatus,
+    prevSubStatusName,
+    newSubStatus,
+    newSubStatusName,
+    changeTypeCode,
+    changeTypeName,
+    changeReasonCode,
+    changeReasonName,
+    changeReason,
+    prevTcId,
+    prevTcName,
+    newTcId,
+    newTcName,
+    changedBy,
+    changedByName,
+    changedAt,
+  ]);
+
+  /// Create a copy of StudentHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$StudentHistoryImplCopyWith<_$StudentHistoryImpl> get copyWith =>
+      __$$StudentHistoryImplCopyWithImpl<_$StudentHistoryImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$StudentHistoryImplToJson(this);
+  }
+}
+
+abstract class _StudentHistory implements StudentHistory {
+  const factory _StudentHistory({
+    @JsonKey(name: 'history_id') required final int historyId,
+    @JsonKey(name: 'student_id') required final int studentId,
+    @JsonKey(name: 'prev_status_code') final String? prevStatusCode,
+    @JsonKey(name: 'prev_status_name') final String? prevStatusName,
+    @JsonKey(name: 'new_status_code') required final String newStatusCode,
+    @JsonKey(name: 'new_status_name') final String? newStatusName,
+    @JsonKey(name: 'prev_sub_status') final String? prevSubStatus,
+    @JsonKey(name: 'prev_sub_status_name') final String? prevSubStatusName,
+    @JsonKey(name: 'new_sub_status') final String? newSubStatus,
+    @JsonKey(name: 'new_sub_status_name') final String? newSubStatusName,
+    @JsonKey(name: 'change_type_code') required final String changeTypeCode,
+    @JsonKey(name: 'change_type_name') final String? changeTypeName,
+    @JsonKey(name: 'change_reason_code') final String? changeReasonCode,
+    @JsonKey(name: 'change_reason_name') final String? changeReasonName,
+    @JsonKey(name: 'change_reason') final String? changeReason,
+    @JsonKey(name: 'prev_tc_id') final int? prevTcId,
+    @JsonKey(name: 'prev_tc_name') final String? prevTcName,
+    @JsonKey(name: 'new_tc_id') final int? newTcId,
+    @JsonKey(name: 'new_tc_name') final String? newTcName,
+    @JsonKey(name: 'changed_by') required final int changedBy,
+    @JsonKey(name: 'changed_by_name') final String? changedByName,
+    @JsonKey(name: 'changed_at') required final String changedAt,
+  }) = _$StudentHistoryImpl;
+
+  factory _StudentHistory.fromJson(Map<String, dynamic> json) =
+      _$StudentHistoryImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'history_id')
+  int get historyId;
+  @override
+  @JsonKey(name: 'student_id')
+  int get studentId;
+  @override
+  @JsonKey(name: 'prev_status_code')
+  String? get prevStatusCode;
+  @override
+  @JsonKey(name: 'prev_status_name')
+  String? get prevStatusName;
+  @override
+  @JsonKey(name: 'new_status_code')
+  String get newStatusCode;
+  @override
+  @JsonKey(name: 'new_status_name')
+  String? get newStatusName;
+  @override
+  @JsonKey(name: 'prev_sub_status')
+  String? get prevSubStatus;
+  @override
+  @JsonKey(name: 'prev_sub_status_name')
+  String? get prevSubStatusName;
+  @override
+  @JsonKey(name: 'new_sub_status')
+  String? get newSubStatus;
+  @override
+  @JsonKey(name: 'new_sub_status_name')
+  String? get newSubStatusName;
+  @override
+  @JsonKey(name: 'change_type_code')
+  String get changeTypeCode;
+  @override
+  @JsonKey(name: 'change_type_name')
+  String? get changeTypeName;
+  @override
+  @JsonKey(name: 'change_reason_code')
+  String? get changeReasonCode;
+  @override
+  @JsonKey(name: 'change_reason_name')
+  String? get changeReasonName;
+  @override
+  @JsonKey(name: 'change_reason')
+  String? get changeReason;
+  @override
+  @JsonKey(name: 'prev_tc_id')
+  int? get prevTcId;
+  @override
+  @JsonKey(name: 'prev_tc_name')
+  String? get prevTcName;
+  @override
+  @JsonKey(name: 'new_tc_id')
+  int? get newTcId;
+  @override
+  @JsonKey(name: 'new_tc_name')
+  String? get newTcName;
+  @override
+  @JsonKey(name: 'changed_by')
+  int get changedBy;
+  @override
+  @JsonKey(name: 'changed_by_name')
+  String? get changedByName;
+  @override
+  @JsonKey(name: 'changed_at')
+  String get changedAt;
+
+  /// Create a copy of StudentHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$StudentHistoryImplCopyWith<_$StudentHistoryImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

@@ -99,7 +99,7 @@ export class AuthService {
         })
       });
 
-      const result = await response.json();
+      const result = await response.json() as { status: string; receiver_name?: string };
 
       if (result.status !== 'success') {
         console.error('정율톡 발송 실패:', result);

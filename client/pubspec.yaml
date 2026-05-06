@@ -33,6 +33,9 @@ dependencies:
   # 라우팅
   go_router: ^14.6.2
 
+  # 윈도우 관리 (데스크톱)
+  window_manager: ^0.4.3
+
   # 유틸
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0

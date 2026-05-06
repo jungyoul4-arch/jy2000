@@ -4,9 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'config/routes.dart';
 import 'config/theme.dart';
 import 'providers/code_provider.dart';
+import 'services/window_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 윈도우 위치/크기 복원 (데스크톱 전용)
+  final windowService = WindowService();
+  await windowService.initialize();
 
   runApp(
     const ProviderScope(

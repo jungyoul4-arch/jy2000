@@ -82,13 +82,12 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
   }
 
   Widget _buildDataTable(List<Consult> consults) {
-    final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
-
     return DataTable2(
       columnSpacing: 12,
       horizontalMargin: 16,
       minWidth: 1200,
       columns: const [
+        DataColumn2(label: Text('No.'), fixedWidth: 60),
         DataColumn2(label: Text('학생'), size: ColumnSize.S),
         DataColumn2(label: Text('상담유형'), size: ColumnSize.S),
         DataColumn2(label: Text('상담일시'), size: ColumnSize.M),
@@ -98,9 +97,13 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
         DataColumn2(label: Text('다음상담'), size: ColumnSize.M),
         DataColumn2(label: Text('내용'), size: ColumnSize.L),
       ],
-      rows: consults.map((consult) {
+      rows: consults.asMap().entries.map((entry) {
+        final index = entry.key;
+        final consult = entry.value;
         return DataRow2(
+          onTap: () => context.push('/consults/${consult.consultId}'),
           cells: [
+            DataCell(Text('${index + 1}')),
             DataCell(Text(consult.studentName ?? '-')),
             DataCell(Text(consult.consultTypeName ?? '-')),
             DataCell(Text(_formatDate(consult.consultDate))),

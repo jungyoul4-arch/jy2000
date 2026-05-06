@@ -46,9 +46,34 @@ class ConsultRepository {
 
   // 상담 등록
   Future<Consult> create(ConsultCreate data) async {
+    // null 값 제거
+    final jsonData = data.toJson()..removeWhere((key, value) => value == null);
+
     final response = await _apiClient.post<Map<String, dynamic>>(
       '/consult',
-      data: data.toJson(),
+      data: jsonData,
+    );
+
+    return Consult.fromJson(response['data']);
+  }
+
+  // 상담 상세 조회
+  Future<Consult> getById(int consultId) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/consult/$consultId',
+    );
+
+    return Consult.fromJson(response['data']);
+  }
+
+  // 상담 수정
+  Future<Consult> update(int consultId, ConsultUpdate data) async {
+    // null 값 제거
+    final jsonData = data.toJson()..removeWhere((key, value) => value == null);
+
+    final response = await _apiClient.put<Map<String, dynamic>>(
+      '/consult/$consultId',
+      data: jsonData,
     );
 
     return Consult.fromJson(response['data']);

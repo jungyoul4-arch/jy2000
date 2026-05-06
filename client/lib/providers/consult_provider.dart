@@ -111,3 +111,13 @@ final createConsultProvider =
   final repository = ref.read(consultRepositoryProvider);
   return repository.create(data);
 });
+
+// 학생별 상담 내역 Provider
+final studentConsultListProvider =
+    FutureProvider.family<List<Consult>, int>((ref, studentId) async {
+  final repository = ref.read(consultRepositoryProvider);
+  final result = await repository.getList(
+    ConsultListParams(studentId: studentId, perPage: 100),
+  );
+  return result.data;
+});

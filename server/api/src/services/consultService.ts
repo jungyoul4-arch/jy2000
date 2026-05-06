@@ -206,6 +206,105 @@ export class ConsultService {
 
     return rows[0] as Consult;
   }
+
+  // 상담 수정
+  async update(consultId: number, data: Partial<ConsultCreate>, userId: number): Promise<Consult> {
+    // Check if consult exists
+    const [consultCheck] = await pool.query<RowDataPacket[]>(
+      'SELECT consult_id FROM consult WHERE consult_id = ? AND deleted_at IS NULL',
+      [consultId]
+    );
+
+    if (consultCheck.length === 0) {
+      throw new AppError('Consult not found', 404);
+    }
+
+    // ISO8601 날짜를 MySQL DATETIME 형식으로 변환하는 헬퍼 함수
+    const formatDateForMySQL = (isoDate: string | undefined | null): string | null => {
+      if (!isoDate) return null;
+      try {
+        const date = new Date(isoDate);
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+      } catch {
+        return isoDate;
+      }
+    };
+
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
+
+    if (data.consult_type_code !== undefined) {
+      updateFields.push('consult_type_code = ?');
+      updateValues.push(data.consult_type_code);
+    }
+    if (data.consult_date !== undefined) {
+      updateFields.push('consult_date = ?');
+      updateValues.push(formatDateForMySQL(data.consult_date));
+    }
+    if (data.consult_duration !== undefined) {
+      updateFields.push('consult_duration = ?');
+      updateValues.push(data.consult_duration);
+    }
+    if (data.channel_code !== undefined) {
+      updateFields.push('channel_code = ?');
+      updateValues.push(data.channel_code);
+    }
+    if (data.tc_id !== undefined) {
+      updateFields.push('tc_id = ?');
+      updateValues.push(data.tc_id);
+    }
+    if (data.content !== undefined) {
+      updateFields.push('content = ?');
+      updateValues.push(data.content);
+    }
+    if (data.student_needs !== undefined) {
+      updateFields.push('student_needs = ?');
+      updateValues.push(data.student_needs);
+    }
+    if (data.consult_result_code !== undefined) {
+      updateFields.push('consult_result_code = ?');
+      updateValues.push(data.consult_result_code);
+    }
+    if (data.result_detail !== undefined) {
+      updateFields.push('result_detail = ?');
+      updateValues.push(data.result_detail);
+    }
+    if (data.next_action_code !== undefined) {
+      updateFields.push('next_action_code = ?');
+      updateValues.push(data.next_action_code);
+    }
+    if (data.next_action_detail !== undefined) {
+      updateFields.push('next_action_detail = ?');
+      updateValues.push(data.next_action_detail);
+    }
+    if (data.next_consult_date !== undefined) {
+      updateFields.push('next_consult_date = ?');
+      updateValues.push(formatDateForMySQL(data.next_consult_date));
+    }
+    if (data.interest_subject !== undefined) {
+      updateFields.push('interest_subject = ?');
+      updateValues.push(data.interest_subject);
+    }
+    if (data.interest_program !== undefined) {
+      updateFields.push('interest_program = ?');
+      updateValues.push(data.interest_program);
+    }
+
+    if (updateFields.length === 0) {
+      return this.getById(consultId);
+    }
+
+    updateFields.push('updated_by = ?');
+    updateValues.push(userId);
+    updateFields.push('updated_at = NOW()');
+
+    const sql = `UPDATE consult SET ${updateFields.join(', ')} WHERE consult_id = ?`;
+    updateValues.push(consultId);
+
+    await pool.query(sql, updateValues);
+
+    return this.getById(consultId);
+  }
 }
 
 export default new ConsultService();

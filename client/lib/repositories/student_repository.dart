@@ -149,4 +149,14 @@ class StudentRepository {
       queryParameters: hard ? {'hard': 'true'} : null,
     );
   }
+
+  // 학생 변동 내역 조회
+  Future<List<StudentHistory>> getHistory(int studentId) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/student/$studentId/history',
+    );
+
+    final List<dynamic> dataList = response['data'] ?? [];
+    return dataList.map((e) => StudentHistory.fromJson(e)).toList();
+  }
 }

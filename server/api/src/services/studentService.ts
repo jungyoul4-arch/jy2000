@@ -648,6 +648,50 @@ export class StudentService {
     }
   }
 
+  // 학생 변동 내역 조회
+  async getHistory(studentId: number): Promise<any[]> {
+    const sql = `
+      SELECT
+        h.history_id,
+        h.student_id,
+        h.prev_status_code,
+        ps.code_name as prev_status_name,
+        h.new_status_code,
+        ns.code_name as new_status_name,
+        h.prev_sub_status,
+        pss.code_name as prev_sub_status_name,
+        h.new_sub_status,
+        nss.code_name as new_sub_status_name,
+        h.change_type_code,
+        ct.code_name as change_type_name,
+        h.change_reason_code,
+        cr.code_name as change_reason_name,
+        h.change_reason,
+        h.prev_tc_id,
+        ptc.name as prev_tc_name,
+        h.new_tc_id,
+        ntc.name as new_tc_name,
+        h.changed_by,
+        cb.name as changed_by_name,
+        h.changed_at
+      FROM student_history h
+      LEFT JOIN code_master ps ON h.prev_status_code = ps.code_id
+      LEFT JOIN code_master ns ON h.new_status_code = ns.code_id
+      LEFT JOIN code_master pss ON h.prev_sub_status = pss.code_id
+      LEFT JOIN code_master nss ON h.new_sub_status = nss.code_id
+      LEFT JOIN code_master ct ON h.change_type_code = ct.code_id
+      LEFT JOIN code_master cr ON h.change_reason_code = cr.code_id
+      LEFT JOIN User ptc ON h.prev_tc_id = ptc.user_id
+      LEFT JOIN User ntc ON h.new_tc_id = ntc.user_id
+      LEFT JOIN User cb ON h.changed_by = cb.user_id
+      WHERE h.student_id = ?
+      ORDER BY h.changed_at DESC
+    `;
+
+    const [rows] = await pool.query<RowDataPacket[]>(sql, [studentId]);
+    return rows;
+  }
+
   // 학생 완전 삭제 (hard delete) - 관리자 전용
   async hardDelete(studentId: number): Promise<void> {
     const connection = await pool.getConnection();
