@@ -1220,6 +1220,9 @@ mixin _$PromotionAttendee {
   String? get statusCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'status_name')
   String? get statusName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'attendee_type')
+  int? get attendeeType => throw _privateConstructorUsedError; // 1=학생, 2=부, 3=모
+  int? get attended => throw _privateConstructorUsedError; // 1=참석, 0=불참
   @JsonKey(name: 'applied_date')
   String? get appliedDate => throw _privateConstructorUsedError;
   String? get memo => throw _privateConstructorUsedError;
@@ -1252,6 +1255,8 @@ abstract class $PromotionAttendeeCopyWith<$Res> {
     int? grade,
     @JsonKey(name: 'status_code') String? statusCode,
     @JsonKey(name: 'status_name') String? statusName,
+    @JsonKey(name: 'attendee_type') int? attendeeType,
+    int? attended,
     @JsonKey(name: 'applied_date') String? appliedDate,
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
@@ -1281,6 +1286,8 @@ class _$PromotionAttendeeCopyWithImpl<$Res, $Val extends PromotionAttendee>
     Object? grade = freezed,
     Object? statusCode = freezed,
     Object? statusName = freezed,
+    Object? attendeeType = freezed,
+    Object? attended = freezed,
     Object? appliedDate = freezed,
     Object? memo = freezed,
     Object? createdAt = freezed,
@@ -1319,6 +1326,14 @@ class _$PromotionAttendeeCopyWithImpl<$Res, $Val extends PromotionAttendee>
                 ? _value.statusName
                 : statusName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            attendeeType: freezed == attendeeType
+                ? _value.attendeeType
+                : attendeeType // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            attended: freezed == attended
+                ? _value.attended
+                : attended // ignore: cast_nullable_to_non_nullable
+                      as int?,
             appliedDate: freezed == appliedDate
                 ? _value.appliedDate
                 : appliedDate // ignore: cast_nullable_to_non_nullable
@@ -1355,6 +1370,8 @@ abstract class _$$PromotionAttendeeImplCopyWith<$Res>
     int? grade,
     @JsonKey(name: 'status_code') String? statusCode,
     @JsonKey(name: 'status_name') String? statusName,
+    @JsonKey(name: 'attendee_type') int? attendeeType,
+    int? attended,
     @JsonKey(name: 'applied_date') String? appliedDate,
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
@@ -1383,6 +1400,8 @@ class __$$PromotionAttendeeImplCopyWithImpl<$Res>
     Object? grade = freezed,
     Object? statusCode = freezed,
     Object? statusName = freezed,
+    Object? attendeeType = freezed,
+    Object? attended = freezed,
     Object? appliedDate = freezed,
     Object? memo = freezed,
     Object? createdAt = freezed,
@@ -1421,6 +1440,14 @@ class __$$PromotionAttendeeImplCopyWithImpl<$Res>
             ? _value.statusName
             : statusName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        attendeeType: freezed == attendeeType
+            ? _value.attendeeType
+            : attendeeType // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        attended: freezed == attended
+            ? _value.attended
+            : attended // ignore: cast_nullable_to_non_nullable
+                  as int?,
         appliedDate: freezed == appliedDate
             ? _value.appliedDate
             : appliedDate // ignore: cast_nullable_to_non_nullable
@@ -1450,6 +1477,8 @@ class _$PromotionAttendeeImpl implements _PromotionAttendee {
     this.grade,
     @JsonKey(name: 'status_code') this.statusCode,
     @JsonKey(name: 'status_name') this.statusName,
+    @JsonKey(name: 'attendee_type') this.attendeeType,
+    this.attended,
     @JsonKey(name: 'applied_date') this.appliedDate,
     this.memo,
     @JsonKey(name: 'created_at') this.createdAt,
@@ -1481,6 +1510,13 @@ class _$PromotionAttendeeImpl implements _PromotionAttendee {
   @JsonKey(name: 'status_name')
   final String? statusName;
   @override
+  @JsonKey(name: 'attendee_type')
+  final int? attendeeType;
+  // 1=학생, 2=부, 3=모
+  @override
+  final int? attended;
+  // 1=참석, 0=불참
+  @override
   @JsonKey(name: 'applied_date')
   final String? appliedDate;
   @override
@@ -1491,7 +1527,7 @@ class _$PromotionAttendeeImpl implements _PromotionAttendee {
 
   @override
   String toString() {
-    return 'PromotionAttendee(id: $id, studentId: $studentId, studentName: $studentName, studentPhone: $studentPhone, schoolName: $schoolName, grade: $grade, statusCode: $statusCode, statusName: $statusName, appliedDate: $appliedDate, memo: $memo, createdAt: $createdAt)';
+    return 'PromotionAttendee(id: $id, studentId: $studentId, studentName: $studentName, studentPhone: $studentPhone, schoolName: $schoolName, grade: $grade, statusCode: $statusCode, statusName: $statusName, attendeeType: $attendeeType, attended: $attended, appliedDate: $appliedDate, memo: $memo, createdAt: $createdAt)';
   }
 
   @override
@@ -1513,6 +1549,10 @@ class _$PromotionAttendeeImpl implements _PromotionAttendee {
                 other.statusCode == statusCode) &&
             (identical(other.statusName, statusName) ||
                 other.statusName == statusName) &&
+            (identical(other.attendeeType, attendeeType) ||
+                other.attendeeType == attendeeType) &&
+            (identical(other.attended, attended) ||
+                other.attended == attended) &&
             (identical(other.appliedDate, appliedDate) ||
                 other.appliedDate == appliedDate) &&
             (identical(other.memo, memo) || other.memo == memo) &&
@@ -1532,6 +1572,8 @@ class _$PromotionAttendeeImpl implements _PromotionAttendee {
     grade,
     statusCode,
     statusName,
+    attendeeType,
+    attended,
     appliedDate,
     memo,
     createdAt,
@@ -1564,6 +1606,8 @@ abstract class _PromotionAttendee implements PromotionAttendee {
     final int? grade,
     @JsonKey(name: 'status_code') final String? statusCode,
     @JsonKey(name: 'status_name') final String? statusName,
+    @JsonKey(name: 'attendee_type') final int? attendeeType,
+    final int? attended,
     @JsonKey(name: 'applied_date') final String? appliedDate,
     final String? memo,
     @JsonKey(name: 'created_at') final String? createdAt,
@@ -1595,6 +1639,11 @@ abstract class _PromotionAttendee implements PromotionAttendee {
   @JsonKey(name: 'status_name')
   String? get statusName;
   @override
+  @JsonKey(name: 'attendee_type')
+  int? get attendeeType; // 1=학생, 2=부, 3=모
+  @override
+  int? get attended; // 1=참석, 0=불참
+  @override
   @JsonKey(name: 'applied_date')
   String? get appliedDate;
   @override
@@ -1623,6 +1672,8 @@ mixin _$NewAttendeeData {
   int? get schoolId => throw _privateConstructorUsedError;
   int? get grade => throw _privateConstructorUsedError;
   String? get memo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'attendee_type')
+  int? get attendeeType => throw _privateConstructorUsedError;
 
   /// Serializes this NewAttendeeData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1647,6 +1698,7 @@ abstract class $NewAttendeeDataCopyWith<$Res> {
     @JsonKey(name: 'school_id') int? schoolId,
     int? grade,
     String? memo,
+    @JsonKey(name: 'attendee_type') int? attendeeType,
   });
 }
 
@@ -1670,6 +1722,7 @@ class _$NewAttendeeDataCopyWithImpl<$Res, $Val extends NewAttendeeData>
     Object? schoolId = freezed,
     Object? grade = freezed,
     Object? memo = freezed,
+    Object? attendeeType = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1693,6 +1746,10 @@ class _$NewAttendeeDataCopyWithImpl<$Res, $Val extends NewAttendeeData>
                 ? _value.memo
                 : memo // ignore: cast_nullable_to_non_nullable
                       as String?,
+            attendeeType: freezed == attendeeType
+                ? _value.attendeeType
+                : attendeeType // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -1714,6 +1771,7 @@ abstract class _$$NewAttendeeDataImplCopyWith<$Res>
     @JsonKey(name: 'school_id') int? schoolId,
     int? grade,
     String? memo,
+    @JsonKey(name: 'attendee_type') int? attendeeType,
   });
 }
 
@@ -1736,6 +1794,7 @@ class __$$NewAttendeeDataImplCopyWithImpl<$Res>
     Object? schoolId = freezed,
     Object? grade = freezed,
     Object? memo = freezed,
+    Object? attendeeType = freezed,
   }) {
     return _then(
       _$NewAttendeeDataImpl(
@@ -1759,6 +1818,10 @@ class __$$NewAttendeeDataImplCopyWithImpl<$Res>
             ? _value.memo
             : memo // ignore: cast_nullable_to_non_nullable
                   as String?,
+        attendeeType: freezed == attendeeType
+            ? _value.attendeeType
+            : attendeeType // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -1773,6 +1836,7 @@ class _$NewAttendeeDataImpl implements _NewAttendeeData {
     @JsonKey(name: 'school_id') this.schoolId,
     this.grade,
     this.memo,
+    @JsonKey(name: 'attendee_type') this.attendeeType,
   });
 
   factory _$NewAttendeeDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -1789,10 +1853,13 @@ class _$NewAttendeeDataImpl implements _NewAttendeeData {
   final int? grade;
   @override
   final String? memo;
+  @override
+  @JsonKey(name: 'attendee_type')
+  final int? attendeeType;
 
   @override
   String toString() {
-    return 'NewAttendeeData(name: $name, phone: $phone, schoolId: $schoolId, grade: $grade, memo: $memo)';
+    return 'NewAttendeeData(name: $name, phone: $phone, schoolId: $schoolId, grade: $grade, memo: $memo, attendeeType: $attendeeType)';
   }
 
   @override
@@ -1805,13 +1872,22 @@ class _$NewAttendeeDataImpl implements _NewAttendeeData {
             (identical(other.schoolId, schoolId) ||
                 other.schoolId == schoolId) &&
             (identical(other.grade, grade) || other.grade == grade) &&
-            (identical(other.memo, memo) || other.memo == memo));
+            (identical(other.memo, memo) || other.memo == memo) &&
+            (identical(other.attendeeType, attendeeType) ||
+                other.attendeeType == attendeeType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, phone, schoolId, grade, memo);
+  int get hashCode => Object.hash(
+    runtimeType,
+    name,
+    phone,
+    schoolId,
+    grade,
+    memo,
+    attendeeType,
+  );
 
   /// Create a copy of NewAttendeeData
   /// with the given fields replaced by the non-null parameter values.
@@ -1837,6 +1913,7 @@ abstract class _NewAttendeeData implements NewAttendeeData {
     @JsonKey(name: 'school_id') final int? schoolId,
     final int? grade,
     final String? memo,
+    @JsonKey(name: 'attendee_type') final int? attendeeType,
   }) = _$NewAttendeeDataImpl;
 
   factory _NewAttendeeData.fromJson(Map<String, dynamic> json) =
@@ -1853,6 +1930,9 @@ abstract class _NewAttendeeData implements NewAttendeeData {
   int? get grade;
   @override
   String? get memo;
+  @override
+  @JsonKey(name: 'attendee_type')
+  int? get attendeeType;
 
   /// Create a copy of NewAttendeeData
   /// with the given fields replaced by the non-null parameter values.

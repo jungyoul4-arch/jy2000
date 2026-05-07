@@ -64,6 +64,12 @@ router.post(
   promotionController.addNewAttendee
 );
 
+// PATCH /promotion/:id/attendees/:attendeeId - 참석자 정보 수정
+router.patch(
+  '/:id/attendees/:attendeeId',
+  promotionController.updateAttendee
+);
+
 // DELETE /promotion/:id/attendees/:attendeeId - 참석자 삭제
 router.delete(
   '/:id/attendees/:attendeeId',

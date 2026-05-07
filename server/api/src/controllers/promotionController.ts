@@ -67,12 +67,23 @@ export class PromotionController {
   // POST /promotion/:id/attendees - 기존 학생 참석자 등록
   addAttendee = asyncHandler(async (req: Request, res: Response) => {
     const promotionId = parseInt(req.params.id);
-    const { student_id, memo } = req.body;
+    const { student_id, memo, attendee_type } = req.body;
     const userId = (req as any).userId || 1;
 
-    const result = await promotionService.addAttendee(promotionId, student_id, userId, memo);
+    const result = await promotionService.addAttendee(promotionId, student_id, userId, memo, attendee_type);
 
     return sendCreated(res, result, 'Attendee added successfully');
+  });
+
+  // PATCH /promotion/:id/attendees/:attendeeId - 참석자 정보 수정
+  updateAttendee = asyncHandler(async (req: Request, res: Response) => {
+    const promotionId = parseInt(req.params.id);
+    const attendeeId = parseInt(req.params.attendeeId);
+    const { attendee_type, attended } = req.body;
+
+    await promotionService.updateAttendee(promotionId, attendeeId, { attendee_type, attended });
+
+    return sendSuccess(res, null, 'Attendee updated successfully');
   });
 
   // POST /promotion/:id/attendees/new - 신규 학생 생성 및 참석자 등록

@@ -88,6 +88,8 @@ class PromotionAttendee with _$PromotionAttendee {
     int? grade,
     @JsonKey(name: 'status_code') String? statusCode,
     @JsonKey(name: 'status_name') String? statusName,
+    @JsonKey(name: 'attendee_type') int? attendeeType, // 1=학생, 2=부, 3=모
+    int? attended, // 1=참석, 0=불참
     @JsonKey(name: 'applied_date') String? appliedDate,
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
@@ -105,6 +107,7 @@ class NewAttendeeData with _$NewAttendeeData {
     @JsonKey(name: 'school_id') int? schoolId,
     int? grade,
     String? memo,
+    @JsonKey(name: 'attendee_type') int? attendeeType, // 1=학생, 2=부, 3=모
   }) = _NewAttendeeData;
 
   factory NewAttendeeData.fromJson(Map<String, dynamic> json) =>

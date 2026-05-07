@@ -155,6 +155,8 @@ export class PromotionService {
         u.grade,
         si.status_code,
         cm.code_name as status_name,
+        sp.attendee_type,
+        sp.attended,
         sp.applied_date,
         sp.memo,
         sp.created_at
@@ -172,7 +174,7 @@ export class PromotionService {
   }
 
   // 설명회 참석자 등록 (기존 학생)
-  async addAttendee(promotionId: number, studentId: number, userId: number, memo?: string): Promise<any> {
+  async addAttendee(promotionId: number, studentId: number, userId: number, memo?: string, attendeeType?: number): Promise<any> {
     // 중복 체크
     const [existing] = await pool.query<RowDataPacket[]>(
       'SELECT id FROM student_promotion WHERE promotion_id = ? AND student_id = ?',
@@ -184,13 +186,14 @@ export class PromotionService {
     }
 
     const sql = `
-      INSERT INTO student_promotion (student_id, promotion_id, applied_date, memo, created_by)
-      VALUES (?, ?, CURDATE(), ?, ?)
+      INSERT INTO student_promotion (student_id, promotion_id, attendee_type, applied_date, memo, created_by)
+      VALUES (?, ?, ?, CURDATE(), ?, ?)
     `;
 
     const [result] = await pool.query<ResultSetHeader>(sql, [
       studentId,
       promotionId,
+      attendeeType || 1,
       memo || null,
       userId
     ]);
@@ -198,12 +201,41 @@ export class PromotionService {
     return { id: result.insertId, student_id: studentId, promotion_id: promotionId };
   }
 
+  // 설명회 참석자 정보 수정 (참석자 유형, 참석 여부)
+  async updateAttendee(promotionId: number, attendeeId: number, data: { attendee_type?: number; attended?: number }): Promise<void> {
+    const updates: string[] = [];
+    const params: any[] = [];
+
+    if (data.attendee_type !== undefined) {
+      updates.push('attendee_type = ?');
+      params.push(data.attendee_type);
+    }
+    if (data.attended !== undefined) {
+      updates.push('attended = ?');
+      params.push(data.attended);
+    }
+
+    if (updates.length === 0) return;
+
+    params.push(attendeeId, promotionId);
+
+    await pool.query<ResultSetHeader>(
+      `UPDATE student_promotion SET ${updates.join(', ')} WHERE id = ? AND promotion_id = ?`,
+      params
+    );
+  }
+
   // 설명회 참석자 등록 (신규 학생 생성 포함)
   async addNewAttendee(
     promotionId: number,
-    studentData: { name: string; phone: string; school_id?: number; grade?: number; memo?: string },
+    studentData: { name: string; phone: string; school_id?: number; grade?: number; memo?: string; attendee_type?: number },
     userId: number
   ): Promise<any> {
+    // 디버깅: school_id 값 확인
+    console.log('[addNewAttendee] studentData:', JSON.stringify(studentData));
+
+    // school_id가 0이면 null로 변환
+    const schoolId = studentData.school_id && studentData.school_id > 0 ? studentData.school_id : null;
     const connection = await pool.getConnection();
 
     try {
@@ -242,13 +274,13 @@ export class PromotionService {
           await connection.query<ResultSetHeader>(
             `INSERT INTO student_info (student_id, school_id, status_code, created_by, created_at)
              VALUES (?, ?, 'STATUS_CONTACT', ?, NOW())`,
-            [studentId, studentData.school_id || null, userId]
+            [studentId, schoolId, userId]
           );
-        } else if (studentData.school_id && (!existingStudentInfo[0].school_id || existingStudentInfo[0].school_id === 0)) {
+        } else if (schoolId && (!existingStudentInfo[0].school_id || existingStudentInfo[0].school_id === 0)) {
           // 기존 student_info의 school_id가 비어있으면 업데이트
           await connection.query<ResultSetHeader>(
             `UPDATE student_info SET school_id = ?, updated_at = NOW() WHERE student_id = ?`,
-            [studentData.school_id, studentId]
+            [schoolId, studentId]
           );
         }
       } else {
@@ -269,16 +301,16 @@ export class PromotionService {
           await connection.query<ResultSetHeader>(
             `INSERT INTO student_info (student_id, school_id, status_code, created_by, created_at)
              VALUES (?, ?, 'STATUS_CONTACT', ?, NOW())`,
-            [studentId, studentData.school_id || null, userId]
+            [studentId, schoolId, userId]
           );
         }
       }
 
       // 3. student_promotion 테이블에 등록
       const [spResult] = await connection.query<ResultSetHeader>(
-        `INSERT INTO student_promotion (student_id, promotion_id, applied_date, memo, created_by)
-         VALUES (?, ?, CURDATE(), ?, ?)`,
-        [studentId, promotionId, studentData.memo || null, userId]
+        `INSERT INTO student_promotion (student_id, promotion_id, attendee_type, applied_date, memo, created_by)
+         VALUES (?, ?, ?, CURDATE(), ?, ?)`,
+        [studentId, promotionId, studentData.attendee_type || 1, studentData.memo || null, userId]
       );
 
       await connection.commit();

@@ -88,13 +88,26 @@ class PromotionRepository {
   }
 
   // 기존 학생 참석자 등록
-  Future<void> addExistingAttendee(int promotionId, int studentId, String? memo) async {
+  Future<void> addExistingAttendee(int promotionId, int studentId, String? memo, {int? attendeeType}) async {
     await _apiClient.post<Map<String, dynamic>>(
       '/promotion/$promotionId/attendees',
       data: {
         'student_id': studentId,
         if (memo != null) 'memo': memo,
+        if (attendeeType != null) 'attendee_type': attendeeType,
       },
+    );
+  }
+
+  // 참석자 정보 수정 (참석자 유형, 참석 여부)
+  Future<void> updateAttendee(int promotionId, int attendeeId, {int? attendeeType, int? attended}) async {
+    final data = <String, dynamic>{};
+    if (attendeeType != null) data['attendee_type'] = attendeeType;
+    if (attended != null) data['attended'] = attended;
+
+    await _apiClient.patch<Map<String, dynamic>>(
+      '/promotion/$promotionId/attendees/$attendeeId',
+      data: data,
     );
   }
 

@@ -337,13 +337,15 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
   Widget _buildAttendeesTable(List<PromotionAttendee> attendees) {
     return Table(
       columnWidths: const {
-        0: FlexColumnWidth(0.8),
-        1: FlexColumnWidth(2),
+        0: FlexColumnWidth(0.6),
+        1: FlexColumnWidth(1.5),
         2: FlexColumnWidth(2),
-        3: FlexColumnWidth(2),
-        4: FlexColumnWidth(1),
-        5: FlexColumnWidth(1.5),
-        6: FixedColumnWidth(50),
+        3: FlexColumnWidth(1.8),
+        4: FlexColumnWidth(0.8),
+        5: FlexColumnWidth(1),
+        6: FlexColumnWidth(1),
+        7: FlexColumnWidth(1),
+        8: FixedColumnWidth(50),
       },
       border: TableBorder.all(color: Colors.grey.shade300),
       children: [
@@ -355,6 +357,8 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
             Padding(padding: EdgeInsets.all(8), child: Text('연락처', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('학교', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('학년', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: EdgeInsets.all(8), child: Text('참석자', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: EdgeInsets.all(8), child: Text('참석', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('상태', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('')),
           ],
@@ -365,10 +369,46 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
           return TableRow(
             children: [
               Padding(padding: const EdgeInsets.all(8), child: Text('${index + 1}')),
-              Padding(padding: const EdgeInsets.all(8), child: Text(attendee.studentName ?? '-')),
-              Padding(padding: const EdgeInsets.all(8), child: Text(attendee.studentPhone ?? '-')),
+              // 이름 클릭 시 학생 상세 화면으로 이동
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: InkWell(
+                  onTap: () => _navigateToStudentDetail(attendee.studentId),
+                  child: Text(
+                    attendee.studentName ?? '-',
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+              // 연락처 클릭 시 학생 상세 화면으로 이동
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: InkWell(
+                  onTap: () => _navigateToStudentDetail(attendee.studentId),
+                  child: Text(
+                    attendee.studentPhone ?? '-',
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
               Padding(padding: const EdgeInsets.all(8), child: Text(attendee.schoolName ?? '-')),
               Padding(padding: const EdgeInsets.all(8), child: Text(_formatGrade(attendee.grade))),
+              // 참석자 유형 드롭다운
+              Padding(
+                padding: const EdgeInsets.all(4),
+                child: _buildAttendeeTypeDropdown(attendee),
+              ),
+              // 참석 여부 드롭다운
+              Padding(
+                padding: const EdgeInsets.all(4),
+                child: _buildAttendedDropdown(attendee),
+              ),
               Padding(padding: const EdgeInsets.all(8), child: Text(attendee.statusName ?? '-')),
               Padding(
                 padding: const EdgeInsets.all(4),
@@ -385,6 +425,65 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
         }),
       ],
     );
+  }
+
+  // 참석자 유형 드롭다운
+  Widget _buildAttendeeTypeDropdown(PromotionAttendee attendee) {
+    return DropdownButton<int>(
+      value: attendee.attendeeType ?? 1,
+      isDense: true,
+      underline: const SizedBox(),
+      items: const [
+        DropdownMenuItem(value: 1, child: Text('학생', style: TextStyle(fontSize: 13))),
+        DropdownMenuItem(value: 2, child: Text('부', style: TextStyle(fontSize: 13))),
+        DropdownMenuItem(value: 3, child: Text('모', style: TextStyle(fontSize: 13))),
+      ],
+      onChanged: (value) async {
+        if (value != null && value != attendee.attendeeType) {
+          await _updateAttendee(attendee.id, attendeeType: value);
+        }
+      },
+    );
+  }
+
+  // 참석 여부 드롭다운
+  Widget _buildAttendedDropdown(PromotionAttendee attendee) {
+    return DropdownButton<int?>(
+      value: attendee.attended,
+      isDense: true,
+      underline: const SizedBox(),
+      hint: const Text('-', style: TextStyle(fontSize: 13)),
+      items: const [
+        DropdownMenuItem(value: null, child: Text('-', style: TextStyle(fontSize: 13))),
+        DropdownMenuItem(value: 1, child: Text('O', style: TextStyle(fontSize: 13, color: Colors.green, fontWeight: FontWeight.bold))),
+        DropdownMenuItem(value: 0, child: Text('X', style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.bold))),
+      ],
+      onChanged: (value) async {
+        if (value != attendee.attended) {
+          await _updateAttendee(attendee.id, attended: value);
+        }
+      },
+    );
+  }
+
+  // 참석자 정보 업데이트
+  Future<void> _updateAttendee(int attendeeId, {int? attendeeType, int? attended}) async {
+    try {
+      final repository = PromotionRepository();
+      await repository.updateAttendee(widget.promotionId, attendeeId, attendeeType: attendeeType, attended: attended);
+      ref.invalidate(promotionAttendeesProvider(widget.promotionId));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('오류: $e')),
+        );
+      }
+    }
+  }
+
+  // 학생 상세 화면으로 이동
+  void _navigateToStudentDetail(int studentId) {
+    context.push('/students/$studentId');
   }
 
   String _formatGrade(int? grade) {
@@ -561,6 +660,7 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
   UserSearchResult? _selectedUser;
   String _studentSearchQuery = '';
   List<UserSearchResult> _searchResults = [];
+  int _existingAttendeeType = 1; // 기존 학생용 참석자 유형
 
   @override
   void initState() {
@@ -804,6 +904,17 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
             items: _getGradeItems(),
           ),
           const SizedBox(height: 12),
+          FormBuilderDropdown<int>(
+            name: 'attendee_type',
+            initialValue: 1,
+            decoration: const InputDecoration(labelText: '참석자'),
+            items: const [
+              DropdownMenuItem(value: 1, child: Text('학생')),
+              DropdownMenuItem(value: 2, child: Text('부')),
+              DropdownMenuItem(value: 3, child: Text('모')),
+            ],
+          ),
+          const SizedBox(height: 12),
           FormBuilderTextField(
             name: 'memo',
             decoration: const InputDecoration(labelText: '메모'),
@@ -847,6 +958,17 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
             ),
           ),
         ],
+        const SizedBox(height: 12),
+        DropdownButtonFormField<int>(
+          initialValue: _existingAttendeeType,
+          decoration: const InputDecoration(labelText: '참석자'),
+          items: const [
+            DropdownMenuItem(value: 1, child: Text('학생')),
+            DropdownMenuItem(value: 2, child: Text('부')),
+            DropdownMenuItem(value: 3, child: Text('모')),
+          ],
+          onChanged: (value) => setState(() => _existingAttendeeType = value ?? 1),
+        ),
         const SizedBox(height: 12),
         TextFormField(
           controller: _memoController,
@@ -903,6 +1025,9 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
           final values = _formKey.currentState!.value;
           final phone = _normalizePhone(values['phone'] as String);
 
+          // 디버깅: schoolId 값 확인
+          debugPrint('[addNewAttendee] schoolId: ${_selectedSchool?.schoolId}, school: ${_selectedSchool?.schoolName}');
+
           await repository.addNewAttendee(
             widget.promotionId,
             NewAttendeeData(
@@ -911,6 +1036,7 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
               schoolId: _selectedSchool?.schoolId,
               grade: values['grade'] as int?,
               memo: values['memo'] as String?,
+              attendeeType: values['attendee_type'] as int?,
             ),
           );
 
@@ -935,6 +1061,7 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
           widget.promotionId,
           _selectedUser!.userId,
           _memoController.text.isNotEmpty ? _memoController.text : null,
+          attendeeType: _existingAttendeeType,
         );
 
         if (mounted) {

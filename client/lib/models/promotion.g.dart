@@ -109,6 +109,8 @@ _$PromotionAttendeeImpl _$$PromotionAttendeeImplFromJson(
   grade: (json['grade'] as num?)?.toInt(),
   statusCode: json['status_code'] as String?,
   statusName: json['status_name'] as String?,
+  attendeeType: (json['attendee_type'] as num?)?.toInt(),
+  attended: (json['attended'] as num?)?.toInt(),
   appliedDate: json['applied_date'] as String?,
   memo: json['memo'] as String?,
   createdAt: json['created_at'] as String?,
@@ -125,6 +127,8 @@ Map<String, dynamic> _$$PromotionAttendeeImplToJson(
   'grade': instance.grade,
   'status_code': instance.statusCode,
   'status_name': instance.statusName,
+  'attendee_type': instance.attendeeType,
+  'attended': instance.attended,
   'applied_date': instance.appliedDate,
   'memo': instance.memo,
   'created_at': instance.createdAt,
@@ -138,6 +142,7 @@ _$NewAttendeeDataImpl _$$NewAttendeeDataImplFromJson(
   schoolId: (json['school_id'] as num?)?.toInt(),
   grade: (json['grade'] as num?)?.toInt(),
   memo: json['memo'] as String?,
+  attendeeType: (json['attendee_type'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$$NewAttendeeDataImplToJson(
@@ -148,6 +153,7 @@ Map<String, dynamic> _$$NewAttendeeDataImplToJson(
   'school_id': instance.schoolId,
   'grade': instance.grade,
   'memo': instance.memo,
+  'attendee_type': instance.attendeeType,
 };
 
 _$UserSearchResultImpl _$$UserSearchResultImplFromJson(
