@@ -232,9 +232,9 @@ export class PromotionService {
           throw new AppError('이미 등록된 참석자입니다', 400);
         }
 
-        // 기존 학생: student_info 없으면 생성 (상태는 STATUS_CONTACT)
+        // 기존 학생: student_info 없으면 생성, 있으면 school_id 업데이트 (현재 0이거나 NULL인 경우)
         const [existingStudentInfo] = await connection.query<RowDataPacket[]>(
-          'SELECT student_id FROM student_info WHERE student_id = ?',
+          'SELECT student_id, school_id FROM student_info WHERE student_id = ?',
           [studentId]
         );
 
@@ -243,6 +243,12 @@ export class PromotionService {
             `INSERT INTO student_info (student_id, school_id, status_code, created_by, created_at)
              VALUES (?, ?, 'STATUS_CONTACT', ?, NOW())`,
             [studentId, studentData.school_id || null, userId]
+          );
+        } else if (studentData.school_id && (!existingStudentInfo[0].school_id || existingStudentInfo[0].school_id === 0)) {
+          // 기존 student_info의 school_id가 비어있으면 업데이트
+          await connection.query<ResultSetHeader>(
+            `UPDATE student_info SET school_id = ?, updated_at = NOW() WHERE student_id = ?`,
+            [studentData.school_id, studentId]
           );
         }
       } else {
@@ -323,8 +329,9 @@ export class PromotionService {
         [attendeeId, promotionId]
       );
 
-      // 4. STATUS_CONTACT인 경우 관련 테이블 모두 삭제
-      if (studentInfo.length > 0 && studentInfo[0].status_code === 'STATUS_CONTACT') {
+      // 4. STATUS_CONTACT 또는 STATUS_PROSPECT인 경우 관련 테이블 모두 삭제
+      const deletableStatuses = ['STATUS_CONTACT', 'STATUS_PROSPECT'];
+      if (studentInfo.length > 0 && deletableStatuses.includes(studentInfo[0].status_code)) {
         // 다른 설명회에 등록되어 있는지 확인
         const [otherPromotions] = await connection.query<RowDataPacket[]>(
           'SELECT id FROM student_promotion WHERE student_id = ?',
