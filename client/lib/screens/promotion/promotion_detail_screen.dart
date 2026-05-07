@@ -427,22 +427,67 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
     );
   }
 
-  // 참석자 유형 드롭다운
+  // 참석자 유형 (비트마스크: 1=학생, 2=부, 4=모)
   Widget _buildAttendeeTypeDropdown(PromotionAttendee attendee) {
-    return DropdownButton<int>(
-      value: attendee.attendeeType ?? 1,
-      isDense: true,
-      underline: const SizedBox(),
-      items: const [
-        DropdownMenuItem(value: 1, child: Text('학생', style: TextStyle(fontSize: 13))),
-        DropdownMenuItem(value: 2, child: Text('부', style: TextStyle(fontSize: 13))),
-        DropdownMenuItem(value: 3, child: Text('모', style: TextStyle(fontSize: 13))),
-      ],
-      onChanged: (value) async {
-        if (value != null && value != attendee.attendeeType) {
-          await _updateAttendee(attendee.id, attendeeType: value);
-        }
-      },
+    final type = attendee.attendeeType ?? 1;
+    return InkWell(
+      onTap: () => _showAttendeeTypeDialog(attendee),
+      child: Text(
+        _formatAttendeeType(type),
+        style: const TextStyle(fontSize: 13, color: Colors.blue, decoration: TextDecoration.underline),
+      ),
+    );
+  }
+
+  String _formatAttendeeType(int type) {
+    final parts = <String>[];
+    if (type & 1 != 0) parts.add('학생');
+    if (type & 2 != 0) parts.add('부');
+    if (type & 4 != 0) parts.add('모');
+    return parts.isEmpty ? '-' : parts.join('+');
+  }
+
+  void _showAttendeeTypeDialog(PromotionAttendee attendee) {
+    int currentType = attendee.attendeeType ?? 1;
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('참석자 선택'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CheckboxListTile(
+                title: const Text('학생'),
+                value: (currentType & 1) != 0,
+                onChanged: (v) => setDialogState(() => currentType = v! ? (currentType | 1) : (currentType & ~1)),
+              ),
+              CheckboxListTile(
+                title: const Text('부'),
+                value: (currentType & 2) != 0,
+                onChanged: (v) => setDialogState(() => currentType = v! ? (currentType | 2) : (currentType & ~2)),
+              ),
+              CheckboxListTile(
+                title: const Text('모'),
+                value: (currentType & 4) != 0,
+                onChanged: (v) => setDialogState(() => currentType = v! ? (currentType | 4) : (currentType & ~4)),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('취소')),
+            FilledButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                if (currentType > 0 && currentType != attendee.attendeeType) {
+                  await _updateAttendee(attendee.id, attendeeType: currentType);
+                }
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -660,7 +705,8 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
   UserSearchResult? _selectedUser;
   String _studentSearchQuery = '';
   List<UserSearchResult> _searchResults = [];
-  int _existingAttendeeType = 1; // 기존 학생용 참석자 유형
+  int _newAttendeeType = 1; // 신규 학생용 참석자 유형 (비트마스크)
+  int _existingAttendeeType = 1; // 기존 학생용 참석자 유형 (비트마스크)
 
   @override
   void initState() {
@@ -904,15 +950,29 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
             items: _getGradeItems(),
           ),
           const SizedBox(height: 12),
-          FormBuilderDropdown<int>(
-            name: 'attendee_type',
-            initialValue: 1,
+          // 참석자 유형 (비트마스크)
+          InputDecorator(
             decoration: const InputDecoration(labelText: '참석자'),
-            items: const [
-              DropdownMenuItem(value: 1, child: Text('학생')),
-              DropdownMenuItem(value: 2, child: Text('부')),
-              DropdownMenuItem(value: 3, child: Text('모')),
-            ],
+            child: Wrap(
+              spacing: 8,
+              children: [
+                FilterChip(
+                  label: const Text('학생'),
+                  selected: (_newAttendeeType & 1) != 0,
+                  onSelected: (v) => setState(() => _newAttendeeType = v ? (_newAttendeeType | 1) : (_newAttendeeType & ~1)),
+                ),
+                FilterChip(
+                  label: const Text('부'),
+                  selected: (_newAttendeeType & 2) != 0,
+                  onSelected: (v) => setState(() => _newAttendeeType = v ? (_newAttendeeType | 2) : (_newAttendeeType & ~2)),
+                ),
+                FilterChip(
+                  label: const Text('모'),
+                  selected: (_newAttendeeType & 4) != 0,
+                  onSelected: (v) => setState(() => _newAttendeeType = v ? (_newAttendeeType | 4) : (_newAttendeeType & ~4)),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           FormBuilderTextField(
@@ -959,15 +1019,29 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
           ),
         ],
         const SizedBox(height: 12),
-        DropdownButtonFormField<int>(
-          initialValue: _existingAttendeeType,
+        // 참석자 유형 (비트마스크)
+        InputDecorator(
           decoration: const InputDecoration(labelText: '참석자'),
-          items: const [
-            DropdownMenuItem(value: 1, child: Text('학생')),
-            DropdownMenuItem(value: 2, child: Text('부')),
-            DropdownMenuItem(value: 3, child: Text('모')),
-          ],
-          onChanged: (value) => setState(() => _existingAttendeeType = value ?? 1),
+          child: Wrap(
+            spacing: 8,
+            children: [
+              FilterChip(
+                label: const Text('학생'),
+                selected: (_existingAttendeeType & 1) != 0,
+                onSelected: (v) => setState(() => _existingAttendeeType = v ? (_existingAttendeeType | 1) : (_existingAttendeeType & ~1)),
+              ),
+              FilterChip(
+                label: const Text('부'),
+                selected: (_existingAttendeeType & 2) != 0,
+                onSelected: (v) => setState(() => _existingAttendeeType = v ? (_existingAttendeeType | 2) : (_existingAttendeeType & ~2)),
+              ),
+              FilterChip(
+                label: const Text('모'),
+                selected: (_existingAttendeeType & 4) != 0,
+                onSelected: (v) => setState(() => _existingAttendeeType = v ? (_existingAttendeeType | 4) : (_existingAttendeeType & ~4)),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -1036,7 +1110,7 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
               schoolId: _selectedSchool?.schoolId,
               grade: values['grade'] as int?,
               memo: values['memo'] as String?,
-              attendeeType: values['attendee_type'] as int?,
+              attendeeType: _newAttendeeType > 0 ? _newAttendeeType : 1,
             ),
           );
 
@@ -1061,7 +1135,7 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
           widget.promotionId,
           _selectedUser!.userId,
           _memoController.text.isNotEmpty ? _memoController.text : null,
-          attendeeType: _existingAttendeeType,
+          attendeeType: _existingAttendeeType > 0 ? _existingAttendeeType : 1,
         );
 
         if (mounted) {
