@@ -283,15 +283,16 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
             const SizedBox(height: 24),
 
             // 참석 예정자 목록
-            _buildAttendeesSection(),
+            _buildAttendeesSection(startDate),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAttendeesSection() {
+  Widget _buildAttendeesSection(DateTime promotionDate) {
     final attendeesAsync = ref.watch(promotionAttendeesProvider(widget.promotionId));
+    final isPast = promotionDate.isBefore(DateTime.now());
 
     return Card(
       child: Padding(
@@ -326,7 +327,7 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
                         child: Text('등록된 참석자가 없습니다'),
                       ),
                     )
-                  : _buildAttendeesTable(attendees),
+                  : _buildAttendeesTable(attendees, isPast),
             ),
           ],
         ),
@@ -334,7 +335,7 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
     );
   }
 
-  Widget _buildAttendeesTable(List<PromotionAttendee> attendees) {
+  Widget _buildAttendeesTable(List<PromotionAttendee> attendees, bool isPast) {
     return Table(
       columnWidths: const {
         0: FlexColumnWidth(0.6),
@@ -404,10 +405,10 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
                 padding: const EdgeInsets.all(4),
                 child: _buildAttendeeTypeDropdown(attendee),
               ),
-              // 참석 여부 드롭다운
+              // 참석 여부 (설명회 후에만 선택 가능)
               Padding(
                 padding: const EdgeInsets.all(4),
-                child: _buildAttendedDropdown(attendee),
+                child: _buildAttendedDropdown(attendee, isPast),
               ),
               Padding(padding: const EdgeInsets.all(8), child: Text(attendee.statusName ?? '-')),
               Padding(
@@ -491,8 +492,14 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
     );
   }
 
-  // 참석 여부 드롭다운
-  Widget _buildAttendedDropdown(PromotionAttendee attendee) {
+  // 참석 여부 (설명회 후에만 선택 가능)
+  Widget _buildAttendedDropdown(PromotionAttendee attendee, bool isPast) {
+    // 설명회 전이면 '-' 표시
+    if (!isPast) {
+      return const Text('-', style: TextStyle(fontSize: 13, color: Colors.grey));
+    }
+
+    // 설명회 후에는 O/X 선택 가능
     return DropdownButton<int?>(
       value: attendee.attended,
       isDense: true,
