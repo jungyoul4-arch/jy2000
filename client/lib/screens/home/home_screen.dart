@@ -37,9 +37,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       path: AppRoutes.consultList,
     ),
     _NavItem(
-      icon: Icons.campaign_outlined,
-      selectedIcon: Icons.campaign,
-      label: '프로모션',
+      icon: Icons.event_outlined,
+      selectedIcon: Icons.event,
+      label: '설명회',
       path: AppRoutes.promotionList,
     ),
     _NavItem(

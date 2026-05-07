@@ -13,6 +13,8 @@ import '../screens/consult/consult_form_screen.dart';
 import '../screens/consult/consult_detail_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/promotion/promotion_list_screen.dart';
+import '../screens/promotion/promotion_form_screen.dart';
+import '../screens/promotion/promotion_detail_screen.dart';
 import '../screens/school/school_list_screen.dart';
 
 class AppRoutes {
@@ -26,6 +28,8 @@ class AppRoutes {
   static const String consultCreate = '/consults/create';
   static const String consultDetail = '/consults/:id';
   static const String promotionList = '/promotions';
+  static const String promotionCreate = '/promotions/create';
+  static const String promotionDetail = '/promotions/:id';
   static const String schoolList = '/schools';
 }
 
@@ -120,6 +124,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.promotionList,
             name: 'promotionList',
             builder: (context, state) => const PromotionListScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.promotionCreate,
+            name: 'promotionCreate',
+            builder: (context, state) => const PromotionFormScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.promotionDetail,
+            name: 'promotionDetail',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              return PromotionDetailScreen(promotionId: id);
+            },
           ),
 
           // 학교 관리

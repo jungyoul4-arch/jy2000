@@ -47,10 +47,6 @@ export class StudentService {
         updateFields.push('school_id = ?');
         updateParams.push(data.school_id);
       }
-      if (data.school_name) {
-        updateFields.push('school_name = ?');
-        updateParams.push(data.school_name);
-      }
       if (data.source_code) {
         updateFields.push('source_code = ?');
         updateParams.push(data.source_code);
@@ -191,7 +187,7 @@ export class StudentService {
         s.gender_code,
         g.code_name as gender_name,
         s.school_id,
-        s.school_name,
+        sch.school_name,
         u.grade,
         CASE u.grade
           WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
@@ -225,6 +221,7 @@ export class StudentService {
         s.updated_at
       FROM student_info s
       JOIN User u ON s.student_id = u.user_id
+      LEFT JOIN School sch ON s.school_id = sch.school_id
       LEFT JOIN code_master g ON s.gender_code = g.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
@@ -261,7 +258,7 @@ export class StudentService {
         s.gender_code,
         g.code_name as gender_name,
         s.school_id,
-        s.school_name,
+        sch.school_name,
         u.grade,
         CASE u.grade
           WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
@@ -293,6 +290,7 @@ export class StudentService {
         s.updated_at
       FROM student_info s
       JOIN User u ON s.student_id = u.user_id
+      LEFT JOIN School sch ON s.school_id = sch.school_id
       LEFT JOIN code_master g ON s.gender_code = g.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
@@ -406,10 +404,6 @@ export class StudentService {
       if (data.school_id !== undefined) {
         infoUpdates.push('school_id = ?');
         infoParams.push(data.school_id || null);
-      }
-      if (data.school_name !== undefined) {
-        infoUpdates.push('school_name = ?');
-        infoParams.push(data.school_name || null);
       }
       if (data.zip_code !== undefined) {
         infoUpdates.push('zip_code = ?');
