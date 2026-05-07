@@ -303,6 +303,12 @@ export class PromotionService {
              VALUES (?, ?, 'STATUS_CONTACT', ?, NOW())`,
             [studentId, schoolId, userId]
           );
+        } else if (schoolId) {
+          // orphan student_info가 있으면 school_id 업데이트
+          await connection.query<ResultSetHeader>(
+            `UPDATE student_info SET school_id = ?, updated_at = NOW() WHERE student_id = ? AND (school_id IS NULL OR school_id = 0)`,
+            [schoolId, studentId]
+          );
         }
       }
 
