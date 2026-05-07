@@ -948,6 +948,8 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
             onSelected: (School school) {
               _schoolController.text = school.schoolName;
               setState(() => _selectedSchool = school);
+              // 디버깅: 선택된 학교 정보 확인
+              debugPrint('[onSelected] school: ${school.schoolName}, schoolId: ${school.schoolId}');
             },
           ),
           const SizedBox(height: 12),

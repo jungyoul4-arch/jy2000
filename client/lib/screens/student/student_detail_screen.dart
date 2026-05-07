@@ -30,7 +30,13 @@ class StudentDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/students'),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/students');
+            }
+          },
         ),
         title: const Text('학생 상세'),
         actions: [

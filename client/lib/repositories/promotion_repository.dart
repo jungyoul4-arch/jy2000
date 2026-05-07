@@ -81,6 +81,9 @@ class PromotionRepository {
   Future<void> addNewAttendee(int promotionId, NewAttendeeData data) async {
     final jsonData = data.toJson()..removeWhere((key, value) => value == null);
 
+    // 디버깅: 실제 전송되는 JSON 확인
+    print('[addNewAttendee] JSON data: $jsonData');
+
     await _apiClient.post<Map<String, dynamic>>(
       '/promotion/$promotionId/attendees/new',
       data: jsonData,
