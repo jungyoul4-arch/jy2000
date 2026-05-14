@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import tcController from '../controllers/tcController';
 import { validate } from '../middlewares/validate';
-import { validateTCCreate } from '../validators';
+import { validateTCCreate, validateTCUserCreate } from '../validators';
 
 const router = Router();
 
@@ -13,6 +13,13 @@ router.post(
   '/',
   validate(validateTCCreate),
   tcController.create
+);
+
+// POST /tc/user - User 테이블에 상담자(TC) 직접 등록
+router.post(
+  '/user',
+  validate(validateTCUserCreate),
+  tcController.createTcUser
 );
 
 export default router;

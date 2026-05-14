@@ -12,7 +12,14 @@ import '../../widgets/common/status_badge.dart';
 import '../../utils/formatters.dart';
 
 class StudentListScreen extends ConsumerStatefulWidget {
-  const StudentListScreen({super.key});
+  final int? initialSchoolId;
+  final String? initialSchoolName;
+
+  const StudentListScreen({
+    super.key,
+    this.initialSchoolId,
+    this.initialSchoolName,
+  });
 
   @override
   ConsumerState<StudentListScreen> createState() => _StudentListScreenState();
@@ -31,30 +38,100 @@ const _gradeFilterItems = [
   _GradeFilterItem(13, 'N수생'), _GradeFilterItem(14, '성인'),
 ];
 
+// 반 유형 필터용 아이템
+class _ClassTypeFilterItem {
+  final String code;
+  final String label;
+  const _ClassTypeFilterItem(this.code, this.label);
+}
+
+const _classTypeFilterItems = [
+  _ClassTypeFilterItem('CLASS_COMP', '종합반'),
+  _ClassTypeFilterItem('CLASS_SINGLE', '단과반'),
+  _ClassTypeFilterItem('CLASS_SPECIAL', '특강'),
+  _ClassTypeFilterItem('CLASS_ETC', '기타'),
+];
+
+// 유입 경로 필터용 아이템
+class _SourceFilterItem {
+  final String code;
+  final String label;
+  const _SourceFilterItem(this.code, this.label);
+}
+
+const _sourceFilterItems = [
+  _SourceFilterItem('SOURCE_WEB', '홈페이지'),
+  _SourceFilterItem('SOURCE_FRIEND', '친구 추천'),
+  _SourceFilterItem('SOURCE_PARENT', '학부모지인 추천'),
+  _SourceFilterItem('SOURCE_FAMILY', '재원/졸업생 가족 추천'),
+  _SourceFilterItem('SOURCE_INTERNET', '인터넷'),
+  _SourceFilterItem('SOURCE_PROMO', '설명회'),
+  _SourceFilterItem('SOURCE_ETC', '기타'),
+];
+
+// 과목 필터용 아이템 (비트마스크)
+class _SubjectFilterItem {
+  final int value;
+  final String label;
+  const _SubjectFilterItem(this.value, this.label);
+}
+
+const _subjectFilterItems = [
+  _SubjectFilterItem(1, '국어'),
+  _SubjectFilterItem(2, '수학'),
+  _SubjectFilterItem(4, '영어'),
+  _SubjectFilterItem(8, '과학'),
+  _SubjectFilterItem(16, '사회'),
+  _SubjectFilterItem(32, '기타'),
+];
+
 class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   static const _sortPrefKey = 'student_list_sort_by_recent';
 
   final _searchController = TextEditingController();
   String? _selectedStatus;
   int? _selectedGrade;
+  String? _selectedClassType;
+  int? _selectedSubject;
+  String? _selectedSource;
+  int? _selectedSchoolId;
+  String? _selectedSchoolName;
   bool _sortByRecent = false; // false: 이름순, true: 최근등록순
 
   @override
   void initState() {
     super.initState();
+    _selectedSchoolId = widget.initialSchoolId;
+    _selectedSchoolName = widget.initialSchoolName;
     _loadSortPreference();
+  }
+
+  @override
+  void didUpdateWidget(covariant StudentListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 학교 필터가 변경되면 다시 로드
+    if (oldWidget.initialSchoolId != widget.initialSchoolId) {
+      _selectedSchoolId = widget.initialSchoolId;
+      _selectedSchoolName = widget.initialSchoolName;
+      _loadData();
+    }
   }
 
   Future<void> _loadSortPreference() async {
     final prefs = await SharedPreferences.getInstance();
     final savedSort = prefs.getBool(_sortPrefKey) ?? false;
-    setState(() => _sortByRecent = savedSort);
+    if (mounted) {
+      setState(() => _sortByRecent = savedSort);
+    }
+    _loadData();
+  }
 
-    // 저장된 정렬 옵션으로 목록 조회
+  void _loadData() {
     ref.read(studentListProvider.notifier).fetchList(
       params: StudentListParams(
         sort: _sortByRecent ? 'student_id' : 'student_name',
         order: _sortByRecent ? 'desc' : 'asc',
+        schoolId: _selectedSchoolId,
       ),
       refresh: true,
     );
@@ -63,6 +140,16 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   Future<void> _saveSortPreference(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_sortPrefKey, value);
+  }
+
+  void _clearSchoolFilter() {
+    setState(() {
+      _selectedSchoolId = null;
+      _selectedSchoolName = null;
+    });
+    _search();
+    // URL에서 쿼리 파라미터 제거
+    context.go('/students');
   }
 
   @override
@@ -78,7 +165,49 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('학생 관리'),
+        leading: _selectedSchoolId != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/schools'),
+              )
+            : null,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('학생 관리'),
+            if (_selectedSchoolName != null) ...[
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _selectedSchoolName!,
+                      style: TextStyle(fontSize: 14, color: Colors.blue.shade700),
+                    ),
+                    if (studentState.meta != null) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        '${studentState.meta!.total}명',
+                        style: TextStyle(fontSize: 12, color: Colors.blue.shade600, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: _clearSchoolFilter,
+                      child: Icon(Icons.close, size: 16, color: Colors.blue.shade700),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -157,9 +286,10 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
 
                 // 학년 필터
                 SizedBox(
-                  width: 150,
+                  width: 90,
                   child: DropdownButtonFormField<int>(
                     value: _selectedGrade,
+                    isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: '학년',
                       contentPadding: EdgeInsets.symmetric(horizontal: 12),
@@ -178,6 +308,96 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     ],
                     onChanged: (value) {
                       setState(() => _selectedGrade = value);
+                      _applyFilter();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // 반 유형 필터
+                SizedBox(
+                  width: 100,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedClassType,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: '반 유형',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('전체'),
+                      ),
+                      ..._classTypeFilterItems.map(
+                        (item) => DropdownMenuItem(
+                          value: item.code,
+                          child: Text(item.label),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _selectedClassType = value);
+                      _applyFilter();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // 과목 필터
+                SizedBox(
+                  width: 90,
+                  child: DropdownButtonFormField<int>(
+                    value: _selectedSubject,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: '과목',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    items: [
+                      const DropdownMenuItem<int>(
+                        value: null,
+                        child: Text('전체'),
+                      ),
+                      ..._subjectFilterItems.map(
+                        (item) => DropdownMenuItem(
+                          value: item.value,
+                          child: Text(item.label),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _selectedSubject = value);
+                      _applyFilter();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+
+                // 유입 경로 필터
+                SizedBox(
+                  width: 120,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedSource,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: '유입경로',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('전체'),
+                      ),
+                      ..._sourceFilterItems.map(
+                        (item) => DropdownMenuItem(
+                          value: item.code,
+                          child: Text(item.label),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() => _selectedSource = value);
                       _applyFilter();
                     },
                   ),
@@ -238,18 +458,19 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
     return PaginatedDataTable2(
       columnSpacing: 12,
       horizontalMargin: 16,
-      minWidth: 1100,
+      minWidth: 1200,
       rowsPerPage: 100,
       availableRowsPerPage: const [20, 50, 100],
       source: _StudentDataSource(
         students: students,
-        onTap: (student) => context.go('/students/${student.studentId}'),
+        onTap: (student) => context.push('/students/${student.studentId}'),
       ),
       columns: const [
         DataColumn2(label: Text('No.'), fixedWidth: 60),
         DataColumn2(label: Text('이름'), size: ColumnSize.S),
         DataColumn2(label: Text('ID'), fixedWidth: 60),
         DataColumn2(label: Text('전화번호'), size: ColumnSize.M),
+        DataColumn2(label: Text('학교'), size: ColumnSize.M),
         DataColumn2(label: Text('학년'), size: ColumnSize.S),
         DataColumn2(label: Text('상태'), size: ColumnSize.S),
         DataColumn2(label: Text('담당TC'), size: ColumnSize.S),
@@ -261,13 +482,34 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   }
 
   void _onSearch(String value) {
-    ref.read(studentListProvider.notifier).updateFilter(search: value);
+    ref.read(studentListProvider.notifier).updateFilter(
+      search: value,
+      schoolId: _selectedSchoolId,
+    );
   }
 
   void _applyFilter() {
     ref.read(studentListProvider.notifier).updateFilter(
           statusCode: _selectedStatus,
           grade: _selectedGrade,
+          classTypeCode: _selectedClassType,
+          subjectCode: _selectedSubject,
+          sourceCode: _selectedSource,
+          schoolId: _selectedSchoolId,
+          sort: _sortByRecent ? 'student_id' : 'student_name',
+          order: _sortByRecent ? 'desc' : 'asc',
+        );
+  }
+
+  void _search() {
+    ref.read(studentListProvider.notifier).updateFilter(
+          statusCode: _selectedStatus,
+          grade: _selectedGrade,
+          classTypeCode: _selectedClassType,
+          subjectCode: _selectedSubject,
+          sourceCode: _selectedSource,
+          schoolId: _selectedSchoolId,
+          search: _searchController.text,
           sort: _sortByRecent ? 'student_id' : 'student_name',
           order: _sortByRecent ? 'desc' : 'asc',
         );
@@ -299,6 +541,7 @@ class _StudentDataSource extends DataTableSource {
         DataCell(Text(student.studentName)),
         DataCell(Text('${student.studentId}')),
         DataCell(Text(formatPhone(student.phone))),
+        DataCell(Text(student.schoolName ?? '-')),
         DataCell(Text(student.gradeName ?? '-')),
         DataCell(
           StatusBadge(

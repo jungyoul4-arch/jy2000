@@ -1,7 +1,8 @@
 import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import { TC, TCCreate } from '../types';
+import { TC, TCCreate, TCUserCreate } from '../types';
 import { AppError } from '../middlewares/errorHandler';
+import bcrypt from 'bcryptjs';
 
 export class TCService {
   // TC 등록
@@ -87,6 +88,44 @@ export class TCService {
     const [rows] = await pool.query<RowDataPacket[]>(sql);
 
     return rows as TC[];
+  }
+
+  // TC User 등록 (User 테이블에 직접 등록)
+  async createTcUser(data: TCUserCreate): Promise<{ userId: number; name: string; phone: string }> {
+    // 전화번호에서 하이픈 제거
+    const phone = data.phone.replace(/-/g, '');
+
+    // 전화번호 중복 체크
+    const [existing] = await pool.query<RowDataPacket[]>(
+      'SELECT user_id FROM User WHERE phone = ? AND deleted_at IS NULL',
+      [phone]
+    );
+
+    if (existing.length > 0) {
+      throw new AppError('이미 등록된 전화번호입니다.', 400);
+    }
+
+    // 기본 비밀번호 해시 생성 (전화번호 뒤 4자리)
+    const defaultPw = phone.slice(-4);
+    const pwHash = await bcrypt.hash(defaultPw, 10);
+
+    // User 테이블에 상담자 등록 (kind = 5)
+    const sql = `
+      INSERT INTO User (user_pw_hash, name, kind, phone)
+      VALUES (?, ?, 5, ?)
+    `;
+
+    const [result] = await pool.query<ResultSetHeader>(sql, [
+      pwHash,
+      data.name,
+      phone
+    ]);
+
+    return {
+      userId: result.insertId,
+      name: data.name,
+      phone: phone
+    };
   }
 }
 

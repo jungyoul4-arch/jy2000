@@ -25,7 +25,11 @@ export class StudentController {
       search: req.query.search as string,
       status_code: req.query.status_code as string,
       grade: parseInt(req.query.grade as string) || undefined,
+      class_type_code: req.query.class_type_code as string,
+      subject_code: req.query.subject_code as string,
+      source_code: req.query.source_code as string,
       tc_id: parseInt(req.query.tc_id as string) || undefined,
+      school_id: parseInt(req.query.school_id as string) || undefined,
       from_date: req.query.from_date as string,
       to_date: req.query.to_date as string
     };

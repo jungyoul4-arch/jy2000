@@ -23,6 +23,10 @@ class StudentRepository {
     if (data.sourceDetail != null) body['source_detail'] = data.sourceDetail;
     if (data.tcId != null) body['tc_id'] = data.tcId;
     if (data.memo != null) body['memo'] = data.memo;
+    if (data.classTypeCode != null) body['class_type_code'] = data.classTypeCode;
+    if (data.subjectCode != null) body['subject_code'] = data.subjectCode;
+    if (data.enrollStartDate != null) body['enroll_start_date'] = data.enrollStartDate;
+    if (data.enrollEndDate != null) body['enroll_end_date'] = data.enrollEndDate;
     if (data.guardianName != null) body['guardian_name'] = data.guardianName;
     if (data.guardianPhone != null) body['guardian_phone'] = data.guardianPhone;
     if (data.parentKind != null) body['parent_kind'] = data.parentKind;
@@ -48,6 +52,7 @@ class StudentRepository {
     if (params.statusCode != null) queryParams['status_code'] = params.statusCode;
     if (params.grade != null) queryParams['grade'] = params.grade;
     if (params.tcId != null) queryParams['tc_id'] = params.tcId;
+    if (params.schoolId != null) queryParams['school_id'] = params.schoolId;
     if (params.fromDate != null) queryParams['from_date'] = params.fromDate;
     if (params.toDate != null) queryParams['to_date'] = params.toDate;
 
@@ -113,6 +118,11 @@ class StudentRepository {
     if (data.address != null) body['address'] = data.address;
     if (data.addressDetail != null) body['address_detail'] = data.addressDetail;
     if (data.memo != null) body['memo'] = data.memo;
+    if (data.classTypeCode != null) body['class_type_code'] = data.classTypeCode;
+    if (data.subjectCode != null) body['subject_code'] = data.subjectCode;
+    if (data.sourceCode != null) body['source_code'] = data.sourceCode;
+    if (data.enrollStartDate != null) body['enroll_start_date'] = data.enrollStartDate;
+    if (data.enrollEndDate != null) body['enroll_end_date'] = data.enrollEndDate;
 
     if (data.parents != null) {
       body['parents'] = data.parents!.map((p) {

@@ -282,7 +282,7 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
 
             const SizedBox(height: 24),
 
-            // 참석 예정자 목록
+            // 참석(예정)자 목록
             _buildAttendeesSection(startDate),
           ],
         ),
@@ -304,7 +304,7 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '참석 예정자',
+                  '참석(예정)자',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -346,7 +346,8 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
         5: FlexColumnWidth(1),
         6: FlexColumnWidth(1),
         7: FlexColumnWidth(1),
-        8: FixedColumnWidth(50),
+        8: FlexColumnWidth(2),
+        9: FixedColumnWidth(50),
       },
       border: TableBorder.all(color: Colors.grey.shade300),
       children: [
@@ -359,8 +360,9 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
             Padding(padding: EdgeInsets.all(8), child: Text('학교', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('학년', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('참석자', style: TextStyle(fontWeight: FontWeight.bold))),
-            Padding(padding: EdgeInsets.all(8), child: Text('참석', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: EdgeInsets.all(8), child: Text('참석여부', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('상태', style: TextStyle(fontWeight: FontWeight.bold))),
+            Padding(padding: EdgeInsets.all(8), child: Text('메모', style: TextStyle(fontWeight: FontWeight.bold))),
             Padding(padding: EdgeInsets.all(8), child: Text('')),
           ],
         ),
@@ -411,6 +413,15 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
                 child: _buildAttendedDropdown(attendee, isPast),
               ),
               Padding(padding: const EdgeInsets.all(8), child: Text(attendee.statusName ?? '-')),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  attendee.memo ?? '-',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(4),
                 child: IconButton(

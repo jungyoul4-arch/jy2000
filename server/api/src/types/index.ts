@@ -48,6 +48,10 @@ export interface Student {
   address_detail?: string;
   status_code: string;
   sub_status_code?: string;
+  class_type_code?: string; // 반 유형: CLASS_COMP(종합반), CLASS_SINGLE(단과반), CLASS_SPECIAL(특강), CLASS_ETC(기타)
+  class_type_name?: string;
+  subject_code?: string; // 과목
+  subject_name?: string;
   source_code?: string;
   source_detail?: string;
   tc_id?: number;
@@ -55,6 +59,8 @@ export interface Student {
   consult_date?: string;
   register_date?: string;
   enroll_date?: string;
+  enroll_start_date?: string; // 수강 시작일
+  enroll_end_date?: string; // 수강 종료일
   withdraw_date?: string;
   memo?: string;
   created_at?: string;
@@ -64,7 +70,11 @@ export interface Student {
 export interface StudentListQuery extends ListQueryParams {
   status_code?: string;
   grade?: number;
+  class_type_code?: string;
+  subject_code?: string;
+  source_code?: string;
   tc_id?: number;
+  school_id?: number;
   from_date?: string;
   to_date?: string;
 }
@@ -103,6 +113,11 @@ export interface StudentUpdate {
   school_id?: number;
   school_name?: string;
   grade?: number;
+  class_type_code?: string;
+  subject_code?: string;
+  source_code?: string;
+  enroll_start_date?: string;
+  enroll_end_date?: string;
   zip_code?: string;
   address?: string;
   address_detail?: string;
@@ -120,9 +135,13 @@ export interface StudentCreate {
   school_id?: number;
   school_name?: string;
   grade?: number;
+  class_type_code?: string;
+  subject_code?: string;
   status_code?: string;
   source_code?: string;
   source_detail?: string;
+  enroll_start_date?: string;
+  enroll_end_date?: string;
   tc_id?: number;
   memo?: string;
   guardian_name?: string;
@@ -229,6 +248,12 @@ export interface TCCreate {
   tc_type_code?: string;
   branch_code?: string;
   hire_date?: string;
+}
+
+// TC User 등록 (User 테이블에 직접 등록)
+export interface TCUserCreate {
+  phone: string;
+  name: string;
 }
 
 // Dashboard Types

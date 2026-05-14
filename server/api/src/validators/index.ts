@@ -62,7 +62,22 @@ export const validateStudentListQuery: ValidationChain[] = [
     .optional()
     .isInt({ min: 1, max: 14 })
     .withMessage('grade must be between 1 and 14'),
+  query('class_type_code')
+    .optional()
+    .isString()
+    .trim(),
+  query('subject_code')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('subject_code must be an integer'),
+  query('source_code')
+    .optional()
+    .isString()
+    .trim(),
   query('tc_id')
+    .optional()
+    .isInt({ min: 1 }),
+  query('school_id')
     .optional()
     .isInt({ min: 1 }),
   query('search')
@@ -121,6 +136,21 @@ export const validateStudentCreate: ValidationChain[] = [
     .optional({ nullable: true })
     .isString()
     .trim(),
+  body('class_type_code')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('subject_code')
+    .optional({ nullable: true })
+    .isInt({ min: 0 }),
+  body('enroll_start_date')
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage('enroll_start_date must be a valid date'),
+  body('enroll_end_date')
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage('enroll_end_date must be a valid date'),
   body('tc_id')
     .optional({ nullable: true })
     .isInt({ min: 1 }),
@@ -173,6 +203,26 @@ export const validateStudentUpdate: ValidationChain[] = [
   body('grade')
     .optional()
     .isInt({ min: 1, max: 14 }),
+  body('class_type_code')
+    .optional()
+    .isString()
+    .trim(),
+  body('subject_code')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('subject_code must be an integer'),
+  body('source_code')
+    .optional()
+    .isString()
+    .trim(),
+  body('enroll_start_date')
+    .optional()
+    .isISO8601()
+    .withMessage('enroll_start_date must be a valid date'),
+  body('enroll_end_date')
+    .optional()
+    .isISO8601()
+    .withMessage('enroll_end_date must be a valid date'),
   body('zip_code')
     .optional()
     .isString()
@@ -417,4 +467,21 @@ export const validateTCCreate: ValidationChain[] = [
     .optional()
     .isISO8601()
     .withMessage('hire_date must be a valid date')
+];
+
+// TC User 등록 (User 테이블에 직접 등록)
+export const validateTCUserCreate: ValidationChain[] = [
+  body('phone')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('phone is required')
+    .matches(/^[0-9-]+$/)
+    .withMessage('phone must contain only numbers and dashes'),
+  body('name')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('name is required')
+    .isLength({ max: 50 })
 ];

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import tcService from '../services/tcService';
 import { asyncHandler } from '../middlewares/errorHandler';
 import { sendSuccess, sendCreated } from '../utils/responseHelper';
-import { TCCreate } from '../types';
+import { TCCreate, TCUserCreate } from '../types';
 
 export class TCController {
   // POST /tc
@@ -21,6 +21,15 @@ export class TCController {
     const tcList = await tcService.getList();
 
     return sendSuccess(res, tcList, 'TC list retrieved successfully');
+  });
+
+  // POST /tc/user - User 테이블에 상담자 직접 등록
+  createTcUser = asyncHandler(async (req: Request, res: Response) => {
+    const data: TCUserCreate = req.body;
+
+    const result = await tcService.createTcUser(data);
+
+    return sendCreated(res, result, '상담자가 등록되었습니다.');
   });
 }
 

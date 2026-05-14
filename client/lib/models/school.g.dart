@@ -14,6 +14,7 @@ _$SchoolImpl _$$SchoolImplFromJson(Map<String, dynamic> json) => _$SchoolImpl(
   isActive: json['is_active'] == null
       ? true
       : const IntToBoolConverter().fromJson(json['is_active']),
+  studentCount: (json['student_count'] as num?)?.toInt() ?? 0,
   createdAt: json['created_at'] as String?,
   updatedAt: json['updated_at'] as String?,
 );
@@ -25,6 +26,7 @@ Map<String, dynamic> _$$SchoolImplToJson(_$SchoolImpl instance) =>
       'school_kind': instance.schoolKind,
       'region_kind': instance.regionKind,
       'is_active': const IntToBoolConverter().toJson(instance.isActive),
+      'student_count': instance.studentCount,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };

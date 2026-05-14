@@ -66,6 +66,13 @@ mixin _$Student {
   String? get subStatusCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'sub_status_name')
   String? get subStatusName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'class_type_name')
+  String? get classTypeName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'subject_code')
+  @FlexibleIntConverter()
+  int? get subjectCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'source_code')
   String? get sourceCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'source_name')
@@ -85,6 +92,10 @@ mixin _$Student {
   String? get registerDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'enroll_date')
   String? get enrollDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'enroll_start_date')
+  String? get enrollStartDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'enroll_end_date')
+  String? get enrollEndDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'withdraw_date')
   String? get withdrawDate => throw _privateConstructorUsedError;
   String? get memo => throw _privateConstructorUsedError;
@@ -134,6 +145,9 @@ abstract class $StudentCopyWith<$Res> {
     @JsonKey(name: 'status_name') String? statusName,
     @JsonKey(name: 'sub_status_code') String? subStatusCode,
     @JsonKey(name: 'sub_status_name') String? subStatusName,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'class_type_name') String? classTypeName,
+    @JsonKey(name: 'subject_code') @FlexibleIntConverter() int? subjectCode,
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_name') String? sourceName,
     @JsonKey(name: 'source_detail') String? sourceDetail,
@@ -143,6 +157,8 @@ abstract class $StudentCopyWith<$Res> {
     @JsonKey(name: 'consult_date') String? consultDate,
     @JsonKey(name: 'register_date') String? registerDate,
     @JsonKey(name: 'enroll_date') String? enrollDate,
+    @JsonKey(name: 'enroll_start_date') String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') String? enrollEndDate,
     @JsonKey(name: 'withdraw_date') String? withdrawDate,
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
@@ -189,6 +205,9 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
     Object? statusName = freezed,
     Object? subStatusCode = freezed,
     Object? subStatusName = freezed,
+    Object? classTypeCode = freezed,
+    Object? classTypeName = freezed,
+    Object? subjectCode = freezed,
     Object? sourceCode = freezed,
     Object? sourceName = freezed,
     Object? sourceDetail = freezed,
@@ -198,6 +217,8 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
     Object? consultDate = freezed,
     Object? registerDate = freezed,
     Object? enrollDate = freezed,
+    Object? enrollStartDate = freezed,
+    Object? enrollEndDate = freezed,
     Object? withdrawDate = freezed,
     Object? memo = freezed,
     Object? createdAt = freezed,
@@ -298,6 +319,18 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
                 ? _value.subStatusName
                 : subStatusName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            classTypeCode: freezed == classTypeCode
+                ? _value.classTypeCode
+                : classTypeCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            classTypeName: freezed == classTypeName
+                ? _value.classTypeName
+                : classTypeName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            subjectCode: freezed == subjectCode
+                ? _value.subjectCode
+                : subjectCode // ignore: cast_nullable_to_non_nullable
+                      as int?,
             sourceCode: freezed == sourceCode
                 ? _value.sourceCode
                 : sourceCode // ignore: cast_nullable_to_non_nullable
@@ -333,6 +366,14 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
             enrollDate: freezed == enrollDate
                 ? _value.enrollDate
                 : enrollDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            enrollStartDate: freezed == enrollStartDate
+                ? _value.enrollStartDate
+                : enrollStartDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            enrollEndDate: freezed == enrollEndDate
+                ? _value.enrollEndDate
+                : enrollEndDate // ignore: cast_nullable_to_non_nullable
                       as String?,
             withdrawDate: freezed == withdrawDate
                 ? _value.withdrawDate
@@ -394,6 +435,9 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @JsonKey(name: 'status_name') String? statusName,
     @JsonKey(name: 'sub_status_code') String? subStatusCode,
     @JsonKey(name: 'sub_status_name') String? subStatusName,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'class_type_name') String? classTypeName,
+    @JsonKey(name: 'subject_code') @FlexibleIntConverter() int? subjectCode,
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_name') String? sourceName,
     @JsonKey(name: 'source_detail') String? sourceDetail,
@@ -403,6 +447,8 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @JsonKey(name: 'consult_date') String? consultDate,
     @JsonKey(name: 'register_date') String? registerDate,
     @JsonKey(name: 'enroll_date') String? enrollDate,
+    @JsonKey(name: 'enroll_start_date') String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') String? enrollEndDate,
     @JsonKey(name: 'withdraw_date') String? withdrawDate,
     String? memo,
     @JsonKey(name: 'created_at') String? createdAt,
@@ -448,6 +494,9 @@ class __$$StudentImplCopyWithImpl<$Res>
     Object? statusName = freezed,
     Object? subStatusCode = freezed,
     Object? subStatusName = freezed,
+    Object? classTypeCode = freezed,
+    Object? classTypeName = freezed,
+    Object? subjectCode = freezed,
     Object? sourceCode = freezed,
     Object? sourceName = freezed,
     Object? sourceDetail = freezed,
@@ -457,6 +506,8 @@ class __$$StudentImplCopyWithImpl<$Res>
     Object? consultDate = freezed,
     Object? registerDate = freezed,
     Object? enrollDate = freezed,
+    Object? enrollStartDate = freezed,
+    Object? enrollEndDate = freezed,
     Object? withdrawDate = freezed,
     Object? memo = freezed,
     Object? createdAt = freezed,
@@ -557,6 +608,18 @@ class __$$StudentImplCopyWithImpl<$Res>
             ? _value.subStatusName
             : subStatusName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        classTypeCode: freezed == classTypeCode
+            ? _value.classTypeCode
+            : classTypeCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        classTypeName: freezed == classTypeName
+            ? _value.classTypeName
+            : classTypeName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        subjectCode: freezed == subjectCode
+            ? _value.subjectCode
+            : subjectCode // ignore: cast_nullable_to_non_nullable
+                  as int?,
         sourceCode: freezed == sourceCode
             ? _value.sourceCode
             : sourceCode // ignore: cast_nullable_to_non_nullable
@@ -592,6 +655,14 @@ class __$$StudentImplCopyWithImpl<$Res>
         enrollDate: freezed == enrollDate
             ? _value.enrollDate
             : enrollDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        enrollStartDate: freezed == enrollStartDate
+            ? _value.enrollStartDate
+            : enrollStartDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        enrollEndDate: freezed == enrollEndDate
+            ? _value.enrollEndDate
+            : enrollEndDate // ignore: cast_nullable_to_non_nullable
                   as String?,
         withdrawDate: freezed == withdrawDate
             ? _value.withdrawDate
@@ -647,6 +718,9 @@ class _$StudentImpl implements _Student {
     @JsonKey(name: 'status_name') this.statusName,
     @JsonKey(name: 'sub_status_code') this.subStatusCode,
     @JsonKey(name: 'sub_status_name') this.subStatusName,
+    @JsonKey(name: 'class_type_code') this.classTypeCode,
+    @JsonKey(name: 'class_type_name') this.classTypeName,
+    @JsonKey(name: 'subject_code') @FlexibleIntConverter() this.subjectCode,
     @JsonKey(name: 'source_code') this.sourceCode,
     @JsonKey(name: 'source_name') this.sourceName,
     @JsonKey(name: 'source_detail') this.sourceDetail,
@@ -656,6 +730,8 @@ class _$StudentImpl implements _Student {
     @JsonKey(name: 'consult_date') this.consultDate,
     @JsonKey(name: 'register_date') this.registerDate,
     @JsonKey(name: 'enroll_date') this.enrollDate,
+    @JsonKey(name: 'enroll_start_date') this.enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') this.enrollEndDate,
     @JsonKey(name: 'withdraw_date') this.withdrawDate,
     this.memo,
     @JsonKey(name: 'created_at') this.createdAt,
@@ -735,6 +811,16 @@ class _$StudentImpl implements _Student {
   @JsonKey(name: 'sub_status_name')
   final String? subStatusName;
   @override
+  @JsonKey(name: 'class_type_code')
+  final String? classTypeCode;
+  @override
+  @JsonKey(name: 'class_type_name')
+  final String? classTypeName;
+  @override
+  @JsonKey(name: 'subject_code')
+  @FlexibleIntConverter()
+  final int? subjectCode;
+  @override
   @JsonKey(name: 'source_code')
   final String? sourceCode;
   @override
@@ -763,6 +849,12 @@ class _$StudentImpl implements _Student {
   @JsonKey(name: 'enroll_date')
   final String? enrollDate;
   @override
+  @JsonKey(name: 'enroll_start_date')
+  final String? enrollStartDate;
+  @override
+  @JsonKey(name: 'enroll_end_date')
+  final String? enrollEndDate;
+  @override
   @JsonKey(name: 'withdraw_date')
   final String? withdrawDate;
   @override
@@ -785,7 +877,7 @@ class _$StudentImpl implements _Student {
 
   @override
   String toString() {
-    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt, parents: $parents)';
+    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, classTypeCode: $classTypeCode, classTypeName: $classTypeName, subjectCode: $subjectCode, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, enrollStartDate: $enrollStartDate, enrollEndDate: $enrollEndDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt, parents: $parents)';
   }
 
   @override
@@ -834,6 +926,12 @@ class _$StudentImpl implements _Student {
                 other.subStatusCode == subStatusCode) &&
             (identical(other.subStatusName, subStatusName) ||
                 other.subStatusName == subStatusName) &&
+            (identical(other.classTypeCode, classTypeCode) ||
+                other.classTypeCode == classTypeCode) &&
+            (identical(other.classTypeName, classTypeName) ||
+                other.classTypeName == classTypeName) &&
+            (identical(other.subjectCode, subjectCode) ||
+                other.subjectCode == subjectCode) &&
             (identical(other.sourceCode, sourceCode) ||
                 other.sourceCode == sourceCode) &&
             (identical(other.sourceName, sourceName) ||
@@ -850,6 +948,10 @@ class _$StudentImpl implements _Student {
                 other.registerDate == registerDate) &&
             (identical(other.enrollDate, enrollDate) ||
                 other.enrollDate == enrollDate) &&
+            (identical(other.enrollStartDate, enrollStartDate) ||
+                other.enrollStartDate == enrollStartDate) &&
+            (identical(other.enrollEndDate, enrollEndDate) ||
+                other.enrollEndDate == enrollEndDate) &&
             (identical(other.withdrawDate, withdrawDate) ||
                 other.withdrawDate == withdrawDate) &&
             (identical(other.memo, memo) || other.memo == memo) &&
@@ -887,6 +989,9 @@ class _$StudentImpl implements _Student {
     statusName,
     subStatusCode,
     subStatusName,
+    classTypeCode,
+    classTypeName,
+    subjectCode,
     sourceCode,
     sourceName,
     sourceDetail,
@@ -896,6 +1001,8 @@ class _$StudentImpl implements _Student {
     consultDate,
     registerDate,
     enrollDate,
+    enrollStartDate,
+    enrollEndDate,
     withdrawDate,
     memo,
     createdAt,
@@ -944,6 +1051,11 @@ abstract class _Student implements Student {
     @JsonKey(name: 'status_name') final String? statusName,
     @JsonKey(name: 'sub_status_code') final String? subStatusCode,
     @JsonKey(name: 'sub_status_name') final String? subStatusName,
+    @JsonKey(name: 'class_type_code') final String? classTypeCode,
+    @JsonKey(name: 'class_type_name') final String? classTypeName,
+    @JsonKey(name: 'subject_code')
+    @FlexibleIntConverter()
+    final int? subjectCode,
     @JsonKey(name: 'source_code') final String? sourceCode,
     @JsonKey(name: 'source_name') final String? sourceName,
     @JsonKey(name: 'source_detail') final String? sourceDetail,
@@ -953,6 +1065,8 @@ abstract class _Student implements Student {
     @JsonKey(name: 'consult_date') final String? consultDate,
     @JsonKey(name: 'register_date') final String? registerDate,
     @JsonKey(name: 'enroll_date') final String? enrollDate,
+    @JsonKey(name: 'enroll_start_date') final String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') final String? enrollEndDate,
     @JsonKey(name: 'withdraw_date') final String? withdrawDate,
     final String? memo,
     @JsonKey(name: 'created_at') final String? createdAt,
@@ -1031,6 +1145,16 @@ abstract class _Student implements Student {
   @JsonKey(name: 'sub_status_name')
   String? get subStatusName;
   @override
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode;
+  @override
+  @JsonKey(name: 'class_type_name')
+  String? get classTypeName;
+  @override
+  @JsonKey(name: 'subject_code')
+  @FlexibleIntConverter()
+  int? get subjectCode;
+  @override
   @JsonKey(name: 'source_code')
   String? get sourceCode;
   @override
@@ -1058,6 +1182,12 @@ abstract class _Student implements Student {
   @override
   @JsonKey(name: 'enroll_date')
   String? get enrollDate;
+  @override
+  @JsonKey(name: 'enroll_start_date')
+  String? get enrollStartDate;
+  @override
+  @JsonKey(name: 'enroll_end_date')
+  String? get enrollEndDate;
   @override
   @JsonKey(name: 'withdraw_date')
   String? get withdrawDate;
@@ -1352,6 +1482,16 @@ mixin _$StudentUpdate {
   @JsonKey(name: 'school_name')
   String? get schoolName => throw _privateConstructorUsedError;
   int? get grade => throw _privateConstructorUsedError;
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'subject_code')
+  int? get subjectCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'source_code')
+  String? get sourceCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'enroll_start_date')
+  String? get enrollStartDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'enroll_end_date')
+  String? get enrollEndDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'zip_code')
   String? get zipCode => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
@@ -1386,6 +1526,11 @@ abstract class $StudentUpdateCopyWith<$Res> {
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
     int? grade,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'subject_code') int? subjectCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
+    @JsonKey(name: 'enroll_start_date') String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') String? enrollEndDate,
     @JsonKey(name: 'zip_code') String? zipCode,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
@@ -1417,6 +1562,11 @@ class _$StudentUpdateCopyWithImpl<$Res, $Val extends StudentUpdate>
     Object? schoolId = freezed,
     Object? schoolName = freezed,
     Object? grade = freezed,
+    Object? classTypeCode = freezed,
+    Object? subjectCode = freezed,
+    Object? sourceCode = freezed,
+    Object? enrollStartDate = freezed,
+    Object? enrollEndDate = freezed,
     Object? zipCode = freezed,
     Object? address = freezed,
     Object? addressDetail = freezed,
@@ -1457,6 +1607,26 @@ class _$StudentUpdateCopyWithImpl<$Res, $Val extends StudentUpdate>
                 ? _value.grade
                 : grade // ignore: cast_nullable_to_non_nullable
                       as int?,
+            classTypeCode: freezed == classTypeCode
+                ? _value.classTypeCode
+                : classTypeCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            subjectCode: freezed == subjectCode
+                ? _value.subjectCode
+                : subjectCode // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            sourceCode: freezed == sourceCode
+                ? _value.sourceCode
+                : sourceCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            enrollStartDate: freezed == enrollStartDate
+                ? _value.enrollStartDate
+                : enrollStartDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            enrollEndDate: freezed == enrollEndDate
+                ? _value.enrollEndDate
+                : enrollEndDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
             zipCode: freezed == zipCode
                 ? _value.zipCode
                 : zipCode // ignore: cast_nullable_to_non_nullable
@@ -1501,6 +1671,11 @@ abstract class _$$StudentUpdateImplCopyWith<$Res>
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
     int? grade,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'subject_code') int? subjectCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
+    @JsonKey(name: 'enroll_start_date') String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') String? enrollEndDate,
     @JsonKey(name: 'zip_code') String? zipCode,
     String? address,
     @JsonKey(name: 'address_detail') String? addressDetail,
@@ -1531,6 +1706,11 @@ class __$$StudentUpdateImplCopyWithImpl<$Res>
     Object? schoolId = freezed,
     Object? schoolName = freezed,
     Object? grade = freezed,
+    Object? classTypeCode = freezed,
+    Object? subjectCode = freezed,
+    Object? sourceCode = freezed,
+    Object? enrollStartDate = freezed,
+    Object? enrollEndDate = freezed,
     Object? zipCode = freezed,
     Object? address = freezed,
     Object? addressDetail = freezed,
@@ -1571,6 +1751,26 @@ class __$$StudentUpdateImplCopyWithImpl<$Res>
             ? _value.grade
             : grade // ignore: cast_nullable_to_non_nullable
                   as int?,
+        classTypeCode: freezed == classTypeCode
+            ? _value.classTypeCode
+            : classTypeCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        subjectCode: freezed == subjectCode
+            ? _value.subjectCode
+            : subjectCode // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        sourceCode: freezed == sourceCode
+            ? _value.sourceCode
+            : sourceCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        enrollStartDate: freezed == enrollStartDate
+            ? _value.enrollStartDate
+            : enrollStartDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        enrollEndDate: freezed == enrollEndDate
+            ? _value.enrollEndDate
+            : enrollEndDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
         zipCode: freezed == zipCode
             ? _value.zipCode
             : zipCode // ignore: cast_nullable_to_non_nullable
@@ -1608,6 +1808,11 @@ class _$StudentUpdateImpl implements _StudentUpdate {
     @JsonKey(name: 'school_id') this.schoolId,
     @JsonKey(name: 'school_name') this.schoolName,
     this.grade,
+    @JsonKey(name: 'class_type_code') this.classTypeCode,
+    @JsonKey(name: 'subject_code') this.subjectCode,
+    @JsonKey(name: 'source_code') this.sourceCode,
+    @JsonKey(name: 'enroll_start_date') this.enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') this.enrollEndDate,
     @JsonKey(name: 'zip_code') this.zipCode,
     this.address,
     @JsonKey(name: 'address_detail') this.addressDetail,
@@ -1640,6 +1845,21 @@ class _$StudentUpdateImpl implements _StudentUpdate {
   @override
   final int? grade;
   @override
+  @JsonKey(name: 'class_type_code')
+  final String? classTypeCode;
+  @override
+  @JsonKey(name: 'subject_code')
+  final int? subjectCode;
+  @override
+  @JsonKey(name: 'source_code')
+  final String? sourceCode;
+  @override
+  @JsonKey(name: 'enroll_start_date')
+  final String? enrollStartDate;
+  @override
+  @JsonKey(name: 'enroll_end_date')
+  final String? enrollEndDate;
+  @override
   @JsonKey(name: 'zip_code')
   final String? zipCode;
   @override
@@ -1661,7 +1881,7 @@ class _$StudentUpdateImpl implements _StudentUpdate {
 
   @override
   String toString() {
-    return 'StudentUpdate(studentName: $studentName, phone: $phone, email: $email, birthDate: $birthDate, genderCode: $genderCode, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, memo: $memo, parents: $parents)';
+    return 'StudentUpdate(studentName: $studentName, phone: $phone, email: $email, birthDate: $birthDate, genderCode: $genderCode, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, classTypeCode: $classTypeCode, subjectCode: $subjectCode, sourceCode: $sourceCode, enrollStartDate: $enrollStartDate, enrollEndDate: $enrollEndDate, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, memo: $memo, parents: $parents)';
   }
 
   @override
@@ -1682,6 +1902,16 @@ class _$StudentUpdateImpl implements _StudentUpdate {
             (identical(other.schoolName, schoolName) ||
                 other.schoolName == schoolName) &&
             (identical(other.grade, grade) || other.grade == grade) &&
+            (identical(other.classTypeCode, classTypeCode) ||
+                other.classTypeCode == classTypeCode) &&
+            (identical(other.subjectCode, subjectCode) ||
+                other.subjectCode == subjectCode) &&
+            (identical(other.sourceCode, sourceCode) ||
+                other.sourceCode == sourceCode) &&
+            (identical(other.enrollStartDate, enrollStartDate) ||
+                other.enrollStartDate == enrollStartDate) &&
+            (identical(other.enrollEndDate, enrollEndDate) ||
+                other.enrollEndDate == enrollEndDate) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.address, address) || other.address == address) &&
             (identical(other.addressDetail, addressDetail) ||
@@ -1702,6 +1932,11 @@ class _$StudentUpdateImpl implements _StudentUpdate {
     schoolId,
     schoolName,
     grade,
+    classTypeCode,
+    subjectCode,
+    sourceCode,
+    enrollStartDate,
+    enrollEndDate,
     zipCode,
     address,
     addressDetail,
@@ -1733,6 +1968,11 @@ abstract class _StudentUpdate implements StudentUpdate {
     @JsonKey(name: 'school_id') final int? schoolId,
     @JsonKey(name: 'school_name') final String? schoolName,
     final int? grade,
+    @JsonKey(name: 'class_type_code') final String? classTypeCode,
+    @JsonKey(name: 'subject_code') final int? subjectCode,
+    @JsonKey(name: 'source_code') final String? sourceCode,
+    @JsonKey(name: 'enroll_start_date') final String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') final String? enrollEndDate,
     @JsonKey(name: 'zip_code') final String? zipCode,
     final String? address,
     @JsonKey(name: 'address_detail') final String? addressDetail,
@@ -1764,6 +2004,21 @@ abstract class _StudentUpdate implements StudentUpdate {
   String? get schoolName;
   @override
   int? get grade;
+  @override
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode;
+  @override
+  @JsonKey(name: 'subject_code')
+  int? get subjectCode;
+  @override
+  @JsonKey(name: 'source_code')
+  String? get sourceCode;
+  @override
+  @JsonKey(name: 'enroll_start_date')
+  String? get enrollStartDate;
+  @override
+  @JsonKey(name: 'enroll_end_date')
+  String? get enrollEndDate;
   @override
   @JsonKey(name: 'zip_code')
   String? get zipCode;
@@ -2076,12 +2331,20 @@ mixin _$StudentCreate {
   @JsonKey(name: 'school_name')
   String? get schoolName => throw _privateConstructorUsedError;
   int? get grade => throw _privateConstructorUsedError;
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'subject_code')
+  int? get subjectCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'status_code')
   String? get statusCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'source_code')
   String? get sourceCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'source_detail')
   String? get sourceDetail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'enroll_start_date')
+  String? get enrollStartDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'enroll_end_date')
+  String? get enrollEndDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
   int? get tcId => throw _privateConstructorUsedError;
   String? get memo => throw _privateConstructorUsedError;
@@ -2118,9 +2381,13 @@ abstract class $StudentCreateCopyWith<$Res> {
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
     int? grade,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'subject_code') int? subjectCode,
     @JsonKey(name: 'status_code') String? statusCode,
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_detail') String? sourceDetail,
+    @JsonKey(name: 'enroll_start_date') String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') String? enrollEndDate,
     @JsonKey(name: 'tc_id') int? tcId,
     String? memo,
     @JsonKey(name: 'guardian_name') String? guardianName,
@@ -2152,9 +2419,13 @@ class _$StudentCreateCopyWithImpl<$Res, $Val extends StudentCreate>
     Object? schoolId = freezed,
     Object? schoolName = freezed,
     Object? grade = freezed,
+    Object? classTypeCode = freezed,
+    Object? subjectCode = freezed,
     Object? statusCode = freezed,
     Object? sourceCode = freezed,
     Object? sourceDetail = freezed,
+    Object? enrollStartDate = freezed,
+    Object? enrollEndDate = freezed,
     Object? tcId = freezed,
     Object? memo = freezed,
     Object? guardianName = freezed,
@@ -2195,6 +2466,14 @@ class _$StudentCreateCopyWithImpl<$Res, $Val extends StudentCreate>
                 ? _value.grade
                 : grade // ignore: cast_nullable_to_non_nullable
                       as int?,
+            classTypeCode: freezed == classTypeCode
+                ? _value.classTypeCode
+                : classTypeCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            subjectCode: freezed == subjectCode
+                ? _value.subjectCode
+                : subjectCode // ignore: cast_nullable_to_non_nullable
+                      as int?,
             statusCode: freezed == statusCode
                 ? _value.statusCode
                 : statusCode // ignore: cast_nullable_to_non_nullable
@@ -2206,6 +2485,14 @@ class _$StudentCreateCopyWithImpl<$Res, $Val extends StudentCreate>
             sourceDetail: freezed == sourceDetail
                 ? _value.sourceDetail
                 : sourceDetail // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            enrollStartDate: freezed == enrollStartDate
+                ? _value.enrollStartDate
+                : enrollStartDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            enrollEndDate: freezed == enrollEndDate
+                ? _value.enrollEndDate
+                : enrollEndDate // ignore: cast_nullable_to_non_nullable
                       as String?,
             tcId: freezed == tcId
                 ? _value.tcId
@@ -2251,9 +2538,13 @@ abstract class _$$StudentCreateImplCopyWith<$Res>
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
     int? grade,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'subject_code') int? subjectCode,
     @JsonKey(name: 'status_code') String? statusCode,
     @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'source_detail') String? sourceDetail,
+    @JsonKey(name: 'enroll_start_date') String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') String? enrollEndDate,
     @JsonKey(name: 'tc_id') int? tcId,
     String? memo,
     @JsonKey(name: 'guardian_name') String? guardianName,
@@ -2284,9 +2575,13 @@ class __$$StudentCreateImplCopyWithImpl<$Res>
     Object? schoolId = freezed,
     Object? schoolName = freezed,
     Object? grade = freezed,
+    Object? classTypeCode = freezed,
+    Object? subjectCode = freezed,
     Object? statusCode = freezed,
     Object? sourceCode = freezed,
     Object? sourceDetail = freezed,
+    Object? enrollStartDate = freezed,
+    Object? enrollEndDate = freezed,
     Object? tcId = freezed,
     Object? memo = freezed,
     Object? guardianName = freezed,
@@ -2327,6 +2622,14 @@ class __$$StudentCreateImplCopyWithImpl<$Res>
             ? _value.grade
             : grade // ignore: cast_nullable_to_non_nullable
                   as int?,
+        classTypeCode: freezed == classTypeCode
+            ? _value.classTypeCode
+            : classTypeCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        subjectCode: freezed == subjectCode
+            ? _value.subjectCode
+            : subjectCode // ignore: cast_nullable_to_non_nullable
+                  as int?,
         statusCode: freezed == statusCode
             ? _value.statusCode
             : statusCode // ignore: cast_nullable_to_non_nullable
@@ -2338,6 +2641,14 @@ class __$$StudentCreateImplCopyWithImpl<$Res>
         sourceDetail: freezed == sourceDetail
             ? _value.sourceDetail
             : sourceDetail // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        enrollStartDate: freezed == enrollStartDate
+            ? _value.enrollStartDate
+            : enrollStartDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        enrollEndDate: freezed == enrollEndDate
+            ? _value.enrollEndDate
+            : enrollEndDate // ignore: cast_nullable_to_non_nullable
                   as String?,
         tcId: freezed == tcId
             ? _value.tcId
@@ -2376,9 +2687,13 @@ class _$StudentCreateImpl implements _StudentCreate {
     @JsonKey(name: 'school_id') this.schoolId,
     @JsonKey(name: 'school_name') this.schoolName,
     this.grade,
+    @JsonKey(name: 'class_type_code') this.classTypeCode,
+    @JsonKey(name: 'subject_code') this.subjectCode,
     @JsonKey(name: 'status_code') this.statusCode,
     @JsonKey(name: 'source_code') this.sourceCode,
     @JsonKey(name: 'source_detail') this.sourceDetail,
+    @JsonKey(name: 'enroll_start_date') this.enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') this.enrollEndDate,
     @JsonKey(name: 'tc_id') this.tcId,
     this.memo,
     @JsonKey(name: 'guardian_name') this.guardianName,
@@ -2411,6 +2726,12 @@ class _$StudentCreateImpl implements _StudentCreate {
   @override
   final int? grade;
   @override
+  @JsonKey(name: 'class_type_code')
+  final String? classTypeCode;
+  @override
+  @JsonKey(name: 'subject_code')
+  final int? subjectCode;
+  @override
   @JsonKey(name: 'status_code')
   final String? statusCode;
   @override
@@ -2419,6 +2740,12 @@ class _$StudentCreateImpl implements _StudentCreate {
   @override
   @JsonKey(name: 'source_detail')
   final String? sourceDetail;
+  @override
+  @JsonKey(name: 'enroll_start_date')
+  final String? enrollStartDate;
+  @override
+  @JsonKey(name: 'enroll_end_date')
+  final String? enrollEndDate;
   @override
   @JsonKey(name: 'tc_id')
   final int? tcId;
@@ -2436,7 +2763,7 @@ class _$StudentCreateImpl implements _StudentCreate {
 
   @override
   String toString() {
-    return 'StudentCreate(studentName: $studentName, phone: $phone, email: $email, birthDate: $birthDate, genderCode: $genderCode, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, statusCode: $statusCode, sourceCode: $sourceCode, sourceDetail: $sourceDetail, tcId: $tcId, memo: $memo, guardianName: $guardianName, guardianPhone: $guardianPhone, parentKind: $parentKind)';
+    return 'StudentCreate(studentName: $studentName, phone: $phone, email: $email, birthDate: $birthDate, genderCode: $genderCode, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, classTypeCode: $classTypeCode, subjectCode: $subjectCode, statusCode: $statusCode, sourceCode: $sourceCode, sourceDetail: $sourceDetail, enrollStartDate: $enrollStartDate, enrollEndDate: $enrollEndDate, tcId: $tcId, memo: $memo, guardianName: $guardianName, guardianPhone: $guardianPhone, parentKind: $parentKind)';
   }
 
   @override
@@ -2457,12 +2784,20 @@ class _$StudentCreateImpl implements _StudentCreate {
             (identical(other.schoolName, schoolName) ||
                 other.schoolName == schoolName) &&
             (identical(other.grade, grade) || other.grade == grade) &&
+            (identical(other.classTypeCode, classTypeCode) ||
+                other.classTypeCode == classTypeCode) &&
+            (identical(other.subjectCode, subjectCode) ||
+                other.subjectCode == subjectCode) &&
             (identical(other.statusCode, statusCode) ||
                 other.statusCode == statusCode) &&
             (identical(other.sourceCode, sourceCode) ||
                 other.sourceCode == sourceCode) &&
             (identical(other.sourceDetail, sourceDetail) ||
                 other.sourceDetail == sourceDetail) &&
+            (identical(other.enrollStartDate, enrollStartDate) ||
+                other.enrollStartDate == enrollStartDate) &&
+            (identical(other.enrollEndDate, enrollEndDate) ||
+                other.enrollEndDate == enrollEndDate) &&
             (identical(other.tcId, tcId) || other.tcId == tcId) &&
             (identical(other.memo, memo) || other.memo == memo) &&
             (identical(other.guardianName, guardianName) ||
@@ -2475,7 +2810,7 @@ class _$StudentCreateImpl implements _StudentCreate {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     studentName,
     phone,
@@ -2485,15 +2820,19 @@ class _$StudentCreateImpl implements _StudentCreate {
     schoolId,
     schoolName,
     grade,
+    classTypeCode,
+    subjectCode,
     statusCode,
     sourceCode,
     sourceDetail,
+    enrollStartDate,
+    enrollEndDate,
     tcId,
     memo,
     guardianName,
     guardianPhone,
     parentKind,
-  );
+  ]);
 
   /// Create a copy of StudentCreate
   /// with the given fields replaced by the non-null parameter values.
@@ -2519,9 +2858,13 @@ abstract class _StudentCreate implements StudentCreate {
     @JsonKey(name: 'school_id') final int? schoolId,
     @JsonKey(name: 'school_name') final String? schoolName,
     final int? grade,
+    @JsonKey(name: 'class_type_code') final String? classTypeCode,
+    @JsonKey(name: 'subject_code') final int? subjectCode,
     @JsonKey(name: 'status_code') final String? statusCode,
     @JsonKey(name: 'source_code') final String? sourceCode,
     @JsonKey(name: 'source_detail') final String? sourceDetail,
+    @JsonKey(name: 'enroll_start_date') final String? enrollStartDate,
+    @JsonKey(name: 'enroll_end_date') final String? enrollEndDate,
     @JsonKey(name: 'tc_id') final int? tcId,
     final String? memo,
     @JsonKey(name: 'guardian_name') final String? guardianName,
@@ -2554,6 +2897,12 @@ abstract class _StudentCreate implements StudentCreate {
   @override
   int? get grade;
   @override
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode;
+  @override
+  @JsonKey(name: 'subject_code')
+  int? get subjectCode;
+  @override
   @JsonKey(name: 'status_code')
   String? get statusCode;
   @override
@@ -2562,6 +2911,12 @@ abstract class _StudentCreate implements StudentCreate {
   @override
   @JsonKey(name: 'source_detail')
   String? get sourceDetail;
+  @override
+  @JsonKey(name: 'enroll_start_date')
+  String? get enrollStartDate;
+  @override
+  @JsonKey(name: 'enroll_end_date')
+  String? get enrollEndDate;
   @override
   @JsonKey(name: 'tc_id')
   int? get tcId;
@@ -2599,8 +2954,16 @@ mixin _$StudentListParams {
   @JsonKey(name: 'status_code')
   String? get statusCode => throw _privateConstructorUsedError;
   int? get grade => throw _privateConstructorUsedError;
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'subject_code')
+  int? get subjectCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'source_code')
+  String? get sourceCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
   int? get tcId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_id')
+  int? get schoolId => throw _privateConstructorUsedError;
   @JsonKey(name: 'from_date')
   String? get fromDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'to_date')
@@ -2631,7 +2994,11 @@ abstract class $StudentListParamsCopyWith<$Res> {
     String? search,
     @JsonKey(name: 'status_code') String? statusCode,
     int? grade,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'subject_code') int? subjectCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'from_date') String? fromDate,
     @JsonKey(name: 'to_date') String? toDate,
   });
@@ -2659,7 +3026,11 @@ class _$StudentListParamsCopyWithImpl<$Res, $Val extends StudentListParams>
     Object? search = freezed,
     Object? statusCode = freezed,
     Object? grade = freezed,
+    Object? classTypeCode = freezed,
+    Object? subjectCode = freezed,
+    Object? sourceCode = freezed,
     Object? tcId = freezed,
+    Object? schoolId = freezed,
     Object? fromDate = freezed,
     Object? toDate = freezed,
   }) {
@@ -2693,9 +3064,25 @@ class _$StudentListParamsCopyWithImpl<$Res, $Val extends StudentListParams>
                 ? _value.grade
                 : grade // ignore: cast_nullable_to_non_nullable
                       as int?,
+            classTypeCode: freezed == classTypeCode
+                ? _value.classTypeCode
+                : classTypeCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            subjectCode: freezed == subjectCode
+                ? _value.subjectCode
+                : subjectCode // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            sourceCode: freezed == sourceCode
+                ? _value.sourceCode
+                : sourceCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
             tcId: freezed == tcId
                 ? _value.tcId
                 : tcId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            schoolId: freezed == schoolId
+                ? _value.schoolId
+                : schoolId // ignore: cast_nullable_to_non_nullable
                       as int?,
             fromDate: freezed == fromDate
                 ? _value.fromDate
@@ -2728,7 +3115,11 @@ abstract class _$$StudentListParamsImplCopyWith<$Res>
     String? search,
     @JsonKey(name: 'status_code') String? statusCode,
     int? grade,
+    @JsonKey(name: 'class_type_code') String? classTypeCode,
+    @JsonKey(name: 'subject_code') int? subjectCode,
+    @JsonKey(name: 'source_code') String? sourceCode,
     @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'from_date') String? fromDate,
     @JsonKey(name: 'to_date') String? toDate,
   });
@@ -2755,7 +3146,11 @@ class __$$StudentListParamsImplCopyWithImpl<$Res>
     Object? search = freezed,
     Object? statusCode = freezed,
     Object? grade = freezed,
+    Object? classTypeCode = freezed,
+    Object? subjectCode = freezed,
+    Object? sourceCode = freezed,
     Object? tcId = freezed,
+    Object? schoolId = freezed,
     Object? fromDate = freezed,
     Object? toDate = freezed,
   }) {
@@ -2789,9 +3184,25 @@ class __$$StudentListParamsImplCopyWithImpl<$Res>
             ? _value.grade
             : grade // ignore: cast_nullable_to_non_nullable
                   as int?,
+        classTypeCode: freezed == classTypeCode
+            ? _value.classTypeCode
+            : classTypeCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        subjectCode: freezed == subjectCode
+            ? _value.subjectCode
+            : subjectCode // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        sourceCode: freezed == sourceCode
+            ? _value.sourceCode
+            : sourceCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
         tcId: freezed == tcId
             ? _value.tcId
             : tcId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        schoolId: freezed == schoolId
+            ? _value.schoolId
+            : schoolId // ignore: cast_nullable_to_non_nullable
                   as int?,
         fromDate: freezed == fromDate
             ? _value.fromDate
@@ -2817,7 +3228,11 @@ class _$StudentListParamsImpl implements _StudentListParams {
     this.search,
     @JsonKey(name: 'status_code') this.statusCode,
     this.grade,
+    @JsonKey(name: 'class_type_code') this.classTypeCode,
+    @JsonKey(name: 'subject_code') this.subjectCode,
+    @JsonKey(name: 'source_code') this.sourceCode,
     @JsonKey(name: 'tc_id') this.tcId,
+    @JsonKey(name: 'school_id') this.schoolId,
     @JsonKey(name: 'from_date') this.fromDate,
     @JsonKey(name: 'to_date') this.toDate,
   });
@@ -2845,8 +3260,20 @@ class _$StudentListParamsImpl implements _StudentListParams {
   @override
   final int? grade;
   @override
+  @JsonKey(name: 'class_type_code')
+  final String? classTypeCode;
+  @override
+  @JsonKey(name: 'subject_code')
+  final int? subjectCode;
+  @override
+  @JsonKey(name: 'source_code')
+  final String? sourceCode;
+  @override
   @JsonKey(name: 'tc_id')
   final int? tcId;
+  @override
+  @JsonKey(name: 'school_id')
+  final int? schoolId;
   @override
   @JsonKey(name: 'from_date')
   final String? fromDate;
@@ -2856,7 +3283,7 @@ class _$StudentListParamsImpl implements _StudentListParams {
 
   @override
   String toString() {
-    return 'StudentListParams(page: $page, perPage: $perPage, sort: $sort, order: $order, search: $search, statusCode: $statusCode, grade: $grade, tcId: $tcId, fromDate: $fromDate, toDate: $toDate)';
+    return 'StudentListParams(page: $page, perPage: $perPage, sort: $sort, order: $order, search: $search, statusCode: $statusCode, grade: $grade, classTypeCode: $classTypeCode, subjectCode: $subjectCode, sourceCode: $sourceCode, tcId: $tcId, schoolId: $schoolId, fromDate: $fromDate, toDate: $toDate)';
   }
 
   @override
@@ -2872,7 +3299,15 @@ class _$StudentListParamsImpl implements _StudentListParams {
             (identical(other.statusCode, statusCode) ||
                 other.statusCode == statusCode) &&
             (identical(other.grade, grade) || other.grade == grade) &&
+            (identical(other.classTypeCode, classTypeCode) ||
+                other.classTypeCode == classTypeCode) &&
+            (identical(other.subjectCode, subjectCode) ||
+                other.subjectCode == subjectCode) &&
+            (identical(other.sourceCode, sourceCode) ||
+                other.sourceCode == sourceCode) &&
             (identical(other.tcId, tcId) || other.tcId == tcId) &&
+            (identical(other.schoolId, schoolId) ||
+                other.schoolId == schoolId) &&
             (identical(other.fromDate, fromDate) ||
                 other.fromDate == fromDate) &&
             (identical(other.toDate, toDate) || other.toDate == toDate));
@@ -2889,7 +3324,11 @@ class _$StudentListParamsImpl implements _StudentListParams {
     search,
     statusCode,
     grade,
+    classTypeCode,
+    subjectCode,
+    sourceCode,
     tcId,
+    schoolId,
     fromDate,
     toDate,
   );
@@ -2920,7 +3359,11 @@ abstract class _StudentListParams implements StudentListParams {
     final String? search,
     @JsonKey(name: 'status_code') final String? statusCode,
     final int? grade,
+    @JsonKey(name: 'class_type_code') final String? classTypeCode,
+    @JsonKey(name: 'subject_code') final int? subjectCode,
+    @JsonKey(name: 'source_code') final String? sourceCode,
     @JsonKey(name: 'tc_id') final int? tcId,
+    @JsonKey(name: 'school_id') final int? schoolId,
     @JsonKey(name: 'from_date') final String? fromDate,
     @JsonKey(name: 'to_date') final String? toDate,
   }) = _$StudentListParamsImpl;
@@ -2944,8 +3387,20 @@ abstract class _StudentListParams implements StudentListParams {
   @override
   int? get grade;
   @override
+  @JsonKey(name: 'class_type_code')
+  String? get classTypeCode;
+  @override
+  @JsonKey(name: 'subject_code')
+  int? get subjectCode;
+  @override
+  @JsonKey(name: 'source_code')
+  String? get sourceCode;
+  @override
   @JsonKey(name: 'tc_id')
   int? get tcId;
+  @override
+  @JsonKey(name: 'school_id')
+  int? get schoolId;
   @override
   @JsonKey(name: 'from_date')
   String? get fromDate;

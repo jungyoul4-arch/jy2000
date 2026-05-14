@@ -12,8 +12,8 @@ export class SchoolService {
     const sort = query.sort || 'school_name';
     const order = query.order || 'asc';
 
-    // Build WHERE clause
-    const conditions: string[] = ['deleted_at IS NULL', 'is_active = 1'];
+    // Build WHERE clause (삭제된 학교도 포함)
+    const conditions: string[] = [];
     const params: any[] = [];
 
     if (query.school_kind) {
@@ -31,7 +31,7 @@ export class SchoolService {
       params.push(`%${query.search}%`);
     }
 
-    const whereClause = conditions.join(' AND ');
+    const whereClause = conditions.length > 0 ? conditions.join(' AND ') : '1=1';
 
     // Allowed sort columns
     const allowedSorts = ['school_id', 'school_name', 'school_kind', 'region_kind', 'created_at'];
@@ -39,21 +39,29 @@ export class SchoolService {
     const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
     // Count query
-    const countSql = `SELECT COUNT(*) as total FROM School WHERE ${whereClause}`;
+    const countSql = `SELECT COUNT(*) as total FROM School s WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name')}`;
 
-    // Data query
+    // Data query (is_active=1인 것 먼저, 그 다음 이름순) + 학생 수 포함
     const dataSql = `
       SELECT
-        school_id,
-        school_name,
-        school_kind,
-        region_kind,
-        is_active,
-        created_at,
-        updated_at
-      FROM School
-      WHERE ${whereClause}
-      ORDER BY ${sortColumn} ${sortOrder}
+        s.school_id,
+        s.school_name,
+        s.school_kind,
+        s.region_kind,
+        s.is_active,
+        s.deleted_at,
+        s.created_at,
+        s.updated_at,
+        COALESCE(sc.student_count, 0) as student_count
+      FROM School s
+      LEFT JOIN (
+        SELECT school_id, COUNT(*) as student_count
+        FROM student_info
+        WHERE deleted_at IS NULL
+        GROUP BY school_id
+      ) sc ON s.school_id = sc.school_id
+      WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name')}
+      ORDER BY s.is_active DESC, s.${sortColumn} ${sortOrder}
       LIMIT ? OFFSET ?
     `;
 
@@ -180,7 +188,7 @@ export class SchoolService {
     return this.getById(schoolId);
   }
 
-  // 학교 삭제 (soft delete)
+  // 학교 삭제 (soft delete - 학생 유무와 관계없이)
   async delete(schoolId: number): Promise<void> {
     const [existing] = await pool.query<RowDataPacket[]>(
       'SELECT school_id FROM School WHERE school_id = ? AND deleted_at IS NULL',
@@ -189,16 +197,6 @@ export class SchoolService {
 
     if (existing.length === 0) {
       throw new AppError('School not found', 404);
-    }
-
-    // 해당 학교를 사용하는 학생이 있는지 확인
-    const [students] = await pool.query<RowDataPacket[]>(
-      'SELECT COUNT(*) as count FROM student_info WHERE school_id = ? AND deleted_at IS NULL',
-      [schoolId]
-    );
-
-    if (students[0].count > 0) {
-      throw new AppError('이 학교에 등록된 학생이 있어 삭제할 수 없습니다', 400);
     }
 
     await pool.query<ResultSetHeader>(

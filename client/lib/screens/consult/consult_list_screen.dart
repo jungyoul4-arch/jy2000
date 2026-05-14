@@ -5,7 +5,9 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers/consult_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/consult.dart';
+import 'tc_register_dialog.dart';
 
 class ConsultListScreen extends ConsumerStatefulWidget {
   const ConsultListScreen({super.key});
@@ -23,9 +25,27 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
     });
   }
 
+  Future<void> _showTcRegisterDialog() async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => const TcRegisterDialog(),
+    );
+
+    if (result != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('상담자 "${result.name}"이(가) 등록되었습니다.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final consultState = ref.watch(consultListProvider);
+    final authState = ref.watch(authProvider);
+    final isAdmin = authState.user?.kind == 1;
 
     return Scaffold(
       appBar: AppBar(
@@ -38,6 +58,14 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
             },
           ),
           const SizedBox(width: 8),
+          if (isAdmin) ...[
+            OutlinedButton.icon(
+              onPressed: _showTcRegisterDialog,
+              icon: const Icon(Icons.person_add),
+              label: const Text('상담자 등록'),
+            ),
+            const SizedBox(width: 8),
+          ],
           FilledButton.icon(
             onPressed: () => context.go('/consults/create'),
             icon: const Icon(Icons.add),

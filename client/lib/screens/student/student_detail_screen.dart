@@ -15,6 +15,28 @@ import '../../repositories/student_repository.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../utils/formatters.dart';
 
+// 과목 코드 (비트마스크)
+class SubjectCode {
+  static const int korean = 1;   // 국어
+  static const int math = 2;     // 수학
+  static const int english = 4;  // 영어
+  static const int science = 8;  // 과학
+  static const int social = 16;  // 사회
+  static const int etc = 32;     // 기타
+
+  static String getName(int? code) {
+    if (code == null || code == 0) return '-';
+    final names = <String>[];
+    if (code & korean > 0) names.add('국어');
+    if (code & math > 0) names.add('수학');
+    if (code & english > 0) names.add('영어');
+    if (code & science > 0) names.add('과학');
+    if (code & social > 0) names.add('사회');
+    if (code & etc > 0) names.add('기타');
+    return names.isEmpty ? '-' : names.join(', ');
+  }
+}
+
 class StudentDetailScreen extends ConsumerWidget {
   final int studentId;
 
@@ -168,11 +190,12 @@ class StudentDetailScreen extends ConsumerWidget {
                       title: '관리 정보',
                       items: [
                         _InfoItem('담당 TC', student.tcName ?? '-'),
+                        _InfoItem('반 유형', student.classTypeName ?? '-'),
+                        _InfoItem('과목', SubjectCode.getName(student.subjectCode)),
                         _InfoItem('유입경로', student.sourceName ?? '-'),
+                        _InfoItem('수강기간', _formatEnrollPeriod(student.enrollStartDate, student.enrollEndDate)),
                         _InfoItem('최초접촉', formatDateTime(student.firstContactDate)),
-                        _InfoItem('상담일', formatDate(student.consultDate)),
                         _InfoItem('등록일', formatDate(student.registerDate)),
-                        _InfoItem('재원시작', formatDate(student.enrollDate)),
                       ],
                     ),
                   ),
@@ -273,120 +296,74 @@ class StudentDetailScreen extends ConsumerWidget {
                   );
                 }
 
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: consultList.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final consult = consultList[index];
-                    return InkWell(
-                      onTap: () => context.push('/consults/${consult.consultId}'),
-                      child: _buildConsultItem(context, consult),
-                    );
-                  },
+                return SizedBox(
+                  width: double.infinity,
+                  child: DataTable(
+                    columnSpacing: 24,
+                    showCheckboxColumn: false,
+                    headingRowColor: WidgetStateProperty.all(
+                      Colors.grey.withValues(alpha: 0.1),
+                    ),
+                    columns: const [
+                      DataColumn(label: Text('일시', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('유형', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('결과', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('내용', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('담당TC', style: TextStyle(fontWeight: FontWeight.bold))),
+                    ],
+                    rows: consultList.map((consult) {
+                      final consultDate = DateTime.tryParse(consult.consultDate);
+                      final dateStr = consultDate != null
+                          ? '${consultDate.year}-${consultDate.month.toString().padLeft(2, '0')}-${consultDate.day.toString().padLeft(2, '0')} ${consultDate.hour.toString().padLeft(2, '0')}:${consultDate.minute.toString().padLeft(2, '0')}'
+                          : consult.consultDate;
+
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Text(dateStr, style: const TextStyle(fontSize: 13)),
+                            onTap: () => context.push('/consults/${consult.consultId}'),
+                          ),
+                          DataCell(
+                            Text(consult.consultTypeName ?? consult.consultTypeCode),
+                            onTap: () => context.push('/consults/${consult.consultId}'),
+                          ),
+                          DataCell(
+                            consult.consultResultName != null
+                                ? Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      consult.consultResultName!,
+                                      style: const TextStyle(fontSize: 12, color: Colors.green),
+                                    ),
+                                  )
+                                : const Text('-'),
+                            onTap: () => context.push('/consults/${consult.consultId}'),
+                          ),
+                          DataCell(
+                            Text(
+                              consult.content ?? '-',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () => context.push('/consults/${consult.consultId}'),
+                          ),
+                          DataCell(
+                            Text(consult.tcName ?? '-'),
+                            onTap: () => context.push('/consults/${consult.consultId}'),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
                 );
               },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildConsultItem(BuildContext context, Consult consult) {
-    final consultDate = DateTime.tryParse(consult.consultDate);
-    final dateStr = consultDate != null
-        ? '${consultDate.year}-${consultDate.month.toString().padLeft(2, '0')}-${consultDate.day.toString().padLeft(2, '0')} ${consultDate.hour.toString().padLeft(2, '0')}:${consultDate.minute.toString().padLeft(2, '0')}'
-        : consult.consultDate;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 아이콘
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(
-              Icons.chat_bubble_outline,
-              size: 16,
-              color: Colors.blue,
-            ),
-          ),
-          const SizedBox(width: 12),
-          // 내용
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      consult.consultTypeName ?? consult.consultTypeCode,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      dateStr,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    if (consult.consultResultName != null) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          consult.consultResultName!,
-                          style: const TextStyle(fontSize: 11, color: Colors.green),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                if (consult.content != null && consult.content!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      consult.content!,
-                      style: const TextStyle(fontSize: 14),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                if (consult.interestSubject != null && consult.interestSubject!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      '관심 과목: ${consult.interestSubject}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                Text(
-                  '담당: ${consult.tcName ?? '-'}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -440,113 +417,89 @@ class StudentDetailScreen extends ConsumerWidget {
                   );
                 }
 
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: historyList.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final history = historyList[index];
-                    return _buildHistoryItem(context, history);
-                  },
+                return SizedBox(
+                  width: double.infinity,
+                  child: DataTable(
+                    columnSpacing: 24,
+                    headingRowColor: WidgetStateProperty.all(
+                      Colors.grey.withValues(alpha: 0.1),
+                    ),
+                    columns: const [
+                      DataColumn(label: Text('일시', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('변동유형', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('이전 상태', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('바뀐 상태', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('사유', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('변경자', style: TextStyle(fontWeight: FontWeight.bold))),
+                    ],
+                    rows: historyList.map((history) {
+                      final changedAt = DateTime.tryParse(history.changedAt);
+                      final dateStr = changedAt != null
+                          ? '${changedAt.year}-${changedAt.month.toString().padLeft(2, '0')}-${changedAt.day.toString().padLeft(2, '0')} ${changedAt.hour.toString().padLeft(2, '0')}:${changedAt.minute.toString().padLeft(2, '0')}'
+                          : history.changedAt;
+
+                      // 이전/바뀐 상태 텍스트 생성
+                      String prevText = '-';
+                      String newText = '-';
+                      if (history.changeTypeCode == 'CHANGE_STATUS') {
+                        prevText = history.prevStatusName ?? '-';
+                        newText = history.newStatusName ?? '-';
+                      } else if (history.changeTypeCode == 'CHANGE_TC') {
+                        prevText = history.prevTcName ?? '-';
+                        newText = history.newTcName ?? '-';
+                      }
+
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(dateStr, style: const TextStyle(fontSize: 13))),
+                          DataCell(
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getChangeTypeColor(history.changeTypeCode).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _getChangeTypeIcon(history.changeTypeCode),
+                                    size: 14,
+                                    color: _getChangeTypeColor(history.changeTypeCode),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    history.changeTypeName ?? history.changeTypeCode,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: _getChangeTypeColor(history.changeTypeCode),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          DataCell(Text(prevText)),
+                          DataCell(Text(newText)),
+                          DataCell(
+                            Expanded(
+                              child: Text(
+                                history.changeReason ?? '-',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          DataCell(Text(history.changedByName ?? '-')),
+                        ],
+                      );
+                    }).toList(),
+                  ),
                 );
               },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHistoryItem(BuildContext context, StudentHistory history) {
-    final changedAt = DateTime.tryParse(history.changedAt);
-    final dateStr = changedAt != null
-        ? '${changedAt.year}-${changedAt.month.toString().padLeft(2, '0')}-${changedAt.day.toString().padLeft(2, '0')} ${changedAt.hour.toString().padLeft(2, '0')}:${changedAt.minute.toString().padLeft(2, '0')}'
-        : history.changedAt;
-
-    // 변경 내용 텍스트 생성
-    String changeText = '';
-    if (history.changeTypeCode == 'CHANGE_STATUS') {
-      final prevStatus = history.prevStatusName ?? '-';
-      final newStatus = history.newStatusName ?? '-';
-      changeText = '$prevStatus → $newStatus';
-    } else if (history.changeTypeCode == 'CHANGE_TC') {
-      final prevTc = history.prevTcName ?? '-';
-      final newTc = history.newTcName ?? '-';
-      changeText = '담당자: $prevTc → $newTc';
-    } else {
-      changeText = history.changeTypeName ?? history.changeTypeCode;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 아이콘
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: _getChangeTypeColor(history.changeTypeCode).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              _getChangeTypeIcon(history.changeTypeCode),
-              size: 16,
-              color: _getChangeTypeColor(history.changeTypeCode),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // 내용
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      history.changeTypeName ?? history.changeTypeCode,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      dateStr,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  changeText,
-                  style: const TextStyle(fontSize: 14),
-                ),
-                if (history.changeReason != null && history.changeReason!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      '사유: ${history.changeReason}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                Text(
-                  '변경자: ${history.changedByName ?? '-'}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -609,6 +562,13 @@ class StudentDetailScreen extends ConsumerWidget {
       case 3: return '친척';
       default: return '기타';
     }
+  }
+
+  String _formatEnrollPeriod(String? startDate, String? endDate) {
+    if (startDate == null && endDate == null) return '-';
+    final start = startDate != null ? formatDate(startDate) : '미정';
+    final end = endDate != null ? formatDate(endDate) : '미정';
+    return '$start ~ $end';
   }
 
   void _showEditDialog(BuildContext context, WidgetRef ref, Student student) {
@@ -926,6 +886,13 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
   School? _selectedSchool;
   bool _isLoading = false;
 
+  // 수강 정보
+  String? _selectedClassType;
+  int _selectedSubjects = 0; // 과목 비트마스크
+  String? _selectedSource;
+  DateTime? _enrollStartDate;
+  DateTime? _enrollEndDate;
+
   @override
   void initState() {
     super.initState();
@@ -958,6 +925,17 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
       _parent2PhoneController = TextEditingController();
     }
 
+    // 수강 정보 초기화
+    _selectedClassType = widget.student.classTypeCode;
+    _selectedSubjects = widget.student.subjectCode ?? 0;
+    _selectedSource = widget.student.sourceCode;
+    if (widget.student.enrollStartDate != null) {
+      _enrollStartDate = DateTime.tryParse(widget.student.enrollStartDate!);
+    }
+    if (widget.student.enrollEndDate != null) {
+      _enrollEndDate = DateTime.tryParse(widget.student.enrollEndDate!);
+    }
+
     // 학교 목록 로드
     Future.microtask(() {
       ref.read(schoolListProvider.notifier).loadSchools();
@@ -981,7 +959,7 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
     return Dialog(
       child: Container(
         width: 600,
-        constraints: const BoxConstraints(maxHeight: 700),
+        constraints: const BoxConstraints(maxHeight: 950),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1135,6 +1113,117 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
 
                       const SizedBox(height: 24),
 
+                      // 수강 정보
+                      const Text('수강 정보', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedClassType,
+                              decoration: const InputDecoration(labelText: '반 유형'),
+                              items: const [
+                                DropdownMenuItem(value: null, child: Text('선택')),
+                                DropdownMenuItem(value: 'CLASS_COMP', child: Text('종합반')),
+                                DropdownMenuItem(value: 'CLASS_SINGLE', child: Text('단과반')),
+                                DropdownMenuItem(value: 'CLASS_SPECIAL', child: Text('특강')),
+                                DropdownMenuItem(value: 'CLASS_ETC', child: Text('기타')),
+                              ],
+                              onChanged: (v) => setState(() => _selectedClassType = v),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedSource,
+                              decoration: const InputDecoration(labelText: '유입 경로'),
+                              items: const [
+                                DropdownMenuItem(value: null, child: Text('선택')),
+                                DropdownMenuItem(value: 'SOURCE_WEB', child: Text('홈페이지')),
+                                DropdownMenuItem(value: 'SOURCE_FRIEND', child: Text('친구 추천')),
+                                DropdownMenuItem(value: 'SOURCE_PARENT', child: Text('학부모지인 추천')),
+                                DropdownMenuItem(value: 'SOURCE_FAMILY', child: Text('재원/졸업생 가족')),
+                                DropdownMenuItem(value: 'SOURCE_INTERNET', child: Text('인터넷')),
+                                DropdownMenuItem(value: 'SOURCE_PROMO', child: Text('설명회')),
+                                DropdownMenuItem(value: 'SOURCE_ETC', child: Text('기타')),
+                              ],
+                              onChanged: (v) => setState(() => _selectedSource = v),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // 과목 다중 선택 (체크박스)
+                      InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: '과목 (다중 선택)',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        child: Wrap(
+                          spacing: 0,
+                          runSpacing: 0,
+                          children: [
+                            _buildSubjectCheckbox('국어', 1),
+                            _buildSubjectCheckbox('수학', 2),
+                            _buildSubjectCheckbox('영어', 4),
+                            _buildSubjectCheckbox('과학', 8),
+                            _buildSubjectCheckbox('사회', 16),
+                            _buildSubjectCheckbox('기타', 32),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: _enrollStartDate ?? DateTime.now(),
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2030),
+                                );
+                                if (date != null) setState(() => _enrollStartDate = date);
+                              },
+                              child: InputDecorator(
+                                decoration: const InputDecoration(labelText: '수강 시작일'),
+                                child: Text(
+                                  _enrollStartDate != null
+                                      ? '${_enrollStartDate!.year}-${_enrollStartDate!.month.toString().padLeft(2, '0')}-${_enrollStartDate!.day.toString().padLeft(2, '0')}'
+                                      : '선택',
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: _enrollEndDate ?? DateTime.now(),
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2030),
+                                );
+                                if (date != null) setState(() => _enrollEndDate = date);
+                              },
+                              child: InputDecorator(
+                                decoration: const InputDecoration(labelText: '수강 종료일'),
+                                child: Text(
+                                  _enrollEndDate != null
+                                      ? '${_enrollEndDate!.year}-${_enrollEndDate!.month.toString().padLeft(2, '0')}-${_enrollEndDate!.day.toString().padLeft(2, '0')}'
+                                      : '선택',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
                       // 메모
                       const Text('메모', style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 12),
@@ -1220,6 +1309,34 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
     );
   }
 
+  Widget _buildSubjectCheckbox(String label, int code) {
+    return SizedBox(
+      width: 100,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Checkbox(
+            value: (_selectedSubjects & code) > 0,
+            onChanged: (v) => setState(() {
+              _selectedSubjects = (v ?? false)
+                  ? _selectedSubjects | code
+                  : _selectedSubjects & ~code;
+            }),
+          ),
+          GestureDetector(
+            onTap: () => setState(() {
+              final isSelected = (_selectedSubjects & code) > 0;
+              _selectedSubjects = isSelected
+                  ? _selectedSubjects & ~code
+                  : _selectedSubjects | code;
+            }),
+            child: Text(label),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _onSave() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -1248,6 +1365,16 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
         ));
       }
 
+      // 수강 기간 변환
+      String? enrollStartDate;
+      String? enrollEndDate;
+      if (_enrollStartDate != null) {
+        enrollStartDate = '${_enrollStartDate!.year}-${_enrollStartDate!.month.toString().padLeft(2, '0')}-${_enrollStartDate!.day.toString().padLeft(2, '0')}';
+      }
+      if (_enrollEndDate != null) {
+        enrollEndDate = '${_enrollEndDate!.year}-${_enrollEndDate!.month.toString().padLeft(2, '0')}-${_enrollEndDate!.day.toString().padLeft(2, '0')}';
+      }
+
       final update = StudentUpdate(
         studentName: _nameController.text,
         phone: _phoneController.text,
@@ -1255,6 +1382,11 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
         schoolId: _selectedSchool?.schoolId,
         schoolName: _schoolController.text.isNotEmpty ? _schoolController.text : null,
         grade: _selectedGrade,
+        classTypeCode: _selectedClassType,
+        subjectCode: _selectedSubjects > 0 ? _selectedSubjects : null,
+        sourceCode: _selectedSource,
+        enrollStartDate: enrollStartDate,
+        enrollEndDate: enrollEndDate,
         memo: _memoController.text.isNotEmpty ? _memoController.text : null,
         parents: parents.isNotEmpty ? parents : null,
       );

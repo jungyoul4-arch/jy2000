@@ -100,13 +100,12 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
     }
   }
 
-  // 학교 삭제
+  // 학교 삭제 (soft delete 후 목록 새로고침)
   Future<bool> deleteSchool(int schoolId) async {
     try {
       await _repository.delete(schoolId);
-      state = state.copyWith(
-        schools: state.schools.where((s) => s.schoolId != schoolId).toList(),
-      );
+      // 삭제 후 목록 새로고침 (삭제된 학교도 표시하기 위해)
+      await loadSchools();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());

@@ -26,6 +26,7 @@ class School with _$School {
     @JsonKey(name: 'school_kind') required int schoolKind, // 1=중학교, 2=고등학교
     @JsonKey(name: 'region_kind') required int regionKind, // 1=원미권, 2=소사권, 3=오정권, 4=인천권, 5=서울권, 6=경기기타권, 99=기타
     @JsonKey(name: 'is_active') @IntToBoolConverter() @Default(true) bool isActive,
+    @JsonKey(name: 'student_count') @Default(0) int studentCount, // 해당 학교 학생 수
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   }) = _School;

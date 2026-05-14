@@ -32,6 +32,8 @@ mixin _$School {
   @JsonKey(name: 'is_active')
   @IntToBoolConverter()
   bool get isActive => throw _privateConstructorUsedError;
+  @JsonKey(name: 'student_count')
+  int get studentCount => throw _privateConstructorUsedError; // 해당 학교 학생 수
   @JsonKey(name: 'created_at')
   String? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -57,6 +59,7 @@ abstract class $SchoolCopyWith<$Res> {
     @JsonKey(name: 'school_kind') int schoolKind,
     @JsonKey(name: 'region_kind') int regionKind,
     @JsonKey(name: 'is_active') @IntToBoolConverter() bool isActive,
+    @JsonKey(name: 'student_count') int studentCount,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   });
@@ -82,6 +85,7 @@ class _$SchoolCopyWithImpl<$Res, $Val extends School>
     Object? schoolKind = null,
     Object? regionKind = null,
     Object? isActive = null,
+    Object? studentCount = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -107,6 +111,10 @@ class _$SchoolCopyWithImpl<$Res, $Val extends School>
                 ? _value.isActive
                 : isActive // ignore: cast_nullable_to_non_nullable
                       as bool,
+            studentCount: null == studentCount
+                ? _value.studentCount
+                : studentCount // ignore: cast_nullable_to_non_nullable
+                      as int,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -135,6 +143,7 @@ abstract class _$$SchoolImplCopyWith<$Res> implements $SchoolCopyWith<$Res> {
     @JsonKey(name: 'school_kind') int schoolKind,
     @JsonKey(name: 'region_kind') int regionKind,
     @JsonKey(name: 'is_active') @IntToBoolConverter() bool isActive,
+    @JsonKey(name: 'student_count') int studentCount,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
   });
@@ -159,6 +168,7 @@ class __$$SchoolImplCopyWithImpl<$Res>
     Object? schoolKind = null,
     Object? regionKind = null,
     Object? isActive = null,
+    Object? studentCount = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -184,6 +194,10 @@ class __$$SchoolImplCopyWithImpl<$Res>
             ? _value.isActive
             : isActive // ignore: cast_nullable_to_non_nullable
                   as bool,
+        studentCount: null == studentCount
+            ? _value.studentCount
+            : studentCount // ignore: cast_nullable_to_non_nullable
+                  as int,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -206,6 +220,7 @@ class _$SchoolImpl implements _School {
     @JsonKey(name: 'school_kind') required this.schoolKind,
     @JsonKey(name: 'region_kind') required this.regionKind,
     @JsonKey(name: 'is_active') @IntToBoolConverter() this.isActive = true,
+    @JsonKey(name: 'student_count') this.studentCount = 0,
     @JsonKey(name: 'created_at') this.createdAt,
     @JsonKey(name: 'updated_at') this.updatedAt,
   });
@@ -232,6 +247,10 @@ class _$SchoolImpl implements _School {
   @IntToBoolConverter()
   final bool isActive;
   @override
+  @JsonKey(name: 'student_count')
+  final int studentCount;
+  // 해당 학교 학생 수
+  @override
   @JsonKey(name: 'created_at')
   final String? createdAt;
   @override
@@ -240,7 +259,7 @@ class _$SchoolImpl implements _School {
 
   @override
   String toString() {
-    return 'School(schoolId: $schoolId, schoolName: $schoolName, schoolKind: $schoolKind, regionKind: $regionKind, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'School(schoolId: $schoolId, schoolName: $schoolName, schoolKind: $schoolKind, regionKind: $regionKind, isActive: $isActive, studentCount: $studentCount, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -258,6 +277,8 @@ class _$SchoolImpl implements _School {
                 other.regionKind == regionKind) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
+            (identical(other.studentCount, studentCount) ||
+                other.studentCount == studentCount) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -273,6 +294,7 @@ class _$SchoolImpl implements _School {
     schoolKind,
     regionKind,
     isActive,
+    studentCount,
     createdAt,
     updatedAt,
   );
@@ -298,6 +320,7 @@ abstract class _School implements School {
     @JsonKey(name: 'school_kind') required final int schoolKind,
     @JsonKey(name: 'region_kind') required final int regionKind,
     @JsonKey(name: 'is_active') @IntToBoolConverter() final bool isActive,
+    @JsonKey(name: 'student_count') final int studentCount,
     @JsonKey(name: 'created_at') final String? createdAt,
     @JsonKey(name: 'updated_at') final String? updatedAt,
   }) = _$SchoolImpl;
@@ -320,6 +343,9 @@ abstract class _School implements School {
   @JsonKey(name: 'is_active')
   @IntToBoolConverter()
   bool get isActive;
+  @override
+  @JsonKey(name: 'student_count')
+  int get studentCount; // 해당 학교 학생 수
   @override
   @JsonKey(name: 'created_at')
   String? get createdAt;

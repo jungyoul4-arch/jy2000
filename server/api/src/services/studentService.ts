@@ -19,10 +19,19 @@ export class StudentService {
 
       // 1. User 테이블에 학생 추가 (kind=2, active_flag=0)
       // 트리거가 자동으로 student_info 생성
+      const userColumns = ['name', 'kind', 'phone', 'user_pw_hash', 'active_flag', 'reg_dt'];
+      const userValues = [data.student_name, 2, cleanPhone(data.phone), '', 0];
+      const userPlaceholders = ['?', '?', '?', '?', '?', 'NOW()'];
+
+      if (data.grade) {
+        userColumns.splice(3, 0, 'grade');
+        userValues.splice(3, 0, data.grade);
+        userPlaceholders.splice(3, 0, '?');
+      }
+
       const [userResult] = await connection.query<ResultSetHeader>(
-        `INSERT INTO User (name, kind, phone, grade, user_pw_hash, active_flag, reg_dt)
-         VALUES (?, 2, ?, ?, '', 0, NOW())`,
-        [data.student_name, cleanPhone(data.phone), data.grade || null]
+        `INSERT INTO User (${userColumns.join(', ')}) VALUES (${userPlaceholders.join(', ')})`,
+        userValues
       );
 
       const studentId = userResult.insertId;
@@ -62,6 +71,22 @@ export class StudentService {
       if (data.memo) {
         updateFields.push('memo = ?');
         updateParams.push(data.memo);
+      }
+      if (data.class_type_code) {
+        updateFields.push('class_type_code = ?');
+        updateParams.push(data.class_type_code);
+      }
+      if (data.subject_code) {
+        updateFields.push('subject_code = ?');
+        updateParams.push(data.subject_code);
+      }
+      if (data.enroll_start_date) {
+        updateFields.push('enroll_start_date = ?');
+        updateParams.push(data.enroll_start_date);
+      }
+      if (data.enroll_end_date) {
+        updateFields.push('enroll_end_date = ?');
+        updateParams.push(data.enroll_end_date);
       }
 
       // created_by는 유효한 userId가 있을 때만 설정
@@ -138,6 +163,27 @@ export class StudentService {
       params.push(query.tc_id);
     }
 
+    if (query.school_id) {
+      conditions.push('s.school_id = ?');
+      params.push(query.school_id);
+    }
+
+    if (query.class_type_code) {
+      conditions.push('s.class_type_code = ?');
+      params.push(query.class_type_code);
+    }
+
+    if (query.subject_code) {
+      // 비트마스크 필터링: 해당 과목을 포함하는 학생 검색
+      conditions.push('(s.subject_code & ?) > 0');
+      params.push(query.subject_code);
+    }
+
+    if (query.source_code) {
+      conditions.push('s.source_code = ?');
+      params.push(query.source_code);
+    }
+
     if (query.search) {
       conditions.push('(u.name LIKE ? OR u.phone LIKE ?)');
       const searchTerm = `%${query.search}%`;
@@ -207,6 +253,10 @@ export class StudentService {
         st.code_name as status_name,
         s.sub_status_code,
         sub.code_name as sub_status_name,
+        s.class_type_code,
+        ct.code_name as class_type_name,
+        s.subject_code,
+        subj.code_name as subject_name,
         s.source_code,
         src.code_name as source_name,
         s.tc_id,
@@ -215,6 +265,8 @@ export class StudentService {
         s.consult_date,
         s.register_date,
         s.enroll_date,
+        s.enroll_start_date,
+        s.enroll_end_date,
         s.withdraw_date,
         s.memo,
         s.created_at,
@@ -225,6 +277,8 @@ export class StudentService {
       LEFT JOIN code_master g ON s.gender_code = g.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
+      LEFT JOIN code_master ct ON s.class_type_code = ct.code_id
+      LEFT JOIN code_master subj ON s.subject_code = subj.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
       LEFT JOIN User tc ON s.tc_id = tc.user_id
       LEFT JOIN ParentPhone pp ON pp.student_id = s.student_id AND pp.seq = 1
@@ -275,6 +329,10 @@ export class StudentService {
         st.code_name as status_name,
         s.sub_status_code,
         sub.code_name as sub_status_name,
+        s.class_type_code,
+        ct.code_name as class_type_name,
+        s.subject_code,
+        subj.code_name as subject_name,
         s.source_code,
         src.code_name as source_name,
         s.source_detail,
@@ -284,6 +342,8 @@ export class StudentService {
         s.consult_date,
         s.register_date,
         s.enroll_date,
+        s.enroll_start_date,
+        s.enroll_end_date,
         s.withdraw_date,
         s.memo,
         s.created_at,
@@ -294,6 +354,8 @@ export class StudentService {
       LEFT JOIN code_master g ON s.gender_code = g.code_id
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
+      LEFT JOIN code_master ct ON s.class_type_code = ct.code_id
+      LEFT JOIN code_master subj ON s.subject_code = subj.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
       LEFT JOIN User tc ON s.tc_id = tc.user_id
       WHERE s.student_id = ? AND s.deleted_at IS NULL
@@ -420,6 +482,26 @@ export class StudentService {
       if (data.memo !== undefined) {
         infoUpdates.push('memo = ?');
         infoParams.push(data.memo || null);
+      }
+      if (data.class_type_code !== undefined) {
+        infoUpdates.push('class_type_code = ?');
+        infoParams.push(data.class_type_code || null);
+      }
+      if (data.subject_code !== undefined) {
+        infoUpdates.push('subject_code = ?');
+        infoParams.push(data.subject_code || null);
+      }
+      if (data.source_code !== undefined) {
+        infoUpdates.push('source_code = ?');
+        infoParams.push(data.source_code || null);
+      }
+      if (data.enroll_start_date !== undefined) {
+        infoUpdates.push('enroll_start_date = ?');
+        infoParams.push(data.enroll_start_date || null);
+      }
+      if (data.enroll_end_date !== undefined) {
+        infoUpdates.push('enroll_end_date = ?');
+        infoParams.push(data.enroll_end_date || null);
       }
 
       infoParams.push(data.student_id);
