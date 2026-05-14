@@ -16,6 +16,7 @@ import '../screens/promotion/promotion_list_screen.dart';
 import '../screens/promotion/promotion_form_screen.dart';
 import '../screens/promotion/promotion_detail_screen.dart';
 import '../screens/school/school_list_screen.dart';
+import '../screens/calendar/calendar_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -31,6 +32,7 @@ class AppRoutes {
   static const String promotionCreate = '/promotions/create';
   static const String promotionDetail = '/promotions/:id';
   static const String schoolList = '/schools';
+  static const String calendar = '/calendar';
 }
 
 // GoRouter Refresh Notifier
@@ -78,7 +80,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.studentList,
             name: 'studentList',
-            builder: (context, state) => const StudentListScreen(),
+            builder: (context, state) {
+              final schoolIdStr = state.uri.queryParameters['schoolId'];
+              final schoolName = state.uri.queryParameters['schoolName'];
+              final schoolId = schoolIdStr != null ? int.tryParse(schoolIdStr) : null;
+              return StudentListScreen(
+                key: ValueKey('students_${schoolId ?? 'all'}'),
+                initialSchoolId: schoolId,
+                initialSchoolName: schoolName,
+              );
+            },
           ),
           GoRoute(
             path: AppRoutes.studentCreate,
@@ -144,6 +155,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.schoolList,
             name: 'schoolList',
             builder: (context, state) => const SchoolListScreen(),
+          ),
+
+          // 상담 달력
+          GoRoute(
+            path: AppRoutes.calendar,
+            name: 'calendar',
+            builder: (context, state) => const CalendarScreen(),
           ),
         ],
       ),

@@ -48,6 +48,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       label: '학교 관리',
       path: AppRoutes.schoolList,
     ),
+    _NavItem(
+      icon: Icons.calendar_month_outlined,
+      selectedIcon: Icons.calendar_month,
+      label: '상담 달력',
+      path: AppRoutes.calendar,
+    ),
   ];
 
   Future<void> _logout() async {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:intl/intl.dart';
 
 import '../../models/school.dart';
 import '../../models/student.dart';
@@ -27,11 +28,33 @@ class StudentFormScreen extends ConsumerStatefulWidget {
   ConsumerState<StudentFormScreen> createState() => _StudentFormScreenState();
 }
 
+// 과목 비트마스크 상수
+class SubjectCode {
+  static const int korean = 1;   // 국어
+  static const int math = 2;     // 수학
+  static const int english = 4;  // 영어
+  static const int science = 8;  // 과학
+  static const int social = 16;  // 사회
+  static const int etc = 32;     // 기타
+
+  static String getName(int code) {
+    final names = <String>[];
+    if (code & korean > 0) names.add('국어');
+    if (code & math > 0) names.add('수학');
+    if (code & english > 0) names.add('영어');
+    if (code & science > 0) names.add('과학');
+    if (code & social > 0) names.add('사회');
+    if (code & etc > 0) names.add('기타');
+    return names.isEmpty ? '-' : names.join(', ');
+  }
+}
+
 class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final _schoolController = TextEditingController();
   bool _isLoading = false;
   School? _selectedSchool;
+  int _selectedSubjects = 0; // 과목 비트마스크
 
   bool get isEdit => widget.studentId != null;
 
@@ -190,7 +213,10 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                         child: FormBuilderDropdown<int>(
                           name: 'grade',
                           decoration: const InputDecoration(
-                            labelText: '학년',
+                            labelText: '학년 *',
+                          ),
+                          validator: FormBuilderValidators.required(
+                            errorText: '학년을 선택하세요',
                           ),
                           items: gradeItems
                               .map(
@@ -275,7 +301,83 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(child: SizedBox()),
+                      Expanded(
+                        child: FormBuilderDropdown<String>(
+                          name: 'source_code',
+                          decoration: const InputDecoration(
+                            labelText: '유입 경로',
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'SOURCE_WEB', child: Text('홈페이지')),
+                            DropdownMenuItem(value: 'SOURCE_FRIEND', child: Text('친구 추천')),
+                            DropdownMenuItem(value: 'SOURCE_PARENT', child: Text('학부모지인 추천')),
+                            DropdownMenuItem(value: 'SOURCE_FAMILY', child: Text('재원/졸업생 가족 추천')),
+                            DropdownMenuItem(value: 'SOURCE_INTERNET', child: Text('인터넷')),
+                            DropdownMenuItem(value: 'SOURCE_PROMO', child: Text('설명회')),
+                            DropdownMenuItem(value: 'SOURCE_ETC', child: Text('기타')),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // 수강 정보
+              _buildSection(
+                title: '수강 정보',
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FormBuilderDropdown<String>(
+                          name: 'class_type_code',
+                          decoration: const InputDecoration(
+                            labelText: '반 유형',
+                          ),
+                          initialValue: 'CLASS_ETC',
+                          items: const [
+                            DropdownMenuItem(value: 'CLASS_COMP', child: Text('종합반')),
+                            DropdownMenuItem(value: 'CLASS_SINGLE', child: Text('단과반')),
+                            DropdownMenuItem(value: 'CLASS_SPECIAL', child: Text('특강')),
+                            DropdownMenuItem(value: 'CLASS_ETC', child: Text('기타')),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildSubjectCheckboxes(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FormBuilderDateTimePicker(
+                          name: 'enroll_start_date',
+                          inputType: InputType.date,
+                          decoration: const InputDecoration(
+                            labelText: '수강 시작일',
+                            suffixIcon: Icon(Icons.calendar_today),
+                          ),
+                          format: DateFormat('yyyy-MM-dd'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: FormBuilderDateTimePicker(
+                          name: 'enroll_end_date',
+                          inputType: InputType.date,
+                          decoration: const InputDecoration(
+                            labelText: '수강 종료일',
+                            suffixIcon: Icon(Icons.calendar_today),
+                          ),
+                          format: DateFormat('yyyy-MM-dd'),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -422,6 +524,56 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
     );
   }
 
+  Widget _buildSubjectCheckboxes() {
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: '과목 (다중 선택)',
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      child: Wrap(
+        spacing: 0,
+        runSpacing: 0,
+        children: [
+          _buildSubjectCheckbox('국어', SubjectCode.korean),
+          _buildSubjectCheckbox('수학', SubjectCode.math),
+          _buildSubjectCheckbox('영어', SubjectCode.english),
+          _buildSubjectCheckbox('과학', SubjectCode.science),
+          _buildSubjectCheckbox('사회', SubjectCode.social),
+          _buildSubjectCheckbox('기타', SubjectCode.etc),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubjectCheckbox(String label, int code) {
+    return SizedBox(
+      width: 100,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Checkbox(
+            value: (_selectedSubjects & code) > 0,
+            onChanged: (v) => setState(() {
+              _selectedSubjects = (v ?? false)
+                  ? _selectedSubjects | code
+                  : _selectedSubjects & ~code;
+            }),
+          ),
+          GestureDetector(
+            onTap: () => setState(() {
+              final isSelected = (_selectedSubjects & code) > 0;
+              _selectedSubjects = isSelected
+                  ? _selectedSubjects & ~code
+                  : _selectedSubjects | code;
+            }),
+            child: Text(label),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onSubmit() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
@@ -445,6 +597,20 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
           birthDate = '${values['birth_year']}-01-01';
         }
 
+        // 수강 기간 변환
+        String? enrollStartDate;
+        String? enrollEndDate;
+        if (values['enroll_start_date'] != null) {
+          enrollStartDate = DateFormat('yyyy-MM-dd').format(values['enroll_start_date'] as DateTime);
+        }
+        if (values['enroll_end_date'] != null) {
+          enrollEndDate = DateFormat('yyyy-MM-dd').format(values['enroll_end_date'] as DateTime);
+        }
+
+        // 수강 정보 기본값 처리 (FormBuilder에서 initialValue가 있어도 터치하지 않으면 null 반환)
+        final classTypeCode = values['class_type_code'] ?? 'CLASS_ETC';
+        final subjectCode = _selectedSubjects > 0 ? _selectedSubjects : null;
+
         if (isEdit) {
           // 수정 모드
           final updateData = StudentUpdate(
@@ -454,6 +620,11 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
             schoolId: schoolId,
             schoolName: schoolName,
             grade: values['grade'],
+            classTypeCode: classTypeCode,
+            subjectCode: subjectCode,
+            sourceCode: values['source_code'],
+            enrollStartDate: enrollStartDate,
+            enrollEndDate: enrollEndDate,
             memo: values['memo'],
           );
 
@@ -468,7 +639,12 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
             schoolId: schoolId,
             schoolName: schoolName,
             grade: values['grade'],
+            classTypeCode: classTypeCode,
+            subjectCode: subjectCode,
             statusCode: values['status_code'] ?? 'STATUS_PROSPECT',
+            sourceCode: values['source_code'],
+            enrollStartDate: enrollStartDate,
+            enrollEndDate: enrollEndDate,
             memo: values['memo'],
             guardianName: values['student_name'], // 보호자명 = 학생명
             guardianPhone: values['guardian_phone'],
