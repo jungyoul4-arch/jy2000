@@ -18,6 +18,11 @@ export const validate = (validations: ValidationChain[]) => {
       message: err.msg
     }));
 
+    // 디버그 로그
+    console.log('Validation Error - URL:', req.originalUrl);
+    console.log('Validation Error - Body:', JSON.stringify(req.body));
+    console.log('Validation Error - Errors:', JSON.stringify(extractedErrors));
+
     return sendError(res, 'Validation Error', 400, extractedErrors);
   };
 };
