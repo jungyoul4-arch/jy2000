@@ -41,6 +41,7 @@ const _levelItems = [
   (2, '상위반', 'B'),
   (3, '중위반', 'C'),
   (4, '기초반', 'D'),
+  (5, '모든레벨', 'E'),
   (99, '기타', 'X'),
 ];
 
@@ -69,6 +70,10 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
   int? _year;
   final _monthlyFeeController = TextEditingController();
   final _classNameController = TextEditingController();
+
+  // 강의 기간
+  DateTime? _termStart;
+  DateTime? _termEnd;
 
   // 강의 일시
   final Map<String, bool> _selectedDays = {
@@ -128,6 +133,14 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
         _year = classDetail.info.year;
         _monthlyFeeController.text = classDetail.info.monthlyFee?.toString() ?? '';
         _classNameController.text = classDetail.className;
+
+        // 강의 기간
+        if (classDetail.info.termStart != null) {
+          _termStart = DateTime.tryParse(classDetail.info.termStart!);
+        }
+        if (classDetail.info.termEnd != null) {
+          _termEnd = DateTime.tryParse(classDetail.info.termEnd!);
+        }
 
         // 강의 일시 파싱
         _parseLectureDates([
@@ -307,6 +320,12 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
       final repository = ref.read(classRepositoryProvider);
       final monthlyFee = int.tryParse(_monthlyFeeController.text.replaceAll(',', ''));
 
+      // 날짜 포맷 함수
+      String? formatDate(DateTime? date) {
+        if (date == null) return null;
+        return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      }
+
       if (isEditMode) {
         // 수정
         await repository.update(
@@ -317,6 +336,8 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
             curriculum: _curriculum,
             level: _level,
             year: _year,
+            termStart: formatDate(_termStart),
+            termEnd: formatDate(_termEnd),
             lectureDates: lectureDates,
             teacherIds: _selectedTeachers.map((t) => t.userId).toList(),
             studentIds: _selectedStudents.map((s) => s.userId).toList(),
@@ -333,6 +354,8 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
             curriculum: _curriculum!,
             level: _level!,
             year: _year!,
+            termStart: formatDate(_termStart),
+            termEnd: formatDate(_termEnd),
             lectureDates: lectureDates,
             teacherIds: _selectedTeachers.map((t) => t.userId).toList(),
             monthlyFee: monthlyFee,
@@ -407,6 +430,11 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
               // 기본 정보
               _buildSectionTitle('기본 정보'),
               _buildBasicInfoSection(),
+              const SizedBox(height: 24),
+
+              // 강의 기간
+              _buildSectionTitle('강의 기간'),
+              _buildTermSection(),
               const SizedBox(height: 24),
 
               // 강의 일시
@@ -572,6 +600,79 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
                 ),
                 const Expanded(child: SizedBox()),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTermSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _termStart ?? DateTime.now(),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2100),
+                  );
+                  if (picked != null) {
+                    setState(() => _termStart = picked);
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: '시작일',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  child: Text(
+                    _termStart != null
+                        ? '${_termStart!.year}-${_termStart!.month.toString().padLeft(2, '0')}-${_termStart!.day.toString().padLeft(2, '0')}'
+                        : '선택',
+                    style: TextStyle(
+                      color: _termStart != null ? null : Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _termEnd ?? _termStart ?? DateTime.now(),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2100),
+                  );
+                  if (picked != null) {
+                    setState(() => _termEnd = picked);
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: '종료일',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  child: Text(
+                    _termEnd != null
+                        ? '${_termEnd!.year}-${_termEnd!.month.toString().padLeft(2, '0')}-${_termEnd!.day.toString().padLeft(2, '0')}'
+                        : '선택',
+                    style: TextStyle(
+                      color: _termEnd != null ? null : Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

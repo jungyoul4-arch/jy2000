@@ -29,6 +29,7 @@ const LEVEL_MAP: { [key: number]: string } = {
   2: 'B',   // 상위
   3: 'C',   // 중위
   4: 'D',   // 기초
+  5: 'E',   // 모든레벨 (Every)
   99: 'X'   // 기타
 };
 
@@ -38,6 +39,7 @@ const LEVEL_NAME_MAP: { [key: number]: string } = {
   2: '상위',
   3: '중위',
   4: '기초',
+  5: '모든레벨',
   99: '기타'
 };
 
