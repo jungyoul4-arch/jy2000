@@ -379,25 +379,29 @@ export class ClassService {
 
       // 2. ClassInfo 테이블 INSERT
       const lectureDatesMap = this.splitLectureDates(data.lecture_dates);
+      const classInfoParams = [
+        classId,
+        data.grade,
+        data.curriculum,
+        data.level,
+        data.year,
+        data.term_start || null,
+        data.term_end || null,
+        lectureDatesMap.lecture_date1,
+        lectureDatesMap.lecture_date2,
+        lectureDatesMap.lecture_date3,
+        lectureDatesMap.lecture_date4,
+        lectureDatesMap.lecture_date5,
+        data.monthly_fee ?? 0
+      ];
+      console.log('ClassInfo INSERT params:', JSON.stringify(classInfoParams));
+      console.log('data.monthly_fee:', data.monthly_fee, 'type:', typeof data.monthly_fee);
+
       await connection.query(
         `INSERT INTO ClassInfo (class_id, grade, curriculum, level, year, term_start, term_end,
          lecture_date1, lecture_date2, lecture_date3, lecture_date4, lecture_date5, monthly_fee)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          classId,
-          data.grade,
-          data.curriculum,
-          data.level,
-          data.year,
-          data.term_start || null,
-          data.term_end || null,
-          lectureDatesMap.lecture_date1,
-          lectureDatesMap.lecture_date2,
-          lectureDatesMap.lecture_date3,
-          lectureDatesMap.lecture_date4,
-          lectureDatesMap.lecture_date5,
-          data.monthly_fee ?? 0
-        ]
+        classInfoParams
       );
 
       // 3. ClassMember 테이블에 선생님들 INSERT
