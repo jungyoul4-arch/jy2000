@@ -517,7 +517,7 @@ export const validateClassCreate: ValidationChain[] = [
   body('lecture_dates.*.start_time')
     .isInt({ min: 0, max: 12 }),
   body('lecture_dates.*.end_time')
-    .optional()
+    .optional({ nullable: true })
     .isInt({ min: 0, max: 12 }),
   body('monthly_fee')
     .optional()
