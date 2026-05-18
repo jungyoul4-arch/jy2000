@@ -23,6 +23,7 @@ const _levelNameMap = {
   2: '상위(B)',
   3: '중위(C)',
   4: '기초(D)',
+  5: '모든레벨(E)',
   99: '기타',
 };
 
@@ -194,7 +195,7 @@ class ClassDetailScreen extends ConsumerWidget {
               _buildTeachersCard(context, classDetail.teachers),
               const SizedBox(height: 16),
               // 학생 목록 카드
-              _buildStudentsCard(context, classDetail.students),
+              _buildStudentsCard(context, ref, classDetail.students),
             ],
           ),
         ),
@@ -303,7 +304,7 @@ class ClassDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStudentsCard(BuildContext context, List<ClassMember> students) {
+  Widget _buildStudentsCard(BuildContext context, WidgetRef ref, List<ClassMember> students) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -314,9 +315,16 @@ class ClassDetailScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.people),
                 const SizedBox(width: 8),
-                Text(
-                  '학생 목록 (${students.length}명)',
-                  style: Theme.of(context).textTheme.titleMedium,
+                Expanded(
+                  child: Text(
+                    '학생 목록 (${students.length}명)',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                FilledButton.icon(
+                  onPressed: () => _showAddStudentDialog(context, ref, students),
+                  icon: const Icon(Icons.person_add, size: 18),
+                  label: const Text('학생 추가'),
                 ),
               ],
             ),
@@ -336,7 +344,17 @@ class ClassDetailScreen extends ConsumerWidget {
                     ),
                     title: Text(student.userName ?? '-'),
                     subtitle: Text(student.phone ?? '-'),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                          onPressed: () => _removeStudent(context, ref, student),
+                          tooltip: '학생 제외',
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
                     onTap: () {
                       context.push('/students/${student.userId}');
                     },
@@ -348,6 +366,58 @@ class ClassDetailScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showAddStudentDialog(BuildContext context, WidgetRef ref, List<ClassMember> currentStudents) async {
+    await showDialog(
+      context: context,
+      builder: (context) => _AddStudentDialog(
+        classId: classId,
+        currentStudentIds: currentStudents.map((s) => s.userId).toList(),
+        onAdded: () {
+          ref.refresh(classDetailProvider(classId));
+        },
+      ),
+    );
+  }
+
+  Future<void> _removeStudent(BuildContext context, WidgetRef ref, ClassMember student) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('학생 제외'),
+        content: Text('${student.userName ?? '학생'}을(를) 이 반에서 제외하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('제외'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        final repository = ref.read(classRepositoryProvider);
+        await repository.removeMember(classId, student.userId);
+        ref.refresh(classDetailProvider(classId));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${student.userName ?? '학생'}이(가) 제외되었습니다.')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('오류: $e')),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildInfoRow(String label, String value) {
@@ -371,6 +441,167 @@ class ClassDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// 학생 추가 다이얼로그
+class _AddStudentDialog extends ConsumerStatefulWidget {
+  final int classId;
+  final List<int> currentStudentIds;
+  final VoidCallback onAdded;
+
+  const _AddStudentDialog({
+    required this.classId,
+    required this.currentStudentIds,
+    required this.onAdded,
+  });
+
+  @override
+  ConsumerState<_AddStudentDialog> createState() => _AddStudentDialogState();
+}
+
+class _AddStudentDialogState extends ConsumerState<_AddStudentDialog> {
+  final _searchController = TextEditingController();
+  List<UserSearchResult> _searchResults = [];
+  bool _isSearching = false;
+  bool _isAdding = false;
+  late List<int> _addedStudentIds;
+
+  @override
+  void initState() {
+    super.initState();
+    _addedStudentIds = List.from(widget.currentStudentIds);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _search(String query) async {
+    if (query.isEmpty) {
+      setState(() => _searchResults = []);
+      return;
+    }
+
+    setState(() => _isSearching = true);
+
+    try {
+      final repository = ref.read(classRepositoryProvider);
+      final results = await repository.searchUsers(query, kind: 2);
+      setState(() {
+        _searchResults = results
+            .where((r) => !_addedStudentIds.contains(r.userId))
+            .toList();
+      });
+    } catch (e) {
+      // ignore
+    } finally {
+      setState(() => _isSearching = false);
+    }
+  }
+
+  Future<void> _addStudent(UserSearchResult student) async {
+    setState(() => _isAdding = true);
+
+    try {
+      final repository = ref.read(classRepositoryProvider);
+      await repository.addMember(widget.classId, student.userId, 2); // kind=2 학생
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${student.name}이(가) 추가되었습니다.')),
+        );
+        setState(() {
+          _searchResults.remove(student);
+          _addedStudentIds.add(student.userId);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('오류: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isAdding = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('학생 추가'),
+      content: SizedBox(
+        width: 400,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: '학생 이름 또는 전화번호로 검색',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _isSearching
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : null,
+                border: const OutlineInputBorder(),
+              ),
+              onChanged: _search,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _searchResults.isEmpty
+                  ? Center(
+                      child: Text(
+                        _searchController.text.isEmpty
+                            ? '검색어를 입력하세요'
+                            : '검색 결과가 없습니다',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        final student = _searchResults[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            child: Text(student.name.isNotEmpty ? student.name[0] : '?'),
+                          ),
+                          title: Text(student.name),
+                          subtitle: Text(student.phone ?? ''),
+                          trailing: FilledButton.icon(
+                            onPressed: _isAdding ? null : () => _addStudent(student),
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('추가'),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            widget.onAdded(); // 닫을 때 목록 새로고침
+            Navigator.pop(context);
+          },
+          child: const Text('닫기'),
+        ),
+      ],
     );
   }
 }

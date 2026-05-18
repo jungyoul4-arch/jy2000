@@ -181,11 +181,17 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
   void _parseLectureDates(List<String?> dates) {
     for (final date in dates) {
       if (date == null || date.isEmpty) continue;
-      // 예: "월7" -> 요일: 월, 시간: 7
+      // 예: "월7" -> 요일: 월, 시간: 7 (1~12는 오후로 해석하여 +12)
       if (date.length >= 2) {
         final day = date.substring(0, 1);
-        final time = int.tryParse(date.substring(1));
+        var time = int.tryParse(date.substring(1));
         if (_dayItems.contains(day) && time != null) {
+          // 기존 데이터(1~12)를 새 형식(10~23)으로 변환
+          if (time >= 1 && time <= 9) {
+            time = time + 12; // 오후로 해석 (예: 6 -> 18)
+          } else if (time < 10 || time > 23) {
+            continue; // 범위 밖이면 무시
+          }
           _selectedDays[day] = true;
           _dayStartTimes[day] = time;
         }

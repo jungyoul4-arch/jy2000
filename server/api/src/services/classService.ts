@@ -709,19 +709,19 @@ export class ClassService {
 
   // 사용자 검색 (학생 또는 선생님)
   async searchUsers(search: string, kind?: number): Promise<{ user_id: number; name: string; phone: string; kind: number }[]> {
-    // 학생(kind=2)은 active_flag 상관없이 검색, 선생님(kind=3)은 active만
-    let query = `SELECT user_id, name, phone, kind FROM User WHERE 1=1`;
+    // 학생(kind=2), 선생님(kind=3) 모두 active_flag=1만 검색
+    let query = `SELECT user_id, name, phone, kind FROM User WHERE active_flag = 1`;
     const params: any[] = [];
 
     if (kind === 2) {
-      // 학생: active_flag 상관없이 모두 검색
+      // 학생만
       query += ` AND kind = 2`;
     } else if (kind === 3) {
-      // 선생님: active만
-      query += ` AND kind = 3 AND active_flag = 1`;
+      // 선생님만
+      query += ` AND kind = 3`;
     } else {
-      // 둘 다: 학생은 전체, 선생님은 active만
-      query += ` AND ((kind = 2) OR (kind = 3 AND active_flag = 1))`;
+      // 둘 다
+      query += ` AND kind IN (2, 3)`;
     }
 
     query += ` AND (name LIKE ? OR phone LIKE ?)`;
