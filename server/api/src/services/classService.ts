@@ -396,7 +396,7 @@ export class ClassService {
           lectureDatesMap.lecture_date3,
           lectureDatesMap.lecture_date4,
           lectureDatesMap.lecture_date5,
-          data.monthly_fee || null
+          data.monthly_fee ?? 0
         ]
       );
 
