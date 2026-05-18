@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반명 명명 규칙 매뉴얼</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #17171e;
+    --surface2: #1e1e28;
+    --border: #2a2a38;
+    --accent: #5b6ef5;
+    --accent2: #f5a623;
+    --accent3: #4ecb8d;
+    --accent4: #e05c7a;
+    --text: #e8e8f0;
+    --text-muted: #7a7a95;
+    --text-dim: #4a4a60;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.7;
+    padding: 40px 20px 80px;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; }
+
+  /* HEADER */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* ANATOMY */
+  .anatomy-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 48px;
+  }
+  .anatomy-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 20px;
+  }
+  .anatomy-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .token {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+  .t1 { background: rgba(91,110,245,0.15); color: #8b9ef8; border: 1px solid rgba(91,110,245,0.3); }
+  .t2 { background: rgba(245,166,35,0.15); color: #f8c06a; border: 1px solid rgba(245,166,35,0.3); }
+  .t3 { background: rgba(78,203,141,0.15); color: #7edba8; border: 1px solid rgba(78,203,141,0.3); }
+  .t4 { background: rgba(224,92,122,0.15); color: #e88fa0; border: 1px solid rgba(224,92,122,0.3); }
+  .t5 { background: rgba(180,130,255,0.15); color: #c4a0ff; border: 1px solid rgba(180,130,255,0.3); }
+  .t6 { background: rgba(100,200,255,0.15); color: #80d8ff; border: 1px solid rgba(100,200,255,0.3); }
+  .sep { color: var(--text-dim); font-size: 18px; }
+
+  .anatomy-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .d1 { background: #8b9ef8; }
+  .d2 { background: #f8c06a; }
+  .d3 { background: #7edba8; }
+  .d4 { background: #e88fa0; }
+  .d5 { background: #c4a0ff; }
+  .d6 { background: #80d8ff; }
+  .legend-name { color: var(--text-muted); }
+
+  /* SECTION */
+  .section { margin-bottom: 40px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: var(--surface2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(42,42,56,0.6);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .muted { color: var(--text-muted); font-size: 13px; }
+
+  /* TIMETABLE */
+  .time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .time-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .time-card-header {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(42,42,56,0.5);
+    font-size: 13px;
+  }
+  .time-row:last-child { border-bottom: none; }
+  .time-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #80d8ff;
+  }
+  .time-val { color: var(--text-muted); }
+
+  /* INSTUDDY */
+  .instuddy-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .instuddy-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .instuddy-subject {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+  .instuddy-name { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .instuddy-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+  }
+
+  /* EXAMPLES */
+  .examples { display: flex; flex-direction: column; gap: 12px; }
+  .example-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .example-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #c4a0ff;
+    min-width: 260px;
+  }
+  .example-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  /* SPECIAL */
+  .special-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .special-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .special-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    margin-bottom: 6px;
+  }
+  .special-desc { font-size: 13px; color: var(--text-muted); }
+
+  @media (max-width: 600px) {
+    .time-grid { grid-template-columns: 1fr; }
+    .instuddy-grid { grid-template-columns: 1fr; }
+    .special-grid { grid-template-columns: 1fr; }
+    .example-card { flex-direction: column; }
+    .example-name { min-width: unset; }
+    .anatomy-formula { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-label">Jungyoul Academy · 내부 운영 문서</div>
+    <h1>반명 명명 규칙 매뉴얼</h1>
+    <p>오르조 반명 생성 시 일관성 유지를 위한 내부 기준</p>
+  </div>
+
+  <!-- ANATOMY -->
+  <div class="anatomy-box">
+    <div class="anatomy-title">반명 구조 (기본형)</div>
+    <div class="anatomy-formula">
+      <span class="token t1">과목</span>
+      <span class="token t2">학년</span>
+      <span class="token t3">커리큘럼</span>
+      <span class="token t4">레벨+유형</span>
+      <span class="token t5">강사명</span>
+      <span class="sep">(</span>
+      <span class="token t6">시간표</span>
+      <span class="sep">)</span>
+    </div>
+    <div class="anatomy-legend">
+      <div class="legend-item"><div class="legend-dot d1"></div><span class="legend-name">과목</span> S / K / E / M</div>
+      <div class="legend-item"><div class="legend-dot d2"></div><span class="legend-name">학년</span> 고1 / 고2 / 고3</div>
+      <div class="legend-item"><div class="legend-dot d3"></div><span class="legend-name">커리큘럼</span> 정 / 특</div>
+      <div class="legend-item"><div class="legend-dot d4"></div><span class="legend-name">레벨+유형</span> AS / BT / CT …</div>
+      <div class="legend-item"><div class="legend-dot d5"></div><span class="legend-name">강사명</span> 솔로=전체 / 팀=각 1자</div>
+      <div class="legend-item"><div class="legend-dot d6"></div><span class="legend-name">시간표</span> 요일+시작시각</div>
+    </div>
+  </div>
+
+  <!-- 1. 과목 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(91,110,245,0.2);color:#8b9ef8;">1</div>
+      <div class="section-title">과목 코드</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>코드</th><th>과목</th><th>비고</th></tr>
+        <tr><td class="code" style="color:#8b9ef8;">S</td><td>사이언스 (과학)</td><td class="muted">고1은 "통합과학"으로 표기하기도 함</td></tr>
+        <tr><td class="code" style="color:#f8c06a;">K</td><td>코리안 (국어)</td><td class="muted">—</td></tr>
+        <tr><td class="code" style="color:#7edba8;">E</td><td>잉글리시 (영어)</td><td class="muted">—</td></tr>
+        <tr><td class="code" style="color:#e88fa0;">M</td><td>매스 (수학)</td><td class="muted">—</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. 커리큘럼 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(78,203,141,0.2);color:#7edba8;">2</div>
+      <div class="section-title">커리큘럼</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>코드</th><th>의미</th></tr>
+        <tr><td class="code">정</td><td>정규반</td></tr>
+        <tr><td class="code">특</td><td>특강반</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. 레벨 + 유형 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(224,92,122,0.2);color:#e88fa0;">3</div>
+      <div class="section-title">레벨 + 수업 유형</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>구분</th><th>코드</th><th>의미</th></tr>
+        <tr><td rowspan="4" style="color:var(--text-muted);font-size:13px;border-right:1px solid var(--border);">레벨</td><td class="code">A</td><td>최상위반 <span class="muted">/ 특수한 경우 suffix <code style="font-family:JetBrains Mono;font-size:12px;">_최상</code> 추가</span></td></tr>
+        <tr><td class="code">B</td><td>상위반</td></tr>
+        <tr><td class="code">C</td><td>중위반</td></tr>
+        <tr><td class="code">D</td><td>기초반</td></tr>
+        <tr><td rowspan="2" style="color:var(--text-muted);font-size:13px;border-right:1px solid var(--border);">유형</td><td class="code">S</td><td>솔로 — 담당 강사 1명 (강사명 전체 표기)</td></tr>
+        <tr><td class="code">T</td><td>팀티칭 — 담당 강사 2명 (각 이름에서 1자씩 합성)</td></tr>
+      </table>
+    </div>
+    <div style="margin-top:10px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-muted);">
+      ⚠ 동일 레벨·유형·강사의 반이 2개 이상일 경우 <span class="code" style="color:#c4a0ff;">X, Y</span> suffix로 구분 &nbsp;예) <code style="font-family:JetBrains Mono;">ASX제이든</code> / <code style="font-family:JetBrains Mono;">ASY제이든</code>
+    </div>
+  </div>
+
+  <!-- 4. 강사명 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(180,130,255,0.2);color:#c4a0ff;">4</div>
+      <div class="section-title">강사명 표기</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>유형</th><th>표기 방식</th><th>예시</th></tr>
+        <tr>
+          <td>솔로 (S)</td>
+          <td>강사 이름 전체</td>
+          <td class="code">지영, 도진, 희우</td>
+        </tr>
+        <tr>
+          <td>팀티칭 (T)</td>
+          <td>강사A 성명 중 1자 + 강사B 성명 중 1자<br><span class="muted" style="font-size:12px;">성 또는 이름 중 구분하기 좋은 글자로 자유 선택</span></td>
+          <td class="code">영도, 남윤, 서영 …</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. 시간표 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(100,200,255,0.2);color:#80d8ff;">5</div>
+      <div class="section-title">시간표 표기 (요일 + 시작시각)</div>
+    </div>
+    <div class="time-grid">
+      <div class="time-card">
+        <div class="time-card-header">평일 (90분)</div>
+        <div class="time-row"><span class="time-code">월·화·수·목·금 7</span><span class="time-val">19:00 ~ 20:30</span></div>
+        <div class="time-row"><span class="time-code">월·화·수·목·금 8</span><span class="time-val">20:30 ~ 22:00</span></div>
+      </div>
+      <div class="time-card">
+        <div class="time-card-header">주말 (90분)</div>
+        <div class="time-row"><span class="time-code">토·일 9</span><span class="time-val">09:00 ~ 10:30</span></div>
+        <div class="time-row"><span class="time-code">토·일 10</span><span class="time-val">10:30 ~ 12:00</span></div>
+        <div class="time-row"><span class="time-code">토·일 1</span><span class="time-val">13:00 ~ 14:30</span></div>
+        <div class="time-row"><span class="time-code">토·일 2</span><span class="time-val">14:30 ~ 16:00</span></div>
+        <div class="time-row"><span class="time-code">토·일 4</span><span class="time-val">16:00 ~ 17:30</span></div>
+        <div class="time-row"><span class="time-code">토·일 5</span><span class="time-val">17:30 ~ 19:00</span></div>
+        <div class="time-row"><span class="time-code">토·일 7</span><span class="time-val">19:00 ~ 20:30</span></div>
+        <div class="time-row"><span class="time-code">토·일 8</span><span class="time-val">20:30 ~ 22:00</span></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-muted);">
+      복수 수업은 이어서 표기 &nbsp;예) <code style="font-family:JetBrains Mono;">(금7금8)</code> &nbsp;|&nbsp; <code style="font-family:JetBrains Mono;">(토1토2)</code>
+    </div>
+  </div>
+
+  <!-- 6. 수업 구조 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(245,166,35,0.2);color:#f8c06a;">6</div>
+      <div class="section-title">과목별 수업 구조</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>과목</th><th>주횟수</th><th>수업</th><th>인스터디</th><th>시간표 표기</th></tr>
+        <tr>
+          <td class="code" style="color:#e88fa0;">M (수학)</td>
+          <td>주 2회</td>
+          <td>회당 3시간 (90분×2)</td>
+          <td>수업시간에 통합</td>
+          <td class="muted">요일만 표기, 시각 생략<br><code style="font-family:JetBrains Mono;font-size:12px;">(월목)</code></td>
+        </tr>
+        <tr>
+          <td class="code" style="color:#7edba8;">E (영어)</td>
+          <td>주 2회</td>
+          <td>회당 3시간 (90분×2)</td>
+          <td>수업시간에 통합</td>
+          <td class="muted">요일만 표기, 시각 생략<br><code style="font-family:JetBrains Mono;font-size:12px;">(월금)</code></td>
+        </tr>
+        <tr>
+          <td class="code" style="color:#f8c06a;">K (국어)</td>
+          <td>주 2회</td>
+          <td>1일차 90분 / 2일차 90분</td>
+          <td>2일차에 추가 90분</td>
+          <td class="muted">요일+시각 표기, 인스터디는 <code style="font-family:JetBrains Mono;font-size:12px;">인</code> prefix<br><code style="font-family:JetBrains Mono;font-size:12px;">(금7일4인일5)</code></td>
+        </tr>
+        <tr>
+          <td class="code" style="color:#8b9ef8;">S 고1 (과학)</td>
+          <td>—</td>
+          <td>3시간 (90분×2)</td>
+          <td>90분 / 별도 반으로 분리</td>
+          <td class="muted">수업반·인스터디반 각각 별도 반명<br><code style="font-family:JetBrains Mono;font-size:12px;">S고1통합과학ES성현(화7)</code><br><code style="font-family:JetBrains Mono;font-size:12px;">S고1과학인스(월7)</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 7. 인스터디 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(100,200,255,0.15);color:#80d8ff;">7</div>
+      <div class="section-title">인스터디 반명 표기 방식</div>
+    </div>
+    <div class="instuddy-grid">
+      <div class="instuddy-card">
+        <div class="instuddy-subject" style="color:#e88fa0;">M</div>
+        <div class="instuddy-name">매스 (수학)</div>
+        <div class="tag" style="background:rgba(224,92,122,0.15);color:#e88fa0;">표기 없음</div>
+        <div class="instuddy-desc">인스터디가 수업 3시간 안에 통합 운영. 반명에 별도 표시 없음</div>
+      </div>
+      <div class="instuddy-card">
+        <div class="instuddy-subject" style="color:#7edba8;">E</div>
+        <div class="instuddy-name">잉글리시 (영어)</div>
+        <div class="tag" style="background:rgba(78,203,141,0.15);color:#7edba8;">표기 없음</div>
+        <div class="instuddy-desc">인스터디가 수업 3시간 안에 통합 운영. 반명에 별도 표시 없음</div>
+      </div>
+      <div class="instuddy-card">
+        <div class="instuddy-subject" style="color:#f8c06a;">K</div>
+        <div class="instuddy-name">코리안 (국어)</div>
+        <div class="tag" style="background:rgba(245,166,35,0.15);color:#f8c06a;">반명 내 인 표기</div>
+        <div class="instuddy-desc">2일차 시간표에 <code style="font-family:JetBrains Mono;font-size:11px;">인</code> prefix로 인스터디 시각 추가<br>예) <code style="font-family:JetBrains Mono;font-size:11px;">(금7일4인일5)</code></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-muted);">
+      🔬 <strong style="color:var(--text);">사이언스 고1 인스터디</strong>는 완전 별도 반으로 분리 운영 &nbsp;→&nbsp; 반명 형식: <code style="font-family:JetBrains Mono;">S고1과학인스(요일시각)</code>
+    </div>
+  </div>
+
+  <!-- 예시 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(91,110,245,0.2);color:#8b9ef8;">8</div>
+      <div class="section-title">종합 예시</div>
+    </div>
+    <div class="examples">
+      <div class="example-card">
+        <div class="example-name">K고1정ES지영(토1토2인토4)</div>
+        <div class="example-desc">코리안 · 고1 · 정규 · E레벨 · 솔로 · 담당:지영 선생님<br>토요일 13:00~16:00 수업 / 인스터디 토요일 16:00~17:30</div>
+      </div>
+      <div class="example-card">
+        <div class="example-name">M고1정AT희우(월수)</div>
+        <div class="example-desc">매스 · 고1 · 정규 · A레벨 · 팀티칭 · 담당:희○+○우 선생님<br>월·수요일 수업</div>
+      </div>
+      <div class="example-card">
+        <div class="example-name">K고2정ES도진(금7일4인일5)</div>
+        <div class="example-desc">코리안 · 고2 · 정규 · E레벨 · 솔로 · 담당:도진 선생님<br>금요일 19:00~20:30 / 일요일 13:00~14:30 수업 / 인스터디 일요일 17:30~19:00</div>
+      </div>
+      <div class="example-card">
+        <div class="example-name">E고1정ASX제이든(수금)</div>
+        <div class="example-desc">잉글리시 · 고1 · 정규 · A레벨 · 솔로 · 담당:제이든 선생님<br>동일 조건 반이 2개라 X로 구분 / 수·금요일 수업</div>
+      </div>
+      <div class="example-card">
+        <div class="example-name">M고1정AS우제(화목)_최상</div>
+        <div class="example-desc">매스 · 고1 · 정규 · A레벨 · 솔로 · 담당:우제 선생님<br>A레벨 내에서도 최상위 그룹으로 별도 분류 / 화·목요일 수업</div>
+      </div>
+      <div class="example-card">
+        <div class="example-name">S고1과학인스(월7)</div>
+        <div class="example-desc">사이언스 · 고1 · 인스터디 전용 분리반<br>월요일 19:00~20:30</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

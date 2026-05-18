@@ -485,3 +485,147 @@ export const validateTCUserCreate: ValidationChain[] = [
     .withMessage('name is required')
     .isLength({ max: 50 })
 ];
+
+// Class Validators (반 관리)
+export const validateClassCreate: ValidationChain[] = [
+  body('genre_id')
+    .isInt({ min: 1 })
+    .withMessage('genre_id is required'),
+  body('grade')
+    .isInt({ min: 7, max: 99 })
+    .withMessage('grade must be between 7 and 99'),
+  body('curriculum')
+    .isInt({ min: 1, max: 2 })
+    .withMessage('curriculum must be 1 or 2'),
+  body('level')
+    .isInt({ min: 1, max: 99 })
+    .withMessage('level is required'),
+  body('year')
+    .isInt({ min: 2020, max: 2100 })
+    .withMessage('year is required'),
+  body('teacher_ids')
+    .isArray({ min: 1 })
+    .withMessage('at least one teacher is required'),
+  body('teacher_ids.*')
+    .isInt({ min: 1 }),
+  body('lecture_dates')
+    .isArray({ min: 1 })
+    .withMessage('at least one lecture date is required'),
+  body('lecture_dates.*.day')
+    .isString()
+    .isIn(['일', '월', '화', '수', '목', '금', '토']),
+  body('lecture_dates.*.start_time')
+    .isInt({ min: 0, max: 12 }),
+  body('lecture_dates.*.end_time')
+    .optional()
+    .isInt({ min: 0, max: 12 }),
+  body('monthly_fee')
+    .optional()
+    .isInt({ min: 0 }),
+  body('term_start')
+    .optional()
+    .isISO8601(),
+  body('term_end')
+    .optional()
+    .isISO8601(),
+  body('class_name')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+];
+
+export const validateClassUpdate: ValidationChain[] = [
+  body('genre_id')
+    .optional()
+    .isInt({ min: 1 }),
+  body('grade')
+    .optional()
+    .isInt({ min: 7, max: 99 }),
+  body('curriculum')
+    .optional()
+    .isInt({ min: 1, max: 2 }),
+  body('level')
+    .optional()
+    .isInt({ min: 1, max: 99 }),
+  body('year')
+    .optional()
+    .isInt({ min: 2020, max: 2100 }),
+  body('teacher_ids')
+    .optional()
+    .isArray(),
+  body('teacher_ids.*')
+    .optional()
+    .isInt({ min: 1 }),
+  body('student_ids')
+    .optional()
+    .isArray(),
+  body('student_ids.*')
+    .optional()
+    .isInt({ min: 1 }),
+  body('lecture_dates')
+    .optional()
+    .isArray(),
+  body('lecture_dates.*.day')
+    .optional()
+    .isString()
+    .isIn(['일', '월', '화', '수', '목', '금', '토']),
+  body('lecture_dates.*.start_time')
+    .optional()
+    .isInt({ min: 0, max: 12 }),
+  body('monthly_fee')
+    .optional()
+    .isInt({ min: 0 }),
+  body('is_active')
+    .optional()
+    .isInt({ min: 0, max: 1 }),
+  body('class_name')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+];
+
+export const validateClassListQuery: ValidationChain[] = [
+  ...validatePagination,
+  query('genre_id')
+    .optional()
+    .isInt({ min: 1 }),
+  query('grade')
+    .optional()
+    .isInt({ min: 7, max: 99 }),
+  query('level')
+    .optional()
+    .isInt({ min: 1, max: 99 }),
+  query('year')
+    .optional()
+    .isInt({ min: 2020, max: 2100 }),
+  query('is_active')
+    .optional()
+    .isInt({ min: 0, max: 1 }),
+  query('search')
+    .optional()
+    .isString()
+    .trim()
+];
+
+export const validateClassMember: ValidationChain[] = [
+  body('user_id')
+    .isInt({ min: 1 })
+    .withMessage('user_id is required'),
+  body('kind')
+    .isInt()
+    .isIn([2, 3])
+    .withMessage('kind must be 2 (student) or 3 (teacher)')
+];
+
+export const validateSearchUsers: ValidationChain[] = [
+  query('search')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('search is required'),
+  query('kind')
+    .optional()
+    .isInt({ min: 2, max: 3 })
+];

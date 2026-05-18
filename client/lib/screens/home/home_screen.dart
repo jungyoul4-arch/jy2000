@@ -49,6 +49,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       path: AppRoutes.schoolList,
     ),
     _NavItem(
+      icon: Icons.class_outlined,
+      selectedIcon: Icons.class_,
+      label: '반 관리',
+      path: AppRoutes.classList,
+    ),
+    _NavItem(
       icon: Icons.calendar_month_outlined,
       selectedIcon: Icons.calendar_month,
       label: '상담 달력',

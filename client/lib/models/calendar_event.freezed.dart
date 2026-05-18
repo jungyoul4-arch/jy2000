@@ -25,6 +25,7 @@ mixin _$CalendarEvent {
   String get type =>
       throw _privateConstructorUsedError; // 'consult', 'next_consult', 'promotion'
   String get date => throw _privateConstructorUsedError;
+  String? get time => throw _privateConstructorUsedError; // HH:mm 형식 (24시간)
   String get title => throw _privateConstructorUsedError;
   @JsonKey(name: 'student_id')
   int? get studentId => throw _privateConstructorUsedError;
@@ -60,6 +61,7 @@ abstract class $CalendarEventCopyWith<$Res> {
     int id,
     String type,
     String date,
+    String? time,
     String title,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,
@@ -88,6 +90,7 @@ class _$CalendarEventCopyWithImpl<$Res, $Val extends CalendarEvent>
     Object? id = null,
     Object? type = null,
     Object? date = null,
+    Object? time = freezed,
     Object? title = null,
     Object? studentId = freezed,
     Object? studentName = freezed,
@@ -110,6 +113,10 @@ class _$CalendarEventCopyWithImpl<$Res, $Val extends CalendarEvent>
                 ? _value.date
                 : date // ignore: cast_nullable_to_non_nullable
                       as String,
+            time: freezed == time
+                ? _value.time
+                : time // ignore: cast_nullable_to_non_nullable
+                      as String?,
             title: null == title
                 ? _value.title
                 : title // ignore: cast_nullable_to_non_nullable
@@ -157,6 +164,7 @@ abstract class _$$CalendarEventImplCopyWith<$Res>
     int id,
     String type,
     String date,
+    String? time,
     String title,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,
@@ -184,6 +192,7 @@ class __$$CalendarEventImplCopyWithImpl<$Res>
     Object? id = null,
     Object? type = null,
     Object? date = null,
+    Object? time = freezed,
     Object? title = null,
     Object? studentId = freezed,
     Object? studentName = freezed,
@@ -206,6 +215,10 @@ class __$$CalendarEventImplCopyWithImpl<$Res>
             ? _value.date
             : date // ignore: cast_nullable_to_non_nullable
                   as String,
+        time: freezed == time
+            ? _value.time
+            : time // ignore: cast_nullable_to_non_nullable
+                  as String?,
         title: null == title
             ? _value.title
             : title // ignore: cast_nullable_to_non_nullable
@@ -246,6 +259,7 @@ class _$CalendarEventImpl implements _CalendarEvent {
     required this.id,
     required this.type,
     required this.date,
+    this.time,
     required this.title,
     @JsonKey(name: 'student_id') this.studentId,
     @JsonKey(name: 'student_name') this.studentName,
@@ -265,6 +279,9 @@ class _$CalendarEventImpl implements _CalendarEvent {
   // 'consult', 'next_consult', 'promotion'
   @override
   final String date;
+  @override
+  final String? time;
+  // HH:mm 형식 (24시간)
   @override
   final String title;
   @override
@@ -288,7 +305,7 @@ class _$CalendarEventImpl implements _CalendarEvent {
 
   @override
   String toString() {
-    return 'CalendarEvent(id: $id, type: $type, date: $date, title: $title, studentId: $studentId, studentName: $studentName, tcId: $tcId, tcName: $tcName, promotionId: $promotionId, promotionName: $promotionName)';
+    return 'CalendarEvent(id: $id, type: $type, date: $date, time: $time, title: $title, studentId: $studentId, studentName: $studentName, tcId: $tcId, tcName: $tcName, promotionId: $promotionId, promotionName: $promotionName)';
   }
 
   @override
@@ -299,6 +316,7 @@ class _$CalendarEventImpl implements _CalendarEvent {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.date, date) || other.date == date) &&
+            (identical(other.time, time) || other.time == time) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.studentId, studentId) ||
                 other.studentId == studentId) &&
@@ -319,6 +337,7 @@ class _$CalendarEventImpl implements _CalendarEvent {
     id,
     type,
     date,
+    time,
     title,
     studentId,
     studentName,
@@ -347,6 +366,7 @@ abstract class _CalendarEvent implements CalendarEvent {
     required final int id,
     required final String type,
     required final String date,
+    final String? time,
     required final String title,
     @JsonKey(name: 'student_id') final int? studentId,
     @JsonKey(name: 'student_name') final String? studentName,
@@ -365,6 +385,8 @@ abstract class _CalendarEvent implements CalendarEvent {
   String get type; // 'consult', 'next_consult', 'promotion'
   @override
   String get date;
+  @override
+  String? get time; // HH:mm 형식 (24시간)
   @override
   String get title;
   @override

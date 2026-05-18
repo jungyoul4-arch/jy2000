@@ -8,6 +8,7 @@ import codeRoutes from './codeRoutes';
 import authRoutes from './authRoutes';
 import schoolRoutes from './schoolRoutes';
 import calendarRoutes from './calendarRoutes';
+import classRoutes from './classRoutes';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/code', codeRoutes);
 router.use('/school', schoolRoutes);
 router.use('/calendar', calendarRoutes);
+router.use('/class', classRoutes);
 
 export default router;

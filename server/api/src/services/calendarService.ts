@@ -5,6 +5,7 @@ export interface CalendarEvent {
   id: number;
   type: 'consult' | 'next_consult' | 'promotion';
   date: string;
+  time?: string; // HH:mm 형식
   title: string;
   student_id?: number;
   student_name?: string;
@@ -31,6 +32,7 @@ export class CalendarService {
         c.consult_id as id,
         'consult' as type,
         DATE_FORMAT(c.consult_date, '%Y-%m-%d') as date,
+        DATE_FORMAT(c.consult_date, '%H:%i') as time,
         c.student_id,
         u.name as student_name,
         COALESCE(c.tc_id, c.created_by) as tc_id,
@@ -52,6 +54,7 @@ export class CalendarService {
         id: row.id,
         type: 'consult',
         date: row.date,
+        time: row.time,
         title: `${row.student_name}-${row.tc_name}`,
         student_id: row.student_id,
         student_name: row.student_name,
@@ -67,6 +70,7 @@ export class CalendarService {
         c.consult_id as id,
         'next_consult' as type,
         DATE_FORMAT(c.next_consult_date, '%Y-%m-%d') as date,
+        DATE_FORMAT(c.next_consult_date, '%H:%i') as time,
         c.student_id,
         u.name as student_name,
         COALESCE(c.tc_id, c.created_by) as tc_id,
@@ -89,6 +93,7 @@ export class CalendarService {
         id: row.id,
         type: 'next_consult',
         date: row.date,
+        time: row.time,
         title: `${row.student_name}-${row.tc_name}`,
         student_id: row.student_id,
         student_name: row.student_name,
@@ -103,6 +108,7 @@ export class CalendarService {
         p.promotion_id as id,
         'promotion' as type,
         DATE_FORMAT(p.start_date, '%Y-%m-%d') as date,
+        DATE_FORMAT(p.start_date, '%H:%i') as time,
         p.promotion_name
       FROM promotion p
       WHERE p.deleted_at IS NULL
@@ -117,6 +123,7 @@ export class CalendarService {
         id: row.id,
         type: 'promotion',
         date: row.date,
+        time: row.time,
         title: '설명회',
         promotion_id: row.id,
         promotion_name: row.promotion_name,
@@ -137,6 +144,7 @@ export class CalendarService {
         c.consult_id as id,
         'consult' as type,
         DATE_FORMAT(c.consult_date, '%Y-%m-%d') as date,
+        DATE_FORMAT(c.consult_date, '%H:%i') as time,
         c.student_id,
         u.name as student_name,
         COALESCE(c.tc_id, c.created_by) as tc_id,
@@ -160,6 +168,7 @@ export class CalendarService {
         id: row.id,
         type: 'consult',
         date: row.date,
+        time: row.time,
         title: `${row.student_name}-${row.tc_name}`,
         student_id: row.student_id,
         student_name: row.student_name,
@@ -175,6 +184,7 @@ export class CalendarService {
         c.consult_id as id,
         'next_consult' as type,
         DATE_FORMAT(c.next_consult_date, '%Y-%m-%d') as date,
+        DATE_FORMAT(c.next_consult_date, '%H:%i') as time,
         c.student_id,
         u.name as student_name,
         COALESCE(c.tc_id, c.created_by) as tc_id,
@@ -196,6 +206,7 @@ export class CalendarService {
         id: row.id,
         type: 'next_consult',
         date: row.date,
+        time: row.time,
         title: `${row.student_name}-${row.tc_name}`,
         student_id: row.student_id,
         student_name: row.student_name,
@@ -210,6 +221,7 @@ export class CalendarService {
         p.promotion_id as id,
         'promotion' as type,
         DATE_FORMAT(p.start_date, '%Y-%m-%d') as date,
+        DATE_FORMAT(p.start_date, '%H:%i') as time,
         p.promotion_name
       FROM promotion p
       WHERE p.deleted_at IS NULL
@@ -223,6 +235,7 @@ export class CalendarService {
         id: row.id,
         type: 'promotion',
         date: row.date,
+        time: row.time,
         title: '설명회',
         promotion_id: row.id,
         promotion_name: row.promotion_name,

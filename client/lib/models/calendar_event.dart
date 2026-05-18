@@ -9,6 +9,7 @@ class CalendarEvent with _$CalendarEvent {
     required int id,
     required String type, // 'consult', 'next_consult', 'promotion'
     required String date,
+    String? time, // HH:mm 형식 (24시간)
     required String title,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,

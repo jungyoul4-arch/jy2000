@@ -306,3 +306,100 @@ export interface SchoolListQuery extends ListQueryParams {
   school_kind?: number;
   region_kind?: number;
 }
+
+// Class Types (반 관리)
+export interface Class {
+  class_id: number;
+  class_name: string;
+  is_active: number;
+  genre_id: number; // 1=국어, 2=수학, 3=영어, 4=과학, 5=사회, 99=기타
+  genre_name?: string;
+  reg_dt: string;
+}
+
+export interface ClassInfo {
+  class_id: number;
+  grade: number; // 7~12=중1~고3, 14=성인, 99=기타
+  curriculum: number; // 1=정시반, 2=특별반
+  level: number; // 1=최상위, 2=상위, 3=중위, 4=기초, 99=기타
+  year: number;
+  term_start?: string;
+  term_end?: string;
+  lecture_date1?: string;
+  lecture_date2?: string;
+  lecture_date3?: string;
+  lecture_date4?: string;
+  lecture_date5?: string;
+  monthly_fee?: number;
+}
+
+export interface ClassMember {
+  user_id: number;
+  class_id: number;
+  kind: number; // 2=학생, 3=선생님
+  active_flag: number;
+  user_name?: string;
+  phone?: string;
+}
+
+export interface ClassListItem extends Class {
+  grade?: number;
+  grade_name?: string;
+  curriculum?: number;
+  level?: number;
+  level_name?: string;
+  year?: number;
+  monthly_fee?: number;
+  lecture_dates?: string;
+  teachers?: { user_id: number; name: string }[];
+}
+
+export interface ClassDetail extends Class {
+  info: ClassInfo;
+  teachers: ClassMember[];
+  students: ClassMember[];
+}
+
+export interface LectureDate {
+  day: string; // 월, 화, 수, 목, 금, 토, 일
+  start_time: number; // 0~12
+  end_time?: number;
+}
+
+export interface ClassCreate {
+  genre_id: number;
+  grade: number;
+  curriculum: number;
+  level: number;
+  year: number;
+  term_start?: string;
+  term_end?: string;
+  lecture_dates: LectureDate[];
+  teacher_ids: number[];
+  monthly_fee?: number;
+  class_name?: string;
+}
+
+export interface ClassUpdate {
+  genre_id?: number;
+  grade?: number;
+  curriculum?: number;
+  level?: number;
+  year?: number;
+  term_start?: string;
+  term_end?: string;
+  lecture_dates?: LectureDate[];
+  teacher_ids?: number[];
+  student_ids?: number[];
+  monthly_fee?: number;
+  is_active?: number;
+  class_name?: string;
+}
+
+export interface ClassListQuery extends ListQueryParams {
+  genre_id?: number;
+  grade?: number;
+  level?: number;
+  year?: number;
+  is_active?: number;
+}

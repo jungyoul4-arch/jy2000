@@ -34,13 +34,14 @@ final Map<String, String> koreanHolidays = {
   '2025-01-30': '설날 연휴',
   '2025-03-01': '삼일절',
   '2025-05-05': '어린이날',
-  '2025-05-05': '부처님오신날',
+  '2025-05-06': '대체공휴일',
   '2025-06-06': '현충일',
   '2025-08-15': '광복절',
   '2025-10-03': '개천절',
   '2025-10-05': '추석 연휴',
   '2025-10-06': '추석',
   '2025-10-07': '추석 연휴',
+  '2025-10-08': '대체공휴일',
   '2025-10-09': '한글날',
   '2025-12-25': '크리스마스',
   // 2026
@@ -52,14 +53,40 @@ final Map<String, String> koreanHolidays = {
   '2026-03-02': '대체공휴일',
   '2026-05-05': '어린이날',
   '2026-05-24': '부처님오신날',
+  '2026-05-25': '대체공휴일',
+  '2026-06-03': '지방선거',
   '2026-06-06': '현충일',
   '2026-08-15': '광복절',
+  '2026-08-17': '대체공휴일',
   '2026-09-24': '추석 연휴',
   '2026-09-25': '추석',
   '2026-09-26': '추석 연휴',
   '2026-10-03': '개천절',
+  '2026-10-05': '대체공휴일',
   '2026-10-09': '한글날',
   '2026-12-25': '크리스마스',
+  // 2027
+  '2027-01-01': '신정',
+  '2027-02-06': '설날 연휴',
+  '2027-02-07': '설날',
+  '2027-02-08': '설날 연휴',
+  '2027-02-09': '대체공휴일',
+  '2027-03-01': '삼일절',
+  '2027-05-05': '어린이날',
+  '2027-05-13': '부처님오신날',
+  '2027-06-06': '현충일',
+  '2027-07-17': '제헌절',
+  '2027-08-15': '광복절',
+  '2027-08-16': '대체공휴일',
+  '2027-09-14': '추석 연휴',
+  '2027-09-15': '추석',
+  '2027-09-16': '추석 연휴',
+  '2027-10-03': '개천절',
+  '2027-10-04': '대체공휴일',
+  '2027-10-09': '한글날',
+  '2027-10-11': '대체공휴일',
+  '2027-12-25': '크리스마스',
+  '2027-12-27': '대체공휴일',
 };
 
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -314,16 +341,35 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
         child: Column(
           children: [
-            // 날짜
+            // 날짜와 공휴일 이름
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                '$day',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: dayColor,
-                  fontSize: 14,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$day',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: dayColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (holidayName != null) ...[
+                    const SizedBox(width: 2),
+                    Flexible(
+                      child: Text(
+                        holidayName,
+                        style: TextStyle(
+                          color: dayColor,
+                          fontSize: 9,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             // 이벤트 목록
@@ -376,6 +422,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final isPromotion = event.type == 'promotion';
     final backgroundColor = isPromotion ? Colors.red : Colors.blue;
 
+    // 시간 표시 (00:00이 아닌 경우에만)
+    final timeStr = (event.time != null && event.time != '00:00') ? '${event.time} ' : '';
+    final displayText = isPromotion ? '$timeStr설명회' : '$timeStr${event.title}';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 1),
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
@@ -384,7 +434,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         borderRadius: BorderRadius.circular(2),
       ),
       child: Text(
-        isPromotion ? '설명회' : event.title,
+        displayText,
         style: const TextStyle(
           color: Colors.white,
           fontSize: 9,
@@ -421,6 +471,36 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
+                // 설명회 등록 버튼
+                TextButton.icon(
+                  onPressed: () {
+                    final dateStr = '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
+                    context.push('/promotions/create?date=$dateStr');
+                  },
+                  icon: const Icon(Icons.event, size: 16, color: Colors.red),
+                  label: const Text('설명회 등록', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // 상담 등록 버튼
+                TextButton.icon(
+                  onPressed: () {
+                    final dateStr = '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
+                    context.push('/consults/create?date=$dateStr');
+                  },
+                  icon: const Icon(Icons.chat, size: 16, color: Colors.blue),
+                  label: const Text('상담 등록', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.close, size: 20),
                   onPressed: () {
@@ -463,6 +543,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final backgroundColor = isPromotion ? Colors.red : Colors.blue;
     final icon = isPromotion ? Icons.event : Icons.chat;
 
+    // 시간 표시 (00:00이 아닌 경우에만)
+    final timeStr = (event.time != null && event.time != '00:00') ? '[${event.time}] ' : '';
+    final titleText = isPromotion ? '$timeStr설명회' : '$timeStr${event.title}';
+
     String subtitle = '';
     if (isPromotion) {
       subtitle = event.promotionName ?? '';
@@ -480,7 +564,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           child: Icon(icon, color: Colors.white, size: 16),
         ),
         title: Text(
-          isPromotion ? '설명회' : event.title,
+          titleText,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,

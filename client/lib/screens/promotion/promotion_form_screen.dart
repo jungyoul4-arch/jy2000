@@ -8,9 +8,12 @@ import 'package:intl/intl.dart';
 import '../../models/promotion.dart';
 import '../../repositories/promotion_repository.dart';
 import '../../providers/promotion_provider.dart';
+import '../../providers/calendar_provider.dart';
 
 class PromotionFormScreen extends ConsumerStatefulWidget {
-  const PromotionFormScreen({super.key});
+  final DateTime? initialDate; // 달력에서 선택한 날짜 (고정)
+
+  const PromotionFormScreen({super.key, this.initialDate});
 
   @override
   ConsumerState<PromotionFormScreen> createState() => _PromotionFormScreenState();
@@ -125,19 +128,57 @@ class _PromotionFormScreenState extends ConsumerState<PromotionFormScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: FormBuilderDateTimePicker(
-                              name: 'start_date',
-                              inputType: InputType.both,
-                              initialValue: DateTime.now(),
-                              format: DateFormat('yyyy-MM-dd HH:mm'),
-                              decoration: const InputDecoration(
-                                labelText: '설명회 일시 *',
-                                suffixIcon: Icon(Icons.calendar_today),
-                              ),
-                              validator: FormBuilderValidators.required(
-                                errorText: '설명회 일시를 선택하세요',
-                              ),
-                            ),
+                            child: widget.initialDate != null
+                                ? Row(
+                                    children: [
+                                      // 고정된 날짜 표시
+                                      Expanded(
+                                        child: TextFormField(
+                                          initialValue: DateFormat('yyyy-MM-dd').format(widget.initialDate!),
+                                          decoration: const InputDecoration(
+                                            labelText: '설명회 날짜',
+                                            prefixIcon: Icon(Icons.calendar_today),
+                                          ),
+                                          readOnly: true,
+                                          enabled: false,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      // 시간만 선택
+                                      Expanded(
+                                        child: FormBuilderDateTimePicker(
+                                          name: 'start_date',
+                                          inputType: InputType.time,
+                                          initialValue: DateTime(
+                                            widget.initialDate!.year,
+                                            widget.initialDate!.month,
+                                            widget.initialDate!.day,
+                                            14, 0, // 기본 시간 14:00
+                                          ),
+                                          decoration: const InputDecoration(
+                                            labelText: '설명회 시간 *',
+                                            prefixIcon: Icon(Icons.access_time),
+                                          ),
+                                          validator: FormBuilderValidators.required(
+                                            errorText: '시간을 선택하세요',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : FormBuilderDateTimePicker(
+                                    name: 'start_date',
+                                    inputType: InputType.both,
+                                    initialValue: DateTime.now(),
+                                    format: DateFormat('yyyy-MM-dd HH:mm'),
+                                    decoration: const InputDecoration(
+                                      labelText: '설명회 일시 *',
+                                      suffixIcon: Icon(Icons.calendar_today),
+                                    ),
+                                    validator: FormBuilderValidators.required(
+                                      errorText: '설명회 일시를 선택하세요',
+                                    ),
+                                  ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -224,7 +265,17 @@ class _PromotionFormScreenState extends ConsumerState<PromotionFormScreen> {
         final values = _formKey.currentState!.value;
 
         // 설명회 일시 포맷팅 (MySQL DATETIME 형식)
-        final startDate = values['start_date'] as DateTime?;
+        DateTime? startDate = values['start_date'] as DateTime?;
+        // initialDate가 있으면 날짜 부분을 고정하고 시간만 사용
+        if (widget.initialDate != null && startDate != null) {
+          startDate = DateTime(
+            widget.initialDate!.year,
+            widget.initialDate!.month,
+            widget.initialDate!.day,
+            startDate.hour,
+            startDate.minute,
+          );
+        }
         final startDateStr = startDate != null
             ? DateFormat('yyyy-MM-dd HH:mm:ss').format(startDate)
             : DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
@@ -250,6 +301,9 @@ class _PromotionFormScreenState extends ConsumerState<PromotionFormScreen> {
 
         if (mounted) {
           ref.read(promotionListProvider.notifier).refresh();
+          // 캘린더 데이터 새로고침 (달력 화면으로 돌아갔을 때)
+          ref.refresh(monthlyEventsProvider);
+          ref.refresh(dailyEventsProvider);
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('설명회가 등록되었습니다')),

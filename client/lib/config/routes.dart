@@ -17,6 +17,9 @@ import '../screens/promotion/promotion_form_screen.dart';
 import '../screens/promotion/promotion_detail_screen.dart';
 import '../screens/school/school_list_screen.dart';
 import '../screens/calendar/calendar_screen.dart';
+import '../screens/class/class_list_screen.dart';
+import '../screens/class/class_detail_screen.dart';
+import '../screens/class/class_form_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -33,6 +36,10 @@ class AppRoutes {
   static const String promotionDetail = '/promotions/:id';
   static const String schoolList = '/schools';
   static const String calendar = '/calendar';
+  static const String classList = '/classes';
+  static const String classDetail = '/classes/:id';
+  static const String classCreate = '/classes/create';
+  static const String classEdit = '/classes/:id/edit';
 }
 
 // GoRouter Refresh Notifier
@@ -116,8 +123,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'consultCreate',
             builder: (context, state) {
               final studentId = state.uri.queryParameters['studentId'];
+              final dateStr = state.uri.queryParameters['date'];
+              DateTime? initialDate;
+              if (dateStr != null) {
+                initialDate = DateTime.tryParse(dateStr);
+              }
               return ConsultFormScreen(
                 studentId: studentId != null ? int.parse(studentId) : null,
+                initialDate: initialDate,
               );
             },
           ),
@@ -139,7 +152,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.promotionCreate,
             name: 'promotionCreate',
-            builder: (context, state) => const PromotionFormScreen(),
+            builder: (context, state) {
+              final dateStr = state.uri.queryParameters['date'];
+              DateTime? initialDate;
+              if (dateStr != null) {
+                initialDate = DateTime.tryParse(dateStr);
+              }
+              return PromotionFormScreen(initialDate: initialDate);
+            },
           ),
           GoRoute(
             path: AppRoutes.promotionDetail,
@@ -162,6 +182,34 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.calendar,
             name: 'calendar',
             builder: (context, state) => const CalendarScreen(),
+          ),
+
+          // 반 관리
+          GoRoute(
+            path: AppRoutes.classList,
+            name: 'classList',
+            builder: (context, state) => const ClassListScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.classCreate,
+            name: 'classCreate',
+            builder: (context, state) => const ClassFormScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.classEdit,
+            name: 'classEdit',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              return ClassFormScreen(classId: id);
+            },
+          ),
+          GoRoute(
+            path: AppRoutes.classDetail,
+            name: 'classDetail',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              return ClassDetailScreen(classId: id);
+            },
           ),
         ],
       ),
