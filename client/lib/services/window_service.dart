@@ -27,41 +27,49 @@ class WindowService with WindowListener {
       return;
     }
 
-    await windowManager.ensureInitialized();
+    try {
+      await windowManager.ensureInitialized();
 
-    _prefs = await SharedPreferences.getInstance();
+      _prefs = await SharedPreferences.getInstance();
 
-    // 저장된 윈도우 상태 불러오기
-    final savedBounds = _getSavedBounds();
-    final isMaximized = _prefs?.getBool(_keyWindowMaximized) ?? false;
+      // 저장된 윈도우 상태 불러오기
+      final savedBounds = _getSavedBounds();
+      final isMaximized = _prefs?.getBool(_keyWindowMaximized) ?? false;
 
-    WindowOptions windowOptions = WindowOptions(
-      size: Size(savedBounds.width, savedBounds.height),
-      minimumSize: const Size(_minWidth, _minHeight),
-      center: savedBounds.left == null,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
-    );
+      WindowOptions windowOptions = WindowOptions(
+        size: Size(savedBounds.width, savedBounds.height),
+        minimumSize: const Size(_minWidth, _minHeight),
+        center: savedBounds.left == null,
+        skipTaskbar: false,
+        titleBarStyle: TitleBarStyle.normal,
+      );
 
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      // 저장된 위치가 있으면 해당 위치로 이동
-      if (savedBounds.left != null && savedBounds.top != null) {
-        await windowManager.setPosition(
-          Offset(savedBounds.left!, savedBounds.top!),
-        );
-      }
+      await windowManager.waitUntilReadyToShow(windowOptions, () async {
+        // 저장된 위치가 있으면 해당 위치로 이동
+        if (savedBounds.left != null && savedBounds.top != null) {
+          await windowManager.setPosition(
+            Offset(savedBounds.left!, savedBounds.top!),
+          );
+        }
 
-      // 최대화 상태 복원
-      if (isMaximized) {
-        await windowManager.maximize();
-      }
+        // 최대화 상태 복원
+        if (isMaximized) {
+          await windowManager.maximize();
+        }
 
-      await windowManager.show();
-      await windowManager.focus();
-    });
+        await windowManager.show();
+        await windowManager.focus();
+      });
 
-    // 윈도우 이벤트 리스너 등록
-    windowManager.addListener(this);
+      // 윈도우 이벤트 리스너 등록
+      windowManager.addListener(this);
+    } catch (e) {
+      // 윈도우 초기화 실패 시 기본 설정으로 표시
+      try {
+        await windowManager.show();
+        await windowManager.focus();
+      } catch (_) {}
+    }
   }
 
   /// 저장된 창 위치/크기 가져오기

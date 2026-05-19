@@ -1,9 +1,9 @@
 ; Inno Setup Script for 학생 상담 관리 시스템
 
-#define MyAppName "학생 상담 관리 시스템"
+#define MyAppName "JY2000"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "JY2000"
-#define MyAppExeName "student_counseling.exe"
+#define MyAppExeName "jy2000.exe"
 
 [Setup]
 AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}
@@ -14,12 +14,14 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=..\build\installer
-OutputBaseFilename=StudentCounseling_Setup_{#MyAppVersion}
+OutputBaseFilename=jy
 SetupIconFile=..\windows\runner\resources\app_icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
 Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
