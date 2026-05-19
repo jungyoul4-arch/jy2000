@@ -115,7 +115,7 @@ export class DashboardService {
       FROM User u
       LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
       LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
-      WHERE u.deleted_at IS NULL AND u.active_flag = 1 AND u.kind = 5
+      WHERE u.active_flag = 1 AND u.kind = 5
       GROUP BY u.user_id, u.name
       ORDER BY register_count DESC
     `;

@@ -629,3 +629,55 @@ export const validateSearchUsers: ValidationChain[] = [
     .optional()
     .isInt({ min: 2, max: 3 })
 ];
+
+// Staff Validators (직원 관리)
+export const validateStaffListQuery: ValidationChain[] = [
+  ...validatePagination,
+  query('search')
+    .optional()
+    .isString()
+    .trim()
+];
+
+export const validateStaffCreate: ValidationChain[] = [
+  body('name')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('name is required')
+    .isLength({ max: 50 }),
+  body('phone')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('phone is required'),
+  body('kind')
+    .isInt()
+    .isIn([1, 3, 5, 6, 7])
+    .withMessage('kind must be 1 (관리자), 3 (선생님), 5 (상담원), 6 (사감), or 7 (일반직원)'),
+  body('email')
+    .optional({ nullable: true, checkFalsy: true })
+    .isEmail()
+    .withMessage('email must be a valid email')
+];
+
+export const validateStaffUpdate: ValidationChain[] = [
+  body('name')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 50 }),
+  body('phone')
+    .optional()
+    .isString()
+    .trim(),
+  body('kind')
+    .optional()
+    .isInt()
+    .isIn([1, 3, 5, 6, 7])
+    .withMessage('kind must be 1 (관리자), 3 (선생님), 5 (상담원), 6 (사감), or 7 (일반직원)'),
+  body('email')
+    .optional({ nullable: true, checkFalsy: true })
+    .isEmail()
+    .withMessage('email must be a valid email')
+];

@@ -20,11 +20,13 @@ import '../screens/calendar/calendar_screen.dart';
 import '../screens/class/class_list_screen.dart';
 import '../screens/class/class_detail_screen.dart';
 import '../screens/class/class_form_screen.dart';
+import '../screens/staff/staff_list_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
   static const String home = '/';
   static const String dashboard = '/dashboard';
+  static const String staffList = '/staff';
   static const String studentList = '/students';
   static const String studentDetail = '/students/:id';
   static const String studentCreate = '/students/create';
@@ -81,6 +83,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.dashboard,
             name: 'dashboard',
             builder: (context, state) => const DashboardScreen(),
+          ),
+
+          // 직원 관리 (관리자만)
+          GoRoute(
+            path: AppRoutes.staffList,
+            name: 'staffList',
+            builder: (context, state) => const StaffListScreen(),
           ),
 
           // 학생 관리

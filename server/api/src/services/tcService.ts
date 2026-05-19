@@ -97,7 +97,7 @@ export class TCService {
 
     // 전화번호 중복 체크
     const [existing] = await pool.query<RowDataPacket[]>(
-      'SELECT user_id FROM User WHERE phone = ? AND deleted_at IS NULL',
+      'SELECT user_id FROM User WHERE phone = ?',
       [phone]
     );
 

@@ -702,9 +702,9 @@ export class StudentService {
         [userId, studentId]
       );
 
-      // User 테이블도 soft delete
+      // User 테이블도 삭제
       await connection.query(
-        'UPDATE User SET deleted_at = NOW() WHERE user_id = ? AND kind = 2',
+        'DELETE FROM User WHERE user_id = ? AND kind = 2',
         [studentId]
       );
 

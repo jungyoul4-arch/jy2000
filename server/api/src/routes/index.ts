@@ -9,6 +9,7 @@ import authRoutes from './authRoutes';
 import schoolRoutes from './schoolRoutes';
 import calendarRoutes from './calendarRoutes';
 import classRoutes from './classRoutes';
+import staffRoutes from './staffRoutes';
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use('/code', codeRoutes);
 router.use('/school', schoolRoutes);
 router.use('/calendar', calendarRoutes);
 router.use('/class', classRoutes);
+router.use('/staff', staffRoutes);
 
 export default router;

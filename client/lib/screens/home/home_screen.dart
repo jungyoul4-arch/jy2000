@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../config/app_config.dart';
 import '../../config/routes.dart';
 import '../../providers/auth_provider.dart';
 
@@ -17,50 +18,59 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<_NavItem> _navItems = [
-    _NavItem(
-      icon: Icons.dashboard_outlined,
-      selectedIcon: Icons.dashboard,
-      label: '대시보드',
-      path: AppRoutes.home,
-    ),
-    _NavItem(
-      icon: Icons.people_outline,
-      selectedIcon: Icons.people,
-      label: '학생 관리',
-      path: AppRoutes.studentList,
-    ),
-    _NavItem(
-      icon: Icons.chat_outlined,
-      selectedIcon: Icons.chat,
-      label: '상담 관리',
-      path: AppRoutes.consultList,
-    ),
-    _NavItem(
-      icon: Icons.event_outlined,
-      selectedIcon: Icons.event,
-      label: '설명회',
-      path: AppRoutes.promotionList,
-    ),
-    _NavItem(
-      icon: Icons.school_outlined,
-      selectedIcon: Icons.school,
-      label: '학교 관리',
-      path: AppRoutes.schoolList,
-    ),
-    _NavItem(
-      icon: Icons.class_outlined,
-      selectedIcon: Icons.class_,
-      label: '반 관리',
-      path: AppRoutes.classList,
-    ),
-    _NavItem(
-      icon: Icons.calendar_month_outlined,
-      selectedIcon: Icons.calendar_month,
-      label: '상담 달력',
-      path: AppRoutes.calendar,
-    ),
-  ];
+  List<_NavItem> _getNavItems(int? userKind) {
+    return [
+      _NavItem(
+        icon: Icons.dashboard_outlined,
+        selectedIcon: Icons.dashboard,
+        label: '대시보드',
+        path: AppRoutes.home,
+      ),
+      // 직원 관리 메뉴 - 모든 로그인 사용자에게 표시
+      _NavItem(
+        icon: Icons.badge_outlined,
+        selectedIcon: Icons.badge,
+        label: '직원 관리',
+        path: AppRoutes.staffList,
+      ),
+      _NavItem(
+        icon: Icons.people_outline,
+        selectedIcon: Icons.people,
+        label: '학생 관리',
+        path: AppRoutes.studentList,
+      ),
+      _NavItem(
+        icon: Icons.chat_outlined,
+        selectedIcon: Icons.chat,
+        label: '상담 관리',
+        path: AppRoutes.consultList,
+      ),
+      _NavItem(
+        icon: Icons.event_outlined,
+        selectedIcon: Icons.event,
+        label: '설명회',
+        path: AppRoutes.promotionList,
+      ),
+      _NavItem(
+        icon: Icons.school_outlined,
+        selectedIcon: Icons.school,
+        label: '학교 관리',
+        path: AppRoutes.schoolList,
+      ),
+      _NavItem(
+        icon: Icons.class_outlined,
+        selectedIcon: Icons.class_,
+        label: '반 관리',
+        path: AppRoutes.classList,
+      ),
+      _NavItem(
+        icon: Icons.calendar_month_outlined,
+        selectedIcon: Icons.calendar_month,
+        label: '상담 달력',
+        path: AppRoutes.calendar,
+      ),
+    ];
+  }
 
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
@@ -90,6 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final isExtended = MediaQuery.of(context).size.width > 1200;
+    final navItems = _getNavItems(authState.user?.kind);
 
     return Scaffold(
       body: Row(
@@ -101,7 +112,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             selectedIndex: _selectedIndex,
             onDestinationSelected: (index) {
               setState(() => _selectedIndex = index);
-              context.go(_navItems[index].path);
+              context.go(navItems[index].path);
             },
             leading: Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -118,6 +129,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       '상담 관리',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'v${AppConfig.appVersion}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
                           ),
                     ),
                   ],
@@ -155,7 +173,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
-            destinations: _navItems
+            destinations: navItems
                 .map(
                   (item) => NavigationRailDestination(
                     icon: Icon(item.icon),
