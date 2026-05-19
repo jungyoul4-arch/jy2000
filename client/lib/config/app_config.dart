@@ -1,6 +1,6 @@
 class AppConfig {
   static const String appName = '학생 상담 관리';
-  static const String appVersion = '1.0.0Beta';
+  static const String appVersion = '1.0.0 Beta';
 
   // API 설정
   static const String apiBaseUrl = 'https://jungyoul.com/node-api/v1';
