@@ -27,6 +27,7 @@ mixin _$AuthUser {
   int get kind => throw _privateConstructorUsedError;
   String get phone => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
+  bool get isAdmin => throw _privateConstructorUsedError;
 
   /// Serializes this AuthUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,6 +50,7 @@ abstract class $AuthUserCopyWith<$Res> {
     int kind,
     String phone,
     String? email,
+    bool isAdmin,
   });
 }
 
@@ -72,6 +74,7 @@ class _$AuthUserCopyWithImpl<$Res, $Val extends AuthUser>
     Object? kind = null,
     Object? phone = null,
     Object? email = freezed,
+    Object? isAdmin = null,
   }) {
     return _then(
       _value.copyWith(
@@ -95,6 +98,10 @@ class _$AuthUserCopyWithImpl<$Res, $Val extends AuthUser>
                 ? _value.email
                 : email // ignore: cast_nullable_to_non_nullable
                       as String?,
+            isAdmin: null == isAdmin
+                ? _value.isAdmin
+                : isAdmin // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -116,6 +123,7 @@ abstract class _$$AuthUserImplCopyWith<$Res>
     int kind,
     String phone,
     String? email,
+    bool isAdmin,
   });
 }
 
@@ -138,6 +146,7 @@ class __$$AuthUserImplCopyWithImpl<$Res>
     Object? kind = null,
     Object? phone = null,
     Object? email = freezed,
+    Object? isAdmin = null,
   }) {
     return _then(
       _$AuthUserImpl(
@@ -161,6 +170,10 @@ class __$$AuthUserImplCopyWithImpl<$Res>
             ? _value.email
             : email // ignore: cast_nullable_to_non_nullable
                   as String?,
+        isAdmin: null == isAdmin
+            ? _value.isAdmin
+            : isAdmin // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -175,6 +188,7 @@ class _$AuthUserImpl implements _AuthUser {
     required this.kind,
     required this.phone,
     this.email,
+    this.isAdmin = false,
   });
 
   factory _$AuthUserImpl.fromJson(Map<String, dynamic> json) =>
@@ -191,10 +205,13 @@ class _$AuthUserImpl implements _AuthUser {
   final String phone;
   @override
   final String? email;
+  @override
+  @JsonKey()
+  final bool isAdmin;
 
   @override
   String toString() {
-    return 'AuthUser(userId: $userId, name: $name, kind: $kind, phone: $phone, email: $email)';
+    return 'AuthUser(userId: $userId, name: $name, kind: $kind, phone: $phone, email: $email, isAdmin: $isAdmin)';
   }
 
   @override
@@ -206,13 +223,14 @@ class _$AuthUserImpl implements _AuthUser {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.kind, kind) || other.kind == kind) &&
             (identical(other.phone, phone) || other.phone == phone) &&
-            (identical(other.email, email) || other.email == email));
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, userId, name, kind, phone, email);
+      Object.hash(runtimeType, userId, name, kind, phone, email, isAdmin);
 
   /// Create a copy of AuthUser
   /// with the given fields replaced by the non-null parameter values.
@@ -235,6 +253,7 @@ abstract class _AuthUser implements AuthUser {
     required final int kind,
     required final String phone,
     final String? email,
+    final bool isAdmin,
   }) = _$AuthUserImpl;
 
   factory _AuthUser.fromJson(Map<String, dynamic> json) =
@@ -251,6 +270,8 @@ abstract class _AuthUser implements AuthUser {
   String get phone;
   @override
   String? get email;
+  @override
+  bool get isAdmin;
 
   /// Create a copy of AuthUser
   /// with the given fields replaced by the non-null parameter values.

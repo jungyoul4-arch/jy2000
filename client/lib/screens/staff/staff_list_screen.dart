@@ -62,7 +62,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
   Widget build(BuildContext context) {
     final staffState = ref.watch(staffListProvider);
     final authState = ref.watch(authProvider);
-    final isAdmin = authState.user?.kind == 1;
+    final isAdmin = authState.user?.kind == 1 || authState.user?.isAdmin == true;
 
     return Scaffold(
       appBar: AppBar(

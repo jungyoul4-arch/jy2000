@@ -11,6 +11,7 @@ class AuthUser with _$AuthUser {
     required int kind,
     required String phone,
     String? email,
+    @Default(false) bool isAdmin,
   }) = _AuthUser;
 
   factory AuthUser.fromJson(Map<String, dynamic> json) =>

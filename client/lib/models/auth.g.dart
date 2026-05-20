@@ -13,6 +13,7 @@ _$AuthUserImpl _$$AuthUserImplFromJson(Map<String, dynamic> json) =>
       kind: (json['kind'] as num).toInt(),
       phone: json['phone'] as String,
       email: json['email'] as String?,
+      isAdmin: json['isAdmin'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$AuthUserImplToJson(_$AuthUserImpl instance) =>
@@ -22,6 +23,7 @@ Map<String, dynamic> _$$AuthUserImplToJson(_$AuthUserImpl instance) =>
       'kind': instance.kind,
       'phone': instance.phone,
       'email': instance.email,
+      'isAdmin': instance.isAdmin,
     };
 
 _$RequestCodeResponseImpl _$$RequestCodeResponseImplFromJson(

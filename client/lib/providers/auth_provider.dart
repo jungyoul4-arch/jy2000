@@ -70,7 +70,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       try {
         final user = AuthUser.fromJson(json.decode(userJson));
         // API 클라이언트에 사용자 정보 설정
-        ApiClient.instance.setUser(user.userId, user.kind);
+        ApiClient.instance.setUser(user.userId, user.kind, isAdmin: user.isAdmin);
         state = AuthState(
           status: AuthStatus.authenticated,
           user: user,
@@ -117,7 +117,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await prefs.setString('user', json.encode(response.user.toJson()));
 
       // API 클라이언트에 사용자 정보 설정
-      ApiClient.instance.setUser(response.user.userId, response.user.kind);
+      ApiClient.instance.setUser(response.user.userId, response.user.kind, isAdmin: response.user.isAdmin);
 
       state = AuthState(
         status: AuthStatus.authenticated,

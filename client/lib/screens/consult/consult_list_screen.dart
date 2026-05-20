@@ -45,7 +45,7 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
   Widget build(BuildContext context) {
     final consultState = ref.watch(consultListProvider);
     final authState = ref.watch(authProvider);
-    final isAdmin = authState.user?.kind == 1;
+    final isAdmin = authState.user?.kind == 1 || authState.user?.isAdmin == true;
 
     return Scaffold(
       appBar: AppBar(

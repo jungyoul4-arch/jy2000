@@ -10,6 +10,7 @@ class ApiClient {
   final Logger _logger = Logger();
   int? _userId;
   int? _userKind;
+  bool? _userIsAdmin;
 
   ApiClient._() {
     _dio = Dio(
@@ -35,6 +36,9 @@ class ApiClient {
           }
           if (_userKind != null) {
             options.headers['X-User-Kind'] = _userKind.toString();
+          }
+          if (_userIsAdmin != null) {
+            options.headers['X-User-IsAdmin'] = _userIsAdmin.toString();
           }
           return handler.next(options);
         },
@@ -72,15 +76,17 @@ class ApiClient {
   }
 
   // 사용자 정보 설정
-  void setUser(int userId, int kind) {
+  void setUser(int userId, int kind, {bool isAdmin = false}) {
     _userId = userId;
     _userKind = kind;
+    _userIsAdmin = isAdmin;
   }
 
   // 사용자 정보 제거
   void clearUser() {
     _userId = null;
     _userKind = null;
+    _userIsAdmin = null;
   }
 
   // GET 요청

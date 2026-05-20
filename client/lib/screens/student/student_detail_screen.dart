@@ -46,7 +46,7 @@ class StudentDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final studentAsync = ref.watch(studentDetailProvider(studentId));
     final authState = ref.watch(authProvider);
-    final isAdmin = authState.user?.kind == 1;
+    final isAdmin = authState.user?.kind == 1 || authState.user?.isAdmin == true;
 
     return Scaffold(
       appBar: AppBar(

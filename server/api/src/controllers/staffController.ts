@@ -37,8 +37,9 @@ export class StaffController {
   // POST /staff - 직원 등록
   create = asyncHandler(async (req: Request, res: Response) => {
     const userKind = (req as any).userKind;
+    const userIsAdmin = (req as any).userIsAdmin;
 
-    if (userKind !== 1) {
+    if (userKind !== 1 && !userIsAdmin) {
       return sendSuccess(res, null, 'Permission denied: Admin only', 403);
     }
 
@@ -51,8 +52,9 @@ export class StaffController {
   // PUT /staff/:id - 직원 수정
   update = asyncHandler(async (req: Request, res: Response) => {
     const userKind = (req as any).userKind;
+    const userIsAdmin = (req as any).userIsAdmin;
 
-    if (userKind !== 1) {
+    if (userKind !== 1 && !userIsAdmin) {
       return sendSuccess(res, null, 'Permission denied: Admin only', 403);
     }
 
@@ -66,8 +68,9 @@ export class StaffController {
   // PATCH /staff/:id/toggle-active - 직원 활성/비활성 토글
   toggleActive = asyncHandler(async (req: Request, res: Response) => {
     const userKind = (req as any).userKind;
+    const userIsAdmin = (req as any).userIsAdmin;
 
-    if (userKind !== 1) {
+    if (userKind !== 1 && !userIsAdmin) {
       return sendSuccess(res, null, 'Permission denied: Admin only', 403);
     }
 
@@ -80,8 +83,9 @@ export class StaffController {
   // DELETE /staff/:id - 직원 삭제
   delete = asyncHandler(async (req: Request, res: Response) => {
     const userKind = (req as any).userKind;
+    const userIsAdmin = (req as any).userIsAdmin;
 
-    if (userKind !== 1) {
+    if (userKind !== 1 && !userIsAdmin) {
       return sendSuccess(res, null, 'Permission denied: Admin only', 403);
     }
 

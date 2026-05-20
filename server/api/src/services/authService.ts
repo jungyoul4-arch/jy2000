@@ -26,7 +26,7 @@ export class AuthService {
   // 전화번호로 사용자 조회 (kind=1,3,5,6,7 - 학생/보호자 제외)
   async findUserByPhone(phone: string): Promise<any> {
     const sql = `
-      SELECT user_id, name, kind, phone, email, fcm_token
+      SELECT user_id, name, kind, phone, email, fcm_token, is_admin
       FROM User
       WHERE phone = ?
         AND kind IN (1, 3, 5, 6, 7)
@@ -146,7 +146,8 @@ export class AuthService {
       name: user.name,
       kind: user.kind,
       phone: user.phone,
-      email: user.email
+      email: user.email,
+      isAdmin: user.is_admin === 1
     };
   }
 }
