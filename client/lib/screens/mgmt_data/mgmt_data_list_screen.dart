@@ -357,12 +357,12 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
     if (result != null && mounted) {
       final updated = await ref.read(mgmtDataListProvider.notifier).update(
         mgmtData.mgmtDataId,
-        studentId: result.userId,
+        studentId: result.studentId,
       );
 
-      if (updated != null) {
+      if (updated != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('학생이 "${result.name}"(으)로 변경되었습니다'), backgroundColor: Colors.green),
+          SnackBar(content: Text('학생이 "${result.studentName}"(으)로 변경되었습니다'), backgroundColor: Colors.green),
         );
       }
     }
@@ -381,7 +381,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
         teacherId: result.userId,
       );
 
-      if (updated != null) {
+      if (updated != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('강사가 "${result.name}"(으)로 변경되었습니다'), backgroundColor: Colors.green),
         );
@@ -594,7 +594,7 @@ class _StudentSearchDialogState extends State<_StudentSearchDialog> {
                           itemBuilder: (context, index) {
                             final student = _students[index];
                             return ListTile(
-                              title: Text(student.name),
+                              title: Text(student.studentName),
                               subtitle: Text(student.schoolName ?? '학교 정보 없음'),
                               onTap: () => Navigator.pop(context, student),
                             );
