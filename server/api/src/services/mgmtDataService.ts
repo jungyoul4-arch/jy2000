@@ -179,16 +179,43 @@ export class MgmtDataService {
     return teachers.length > 0 ? teachers[0].user_id : null;
   }
 
-  // 학교 ID 찾기 (학교명으로 매칭)
-  private async findSchoolId(connection: any, schoolName: string): Promise<number | null> {
+  // 학교 ID 찾기 또는 생성 (학교명으로 매칭, 없으면 생성)
+  private async findOrCreateSchoolId(connection: any, schoolName: string, newSchools: string[]): Promise<number | null> {
     if (!schoolName) return null;
 
+    // 먼저 기존 학교 검색
     const [schools] = await connection.query(
       `SELECT school_id FROM School WHERE school_name LIKE ? LIMIT 1`,
       [`%${schoolName}%`]
     ) as [RowDataPacket[], any];
 
-    return schools.length > 0 ? schools[0].school_id : null;
+    if (schools.length > 0) {
+      return schools[0].school_id;
+    }
+
+    // 학교가 없으면 새로 생성
+    // school_kind: 학교명에서 추론 (중=1, 고=2, 기본=2)
+    let schoolKind = 2; // 기본값: 고등학교
+    if (schoolName.includes('중') && !schoolName.includes('고')) {
+      schoolKind = 1; // 중학교
+    }
+
+    // region_kind: 99 (기타) - 권역 정보 없음
+    const regionKind = 99;
+
+    const [result] = await connection.query(
+      `INSERT INTO School (school_name, school_kind, region_kind, is_active) VALUES (?, ?, ?, 1)`,
+      [schoolName, schoolKind, regionKind]
+    ) as [ResultSetHeader, any];
+
+    // 새로 추가된 학교 기록
+    if (!newSchools.includes(schoolName)) {
+      newSchools.push(schoolName);
+    }
+
+    console.log(`[MgmtData] 새 학교 추가: ${schoolName} (school_id: ${result.insertId}, school_kind: ${schoolKind === 1 ? '중학교' : '고등학교'})`);
+
+    return result.insertId;
   }
 
   // 반형태 ID 찾기 (반형태명으로 매칭)
@@ -204,7 +231,7 @@ export class MgmtDataService {
   }
 
   // 엑셀 파일에서 데이터 업로드
-  async uploadFromExcel(filePath: string, year: number, month: number): Promise<{ inserted: number; matched: number; notFoundStudents: string[]; notFoundTeachers: string[] }> {
+  async uploadFromExcel(filePath: string, year: number, month: number): Promise<{ inserted: number; matched: number; notFoundStudents: string[]; notFoundTeachers: string[]; newSchools: string[] }> {
     const workbook = XLSX.readFile(filePath);
 
     // 첫 번째 시트 (납입이력)
@@ -233,6 +260,7 @@ export class MgmtDataService {
     let matched = 0;
     const notFoundStudents: string[] = [];
     const notFoundTeachers: string[] = [];
+    const newSchools: string[] = [];
 
     try {
       await connection.beginTransaction();
@@ -254,10 +282,10 @@ export class MgmtDataService {
         // 학생 ID 및 학교 ID 찾기
         const { studentId, schoolId: studentSchoolId } = await this.findStudentId(connection, studentName, schoolName);
 
-        // 학교 ID (학생 정보에서 못 찾으면 학교명으로 직접 검색)
+        // 학교 ID (학생 정보에서 못 찾으면 학교명으로 검색 또는 생성)
         let schoolId = studentSchoolId;
         if (!schoolId && schoolName) {
-          schoolId = await this.findSchoolId(connection, schoolName);
+          schoolId = await this.findOrCreateSchoolId(connection, schoolName, newSchools);
         }
 
         // 강사 ID 찾기
@@ -316,8 +344,11 @@ export class MgmtDataService {
       if (notFoundTeachers.length > 0) {
         console.warn(`[MgmtData] User 테이블에서 찾을 수 없는 강사: ${notFoundTeachers.join(', ')}`);
       }
+      if (newSchools.length > 0) {
+        console.log(`[MgmtData] 새로 추가된 학교: ${newSchools.join(', ')}`);
+      }
 
-      return { inserted, matched, notFoundStudents, notFoundTeachers };
+      return { inserted, matched, notFoundStudents, notFoundTeachers, newSchools };
     } catch (error) {
       await connection.rollback();
       throw error;
