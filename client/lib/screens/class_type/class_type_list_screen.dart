@@ -132,7 +132,10 @@ class _ClassTypeListScreenState extends ConsumerState<ClassTypeListScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('오류: ${classTypeState.error}'),
+                            SelectableText(
+                              '오류: ${classTypeState.error}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
                             const SizedBox(height: 16),
                             FilledButton(
                               onPressed: () {

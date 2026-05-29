@@ -160,7 +160,10 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('오류: ${mgmtDataState.error}'),
+                            SelectableText(
+                              '오류: ${mgmtDataState.error}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
                             const SizedBox(height: 16),
                             FilledButton(
                               onPressed: () {

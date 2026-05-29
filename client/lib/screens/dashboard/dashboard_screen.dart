@@ -41,7 +41,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: dashboardState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : dashboardState.error != null
-              ? Center(child: Text('오류: ${dashboardState.error}'))
+              ? Center(
+                  child: SelectableText(
+                    '오류: ${dashboardState.error}',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                )
               : RefreshIndicator(
                   onRefresh: () => ref.read(dashboardProvider.notifier).refresh(),
                   child: SingleChildScrollView(
