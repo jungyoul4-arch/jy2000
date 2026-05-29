@@ -10,6 +10,8 @@ import schoolRoutes from './schoolRoutes';
 import calendarRoutes from './calendarRoutes';
 import classRoutes from './classRoutes';
 import staffRoutes from './staffRoutes';
+import classTypeRoutes from './classTypeRoutes';
+import mgmtDataRoutes from './mgmtDataRoutes';
 
 const router = Router();
 
@@ -25,5 +27,7 @@ router.use('/school', schoolRoutes);
 router.use('/calendar', calendarRoutes);
 router.use('/class', classRoutes);
 router.use('/staff', staffRoutes);
+router.use('/class-type', classTypeRoutes);
+router.use('/mgmt-data', mgmtDataRoutes);
 
 export default router;

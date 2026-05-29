@@ -21,6 +21,8 @@ import '../screens/class/class_list_screen.dart';
 import '../screens/class/class_detail_screen.dart';
 import '../screens/class/class_form_screen.dart';
 import '../screens/staff/staff_list_screen.dart';
+import '../screens/class_type/class_type_list_screen.dart';
+import '../screens/mgmt_data/mgmt_data_list_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -37,11 +39,13 @@ class AppRoutes {
   static const String promotionCreate = '/promotions/create';
   static const String promotionDetail = '/promotions/:id';
   static const String schoolList = '/schools';
+  static const String classTypeList = '/class-types';
   static const String calendar = '/calendar';
   static const String classList = '/classes';
   static const String classDetail = '/classes/:id';
   static const String classCreate = '/classes/create';
   static const String classEdit = '/classes/:id/edit';
+  static const String mgmtDataList = '/mgmt-data';
 }
 
 // GoRouter Refresh Notifier
@@ -193,6 +197,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const CalendarScreen(),
           ),
 
+          // 반 형태 관리
+          GoRoute(
+            path: AppRoutes.classTypeList,
+            name: 'classTypeList',
+            builder: (context, state) => const ClassTypeListScreen(),
+          ),
+
           // 반 관리
           GoRoute(
             path: AppRoutes.classList,
@@ -219,6 +230,13 @@ final routerProvider = Provider<GoRouter>((ref) {
               final id = int.parse(state.pathParameters['id']!);
               return ClassDetailScreen(classId: id);
             },
+          ),
+
+          // 경영 보고서
+          GoRoute(
+            path: AppRoutes.mgmtDataList,
+            name: 'mgmtDataList',
+            builder: (context, state) => const MgmtDataListScreen(),
           ),
         ],
       ),

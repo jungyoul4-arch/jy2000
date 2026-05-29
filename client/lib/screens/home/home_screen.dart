@@ -58,6 +58,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         path: AppRoutes.schoolList,
       ),
       _NavItem(
+        icon: Icons.category_outlined,
+        selectedIcon: Icons.category,
+        label: '반 형태 관리',
+        path: AppRoutes.classTypeList,
+      ),
+      _NavItem(
         icon: Icons.class_outlined,
         selectedIcon: Icons.class_,
         label: '반 관리',
@@ -68,6 +74,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         selectedIcon: Icons.calendar_month,
         label: '상담 달력',
         path: AppRoutes.calendar,
+      ),
+      _NavItem(
+        icon: Icons.analytics_outlined,
+        selectedIcon: Icons.analytics,
+        label: '경영 보고서',
+        path: AppRoutes.mgmtDataList,
       ),
     ];
   }

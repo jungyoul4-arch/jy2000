@@ -403,3 +403,83 @@ export interface ClassListQuery extends ListQueryParams {
   year?: number;
   is_active?: number;
 }
+
+// Class Type (반 형태 관리)
+// grade: 1~6=초1~초6, 7~9=중1~중3, 10~12=고1~고3
+// subject: 1=국어, 2=수학, 3=영어, 4=과학, 5=사회
+export interface ClassTypeTeacher {
+  teacher_id: number;
+  teacher_name: string;
+}
+
+export interface ClassType {
+  class_type_id: number;
+  class_type_name: string;
+  grade: number;
+  subject: number;
+  unit_price: number;
+  teachers?: ClassTypeTeacher[];
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ClassTypeCreate {
+  class_type_name: string;
+  grade: number;
+  subject: number;
+  unit_price: number;
+  teacher_ids?: number[];        // 강사 ID 배열
+  teacher_names?: string[];      // 강사 이름 배열 (ID 없을 시 이름으로 조회)
+}
+
+export interface ClassTypeListQuery extends ListQueryParams {
+  grade?: number;
+  subject?: number;
+}
+
+// Mgmt Data (경영 보고서)
+// grade: 1~6=초1~초6, 7~9=중1~중3, 10~12=고1~고3
+export interface MgmtData {
+  mgmt_data_id: number;
+  year: number;
+  month: number;
+  student_id?: number;
+  student_name?: string;      // JOIN으로 가져옴
+  school_id?: number;
+  school_name?: string;       // JOIN으로 가져옴
+  grade?: number;
+  enrollment_count: number;
+  comp_class_type?: string;
+  subject?: string;
+  teacher_id?: number;
+  teacher_name?: string;      // JOIN으로 가져옴
+  class_name1?: string;
+  class_type_id?: number;
+  class_type_name?: string;   // JOIN으로 가져옴
+  created_at?: string;
+}
+
+export interface MgmtDataCreate {
+  year: number;
+  month: number;
+  student_id?: number;
+  school_id?: number;
+  grade?: number;
+  enrollment_count?: number;
+  comp_class_type?: string;
+  subject?: string;
+  teacher_id?: number;
+  class_name1?: string;
+  class_type_id?: number;
+}
+
+export interface MgmtDataListQuery extends ListQueryParams {
+  year?: number;
+  month?: number;
+}
+
+export interface MgmtDataUpload {
+  year: number;
+  month: number;
+}
