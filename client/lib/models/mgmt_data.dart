@@ -4,6 +4,22 @@ import 'class_type.dart'; // gradeToString 사용
 part 'mgmt_data.freezed.dart';
 part 'mgmt_data.g.dart';
 
+// String 또는 num을 double로 변환하는 컨버터
+class StringToDoubleConverter implements JsonConverter<double, dynamic> {
+  const StringToDoubleConverter();
+
+  @override
+  double fromJson(dynamic json) {
+    if (json == null) return 1.0;
+    if (json is num) return json.toDouble();
+    if (json is String) return double.tryParse(json) ?? 1.0;
+    return 1.0;
+  }
+
+  @override
+  dynamic toJson(double object) => object;
+}
+
 @freezed
 class MgmtData with _$MgmtData {
   const MgmtData._();
@@ -17,7 +33,10 @@ class MgmtData with _$MgmtData {
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName, // JOIN으로 가져옴
     int? grade, // 1~6:초1~초6, 7~9:중1~중3, 10~12:고1~고3
-    @JsonKey(name: 'enrollment_count') @Default(1.0) double enrollmentCount,
+    @JsonKey(name: 'enrollment_count')
+    @StringToDoubleConverter()
+    @Default(1.0)
+    double enrollmentCount,
     @JsonKey(name: 'comp_class_type') String? compClassType,
     String? subject,
     @JsonKey(name: 'teacher_id') int? teacherId,

@@ -16,7 +16,9 @@ _$MgmtDataImpl _$$MgmtDataImplFromJson(Map<String, dynamic> json) =>
       schoolId: (json['school_id'] as num?)?.toInt(),
       schoolName: json['school_name'] as String?,
       grade: (json['grade'] as num?)?.toInt(),
-      enrollmentCount: (json['enrollment_count'] as num?)?.toDouble() ?? 1.0,
+      enrollmentCount: json['enrollment_count'] == null
+          ? 1.0
+          : const StringToDoubleConverter().fromJson(json['enrollment_count']),
       compClassType: json['comp_class_type'] as String?,
       subject: json['subject'] as String?,
       teacherId: (json['teacher_id'] as num?)?.toInt(),
@@ -37,7 +39,9 @@ Map<String, dynamic> _$$MgmtDataImplToJson(_$MgmtDataImpl instance) =>
       'school_id': instance.schoolId,
       'school_name': instance.schoolName,
       'grade': instance.grade,
-      'enrollment_count': instance.enrollmentCount,
+      'enrollment_count': const StringToDoubleConverter().toJson(
+        instance.enrollmentCount,
+      ),
       'comp_class_type': instance.compClassType,
       'subject': instance.subject,
       'teacher_id': instance.teacherId,

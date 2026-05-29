@@ -36,6 +36,7 @@ mixin _$MgmtData {
   int? get grade =>
       throw _privateConstructorUsedError; // 1~6:초1~초6, 7~9:중1~중3, 10~12:고1~고3
   @JsonKey(name: 'enrollment_count')
+  @StringToDoubleConverter()
   double get enrollmentCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'comp_class_type')
   String? get compClassType => throw _privateConstructorUsedError;
@@ -77,7 +78,9 @@ abstract class $MgmtDataCopyWith<$Res> {
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
     int? grade,
-    @JsonKey(name: 'enrollment_count') double enrollmentCount,
+    @JsonKey(name: 'enrollment_count')
+    @StringToDoubleConverter()
+    double enrollmentCount,
     @JsonKey(name: 'comp_class_type') String? compClassType,
     String? subject,
     @JsonKey(name: 'teacher_id') int? teacherId,
@@ -216,7 +219,9 @@ abstract class _$$MgmtDataImplCopyWith<$Res>
     @JsonKey(name: 'school_id') int? schoolId,
     @JsonKey(name: 'school_name') String? schoolName,
     int? grade,
-    @JsonKey(name: 'enrollment_count') double enrollmentCount,
+    @JsonKey(name: 'enrollment_count')
+    @StringToDoubleConverter()
+    double enrollmentCount,
     @JsonKey(name: 'comp_class_type') String? compClassType,
     String? subject,
     @JsonKey(name: 'teacher_id') int? teacherId,
@@ -347,7 +352,9 @@ class _$MgmtDataImpl extends _MgmtData {
     @JsonKey(name: 'school_id') this.schoolId,
     @JsonKey(name: 'school_name') this.schoolName,
     this.grade,
-    @JsonKey(name: 'enrollment_count') this.enrollmentCount = 1.0,
+    @JsonKey(name: 'enrollment_count')
+    @StringToDoubleConverter()
+    this.enrollmentCount = 1.0,
     @JsonKey(name: 'comp_class_type') this.compClassType,
     this.subject,
     @JsonKey(name: 'teacher_id') this.teacherId,
@@ -387,6 +394,7 @@ class _$MgmtDataImpl extends _MgmtData {
   // 1~6:초1~초6, 7~9:중1~중3, 10~12:고1~고3
   @override
   @JsonKey(name: 'enrollment_count')
+  @StringToDoubleConverter()
   final double enrollmentCount;
   @override
   @JsonKey(name: 'comp_class_type')
@@ -503,7 +511,9 @@ abstract class _MgmtData extends MgmtData {
     @JsonKey(name: 'school_id') final int? schoolId,
     @JsonKey(name: 'school_name') final String? schoolName,
     final int? grade,
-    @JsonKey(name: 'enrollment_count') final double enrollmentCount,
+    @JsonKey(name: 'enrollment_count')
+    @StringToDoubleConverter()
+    final double enrollmentCount,
     @JsonKey(name: 'comp_class_type') final String? compClassType,
     final String? subject,
     @JsonKey(name: 'teacher_id') final int? teacherId,
@@ -541,6 +551,7 @@ abstract class _MgmtData extends MgmtData {
   int? get grade; // 1~6:초1~초6, 7~9:중1~중3, 10~12:고1~고3
   @override
   @JsonKey(name: 'enrollment_count')
+  @StringToDoubleConverter()
   double get enrollmentCount;
   @override
   @JsonKey(name: 'comp_class_type')
