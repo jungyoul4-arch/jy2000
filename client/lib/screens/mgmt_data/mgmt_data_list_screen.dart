@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../../models/mgmt_data.dart';
+import '../../models/student.dart';
+import '../../models/staff.dart';
 import '../../providers/mgmt_data_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../repositories/student_repository.dart';
+import '../../repositories/staff_repository.dart';
 
 class MgmtDataListScreen extends ConsumerStatefulWidget {
   const MgmtDataListScreen({super.key});
@@ -190,7 +194,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                               ],
                             ),
                           )
-                        : _buildDataTable(_filterData(mgmtDataState.data)),
+                        : _buildDataTable(_filterData(mgmtDataState.data), isAdmin),
           ),
         ],
       ),
@@ -236,7 +240,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
     );
   }
 
-  Widget _buildDataTable(List<MgmtData> data) {
+  Widget _buildDataTable(List<MgmtData> data, bool isAdmin) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: SingleChildScrollView(
@@ -257,13 +261,29 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
           rows: data.map((d) {
             return DataRow(
               cells: [
-                DataCell(Text(d.studentName ?? '')),
+                // 학생이름 - 관리자만 수정 가능
+                DataCell(
+                  _buildEditableCell(
+                    text: d.studentName ?? '',
+                    isEditable: isAdmin,
+                    hasValue: d.studentId != null,
+                    onTap: () => _showStudentSearchDialog(d),
+                  ),
+                ),
                 DataCell(Text(d.schoolName ?? '')),
                 DataCell(Text(d.gradeString)),
                 DataCell(Text(d.enrollmentCount.toString())),
                 DataCell(Text(d.compClassType ?? '')),
                 DataCell(Text(d.subject ?? '')),
-                DataCell(Text(d.teacherName ?? '')),
+                // 강사 - 관리자만 수정 가능
+                DataCell(
+                  _buildEditableCell(
+                    text: d.teacherName ?? '',
+                    isEditable: isAdmin,
+                    hasValue: d.teacherId != null,
+                    onTap: () => _showTeacherSearchDialog(d),
+                  ),
+                ),
                 DataCell(
                   SizedBox(
                     width: 200,
@@ -288,6 +308,85 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildEditableCell({
+    required String text,
+    required bool isEditable,
+    required bool hasValue,
+    required VoidCallback onTap,
+  }) {
+    if (!isEditable) {
+      return Text(
+        text,
+        style: TextStyle(color: hasValue ? null : Colors.red),
+      );
+    }
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        decoration: BoxDecoration(
+          border: Border.all(color: hasValue ? Colors.blue.shade200 : Colors.red.shade200),
+          borderRadius: BorderRadius.circular(4),
+          color: hasValue ? Colors.blue.shade50 : Colors.red.shade50,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              text.isEmpty ? '(미지정)' : text,
+              style: TextStyle(color: hasValue ? Colors.blue.shade700 : Colors.red.shade700),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.edit, size: 14, color: hasValue ? Colors.blue.shade400 : Colors.red.shade400),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 학생 검색 다이얼로그
+  Future<void> _showStudentSearchDialog(MgmtData mgmtData) async {
+    final result = await showDialog<Student?>(
+      context: context,
+      builder: (context) => _StudentSearchDialog(),
+    );
+
+    if (result != null && mounted) {
+      final updated = await ref.read(mgmtDataListProvider.notifier).update(
+        mgmtData.mgmtDataId,
+        studentId: result.userId,
+      );
+
+      if (updated != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('학생이 "${result.name}"(으)로 변경되었습니다'), backgroundColor: Colors.green),
+        );
+      }
+    }
+  }
+
+  // 강사 검색 다이얼로그
+  Future<void> _showTeacherSearchDialog(MgmtData mgmtData) async {
+    final result = await showDialog<Staff?>(
+      context: context,
+      builder: (context) => _TeacherSearchDialog(),
+    );
+
+    if (result != null && mounted) {
+      final updated = await ref.read(mgmtDataListProvider.notifier).update(
+        mgmtData.mgmtDataId,
+        teacherId: result.userId,
+      );
+
+      if (updated != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('강사가 "${result.name}"(으)로 변경되었습니다'), backgroundColor: Colors.green),
+        );
+      }
+    }
   }
 
   Future<void> _selectFile() async {
@@ -425,6 +524,178 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// 학생 검색 다이얼로그
+class _StudentSearchDialog extends StatefulWidget {
+  @override
+  State<_StudentSearchDialog> createState() => _StudentSearchDialogState();
+}
+
+class _StudentSearchDialogState extends State<_StudentSearchDialog> {
+  final _searchController = TextEditingController();
+  final _repository = StudentRepository();
+  List<Student> _students = [];
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _search() async {
+    if (_searchController.text.isEmpty) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _repository.getList(
+        StudentListParams(page: 1, perPage: 50, search: _searchController.text),
+      );
+      setState(() => _students = result.data);
+    } catch (e) {
+      // ignore
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('학생 검색'),
+      content: SizedBox(
+        width: 400,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: '학생 이름으로 검색',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _search,
+                ),
+              ),
+              onSubmitted: (_) => _search(),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _students.isEmpty
+                      ? const Center(child: Text('검색 결과가 없습니다'))
+                      : ListView.builder(
+                          itemCount: _students.length,
+                          itemBuilder: (context, index) {
+                            final student = _students[index];
+                            return ListTile(
+                              title: Text(student.name),
+                              subtitle: Text(student.schoolName ?? '학교 정보 없음'),
+                              onTap: () => Navigator.pop(context, student),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+      ],
+    );
+  }
+}
+
+// 강사 검색 다이얼로그
+class _TeacherSearchDialog extends StatefulWidget {
+  @override
+  State<_TeacherSearchDialog> createState() => _TeacherSearchDialogState();
+}
+
+class _TeacherSearchDialogState extends State<_TeacherSearchDialog> {
+  final _searchController = TextEditingController();
+  final _repository = StaffRepository();
+  List<Staff> _teachers = [];
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _search() async {
+    if (_searchController.text.isEmpty) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _repository.getList(
+        StaffListParams(page: 1, perPage: 50, search: _searchController.text),
+      );
+      setState(() => _teachers = result.data);
+    } catch (e) {
+      // ignore
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('강사 검색'),
+      content: SizedBox(
+        width: 400,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: '강사 이름으로 검색',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _search,
+                ),
+              ),
+              onSubmitted: (_) => _search(),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _teachers.isEmpty
+                      ? const Center(child: Text('검색 결과가 없습니다'))
+                      : ListView.builder(
+                          itemCount: _teachers.length,
+                          itemBuilder: (context, index) {
+                            final teacher = _teachers[index];
+                            return ListTile(
+                              title: Text(teacher.name),
+                              subtitle: Text(teacher.kindName),
+                              onTap: () => Navigator.pop(context, teacher),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+      ],
     );
   }
 }

@@ -51,6 +51,22 @@ class MgmtDataRepository {
     return response['data']?['deletedCount'] ?? 0;
   }
 
+  // 경영 데이터 수정 (관리자만)
+  Future<MgmtData> update(int mgmtDataId, {int? studentId, int? teacherId, int? schoolId, int? classTypeId}) async {
+    final body = <String, dynamic>{};
+    if (studentId != null) body['studentId'] = studentId;
+    if (teacherId != null) body['teacherId'] = teacherId;
+    if (schoolId != null) body['schoolId'] = schoolId;
+    if (classTypeId != null) body['classTypeId'] = classTypeId;
+
+    final response = await _apiClient.patch<Map<String, dynamic>>(
+      '/mgmt-data/$mgmtDataId',
+      data: body,
+    );
+
+    return MgmtData.fromJson(response['data']);
+  }
+
   // 엑셀 파일 업로드
   Future<UploadResult> uploadExcel(String filePath, int year, int month) async {
     final formData = FormData.fromMap({

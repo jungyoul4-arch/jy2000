@@ -54,4 +54,7 @@ router.post('/upload', upload.single('file'), mgmtDataController.upload);
 // DELETE /mgmt-data/:year/:month - 특정 년월 데이터 삭제
 router.delete('/:year/:month', mgmtDataController.deleteByMonth);
 
+// PATCH /mgmt-data/:id - 경영 데이터 수정 (관리자만)
+router.patch('/:id', mgmtDataController.update);
+
 export default router;

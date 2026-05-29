@@ -126,6 +126,71 @@ export class MgmtDataService {
     return result.affectedRows;
   }
 
+  // 경영 데이터 단일 항목 수정
+  async update(mgmtDataId: number, data: { studentId?: number | null; teacherId?: number | null; schoolId?: number | null; classTypeId?: number | null }): Promise<MgmtData | null> {
+    const updates: string[] = [];
+    const params: any[] = [];
+
+    if (data.studentId !== undefined) {
+      updates.push('student_id = ?');
+      params.push(data.studentId);
+    }
+    if (data.teacherId !== undefined) {
+      updates.push('teacher_id = ?');
+      params.push(data.teacherId);
+    }
+    if (data.schoolId !== undefined) {
+      updates.push('school_id = ?');
+      params.push(data.schoolId);
+    }
+    if (data.classTypeId !== undefined) {
+      updates.push('class_type_id = ?');
+      params.push(data.classTypeId);
+    }
+
+    if (updates.length === 0) {
+      throw new AppError('수정할 데이터가 없습니다', 400);
+    }
+
+    params.push(mgmtDataId);
+
+    await pool.query<ResultSetHeader>(
+      `UPDATE mgmt_data SET ${updates.join(', ')} WHERE mgmt_data_id = ?`,
+      params
+    );
+
+    // 수정된 데이터 조회
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT
+        m.mgmt_data_id,
+        m.year,
+        m.month,
+        m.student_id,
+        u_student.name as student_name,
+        m.school_id,
+        s.school_name,
+        m.grade,
+        m.enrollment_count,
+        m.comp_class_type,
+        m.subject,
+        m.teacher_id,
+        u_teacher.name as teacher_name,
+        m.class_name1,
+        m.class_type_id,
+        ct.class_type_name,
+        m.created_at
+      FROM mgmt_data m
+      LEFT JOIN User u_student ON m.student_id = u_student.user_id
+      LEFT JOIN School s ON m.school_id = s.school_id
+      LEFT JOIN User u_teacher ON m.teacher_id = u_teacher.user_id
+      LEFT JOIN class_type ct ON m.class_type_id = ct.class_type_id
+      WHERE m.mgmt_data_id = ?`,
+      [mgmtDataId]
+    );
+
+    return rows.length > 0 ? rows[0] as MgmtData : null;
+  }
+
   // 학생 ID 찾기 (이름 + 학교명으로 매칭)
   private async findStudentId(connection: any, studentName: string, schoolName?: string): Promise<{ studentId: number | null; schoolId: number | null }> {
     if (!studentName) return { studentId: null, schoolId: null };

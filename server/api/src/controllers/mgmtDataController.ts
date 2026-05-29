@@ -43,6 +43,39 @@ export class MgmtDataController {
     return sendSuccess(res, { deletedCount }, `${year}년 ${month}월 데이터 ${deletedCount}건이 삭제되었습니다`);
   });
 
+  // PATCH /mgmt-data/:id - 경영 데이터 수정 (관리자만)
+  update = asyncHandler(async (req: Request, res: Response) => {
+    // 관리자 권한 확인
+    const user = (req as any).user;
+    if (!user?.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        code: 403,
+        message: '관리자만 수정할 수 있습니다'
+      });
+    }
+
+    const mgmtDataId = parseInt(req.params.id);
+    const { studentId, teacherId, schoolId, classTypeId } = req.body;
+
+    const result = await mgmtDataService.update(mgmtDataId, {
+      studentId,
+      teacherId,
+      schoolId,
+      classTypeId
+    });
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        code: 404,
+        message: '데이터를 찾을 수 없습니다'
+      });
+    }
+
+    return sendSuccess(res, result, '수정되었습니다');
+  });
+
   // POST /mgmt-data/upload - 엑셀 파일 업로드
   upload = asyncHandler(async (req: Request, res: Response) => {
     if (!req.file) {

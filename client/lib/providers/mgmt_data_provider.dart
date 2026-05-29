@@ -121,6 +121,33 @@ class MgmtDataListNotifier extends StateNotifier<MgmtDataListState> {
     }
   }
 
+  // 경영 데이터 수정
+  Future<MgmtData?> update(int mgmtDataId, {int? studentId, int? teacherId, int? schoolId, int? classTypeId}) async {
+    try {
+      final result = await _repository.update(
+        mgmtDataId,
+        studentId: studentId,
+        teacherId: teacherId,
+        schoolId: schoolId,
+        classTypeId: classTypeId,
+      );
+
+      // 목록에서 해당 항목 업데이트
+      final updatedData = state.data.map((d) {
+        if (d.mgmtDataId == mgmtDataId) {
+          return result;
+        }
+        return d;
+      }).toList();
+
+      state = state.copyWith(data: updatedData);
+      return result;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return null;
+    }
+  }
+
   // 에러 초기화
   void clearError() {
     state = state.copyWith(error: null);
