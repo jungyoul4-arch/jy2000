@@ -8,8 +8,12 @@ const router = Router();
 
 // 업로드 폴더 설정
 const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn(`[MgmtData] uploads 디렉토리 생성 실패 (수동 생성 필요): ${uploadDir}`);
 }
 
 // Multer 설정
