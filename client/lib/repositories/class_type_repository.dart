@@ -42,6 +42,18 @@ class ClassTypeRepository {
     return ClassType.fromJson(response['data']);
   }
 
+  // 반 형태명으로 검색 (정확히 일치)
+  Future<ClassType?> findByName(String classTypeName) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/class-type/find-by-name',
+      queryParameters: {'name': classTypeName},
+    );
+
+    final data = response['data'];
+    if (data == null) return null;
+    return ClassType.fromJson(data);
+  }
+
   // 반 형태 생성
   Future<ClassType> create({
     required String classTypeName,

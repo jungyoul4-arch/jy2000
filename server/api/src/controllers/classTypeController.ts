@@ -37,6 +37,19 @@ export class ClassTypeController {
     return sendSuccess(res, classType, 'Class type retrieved successfully');
   });
 
+  // GET /class-type/find-by-name - 반 형태명으로 검색
+  findByName = asyncHandler(async (req: Request, res: Response) => {
+    const name = req.query.name as string;
+
+    if (!name) {
+      return sendSuccess(res, null, 'name parameter is required', 400);
+    }
+
+    const classType = await classTypeService.findByName(name);
+
+    return sendSuccess(res, classType, classType ? 'Class type found' : 'Class type not found');
+  });
+
   // POST /class-type - 반 형태 생성
   create = asyncHandler(async (req: Request, res: Response) => {
     const data: ClassTypeCreate = req.body;

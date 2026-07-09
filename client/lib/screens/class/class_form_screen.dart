@@ -5,45 +5,61 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/class_model.dart';
+import '../../models/class_type.dart';
 import '../../providers/class_provider.dart';
-import '../../repositories/class_repository.dart';
+import '../../providers/class_type_provider.dart';
 
-// 과목 항목
-const _genreItems = [
-  (1, '국어', 'K'),
-  (2, '수학', 'M'),
-  (3, '영어', 'E'),
-  (4, '과학', 'S'),
-  (5, '사회', 'So'),
-  (99, '기타', 'X'),
+// 년도 옵션 (올해, 다음해)
+List<int> get _yearOptions {
+  final currentYear = DateTime.now().year;
+  return [currentYear, currentYear + 1];
+}
+
+// 중고 구분 옵션
+const List<MapEntry<String, String>> _schoolLevelOptions = [
+  MapEntry('middle', '중등부'),
+  MapEntry('high', '고등부'),
 ];
 
-// 학년 항목
-const _gradeItems = [
-  (7, '중1'),
-  (8, '중2'),
-  (9, '중3'),
-  (10, '고1'),
-  (11, '고2'),
-  (12, '고3'),
-  (99, '기타'),
+// 과목 항목 (genreId와 동일)
+const _subjectItems = [
+  (1, '국어'),
+  (2, '수학'),
+  (3, '영어'),
+  (4, '과학'),
+  (5, '사회'),
 ];
 
-// 커리큘럼 항목
-const _curriculumItems = [
-  (1, '정시반', '정'),
-  (2, '특별반', '특'),
+// 형태 옵션
+const List<MapEntry<int, String>> _formatOptions = [
+  MapEntry(1, '일반'),
+  MapEntry(2, '종합'),
+  MapEntry(3, '논술'),
+  MapEntry(4, '모의'),
+  MapEntry(5, '특강'),
+  MapEntry(6, '썸머'),
+  MapEntry(7, '윈터'),
 ];
 
-// 레벨 항목
-const _levelItems = [
-  (1, '최상위반', 'A'),
-  (2, '상위반', 'B'),
-  (3, '중위반', 'C'),
-  (4, '기초반', 'D'),
-  (5, '모든레벨', 'E'),
-  (99, '기타', 'X'),
-];
+// 학년 옵션 (중고 구분에 따라)
+List<MapEntry<int, String>> _getGradeOptionsForLevel(String level) {
+  if (level == 'middle') {
+    return [const MapEntry(9, '중3')];
+  } else {
+    return [
+      const MapEntry(10, '고1'),
+      const MapEntry(11, '고2'),
+      const MapEntry(12, '고3'),
+    ];
+  }
+}
+
+// 학년 코드 -> 문자열 변환
+String _gradeToString(int grade) {
+  if (grade >= 7 && grade <= 9) return '중${grade - 6}';
+  if (grade >= 10 && grade <= 12) return '고${grade - 9}';
+  return '$grade';
+}
 
 // 요일 항목
 const _dayItems = ['일', '월', '화', '수', '목', '금', '토'];
@@ -59,15 +75,27 @@ class ClassFormScreen extends ConsumerStatefulWidget {
 
 class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _numberFormat = NumberFormat('#,###');
   bool _isLoading = false;
   bool _isInitialized = false;
 
-  // 기본 정보
-  int? _genreId;
-  int? _grade;
-  int? _curriculum;
-  int? _level;
+  // 기본 정보 (반 형태 추가와 동일한 방식)
   int? _year;
+  String _schoolLevel = 'high'; // 중고 구분 (middle/high)
+  int? _subject; // 과목 (genreId와 동일)
+  int? _format; // 형태
+  int? _grade; // 학년
+
+  // 반 형태 관련
+  int? _classTypeId;
+  int? _unitPrice;
+  String _generatedClassTypeName = '';
+  bool _isSearchingClassType = false;
+
+  // 기존 Class 모델 필드 (저장용)
+  int? _curriculum; // 기본값 사용
+  int? _level; // 기본값 사용
+
   final _monthlyFeeController = TextEditingController();
   final _classNameController = TextEditingController();
 
@@ -104,10 +132,17 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
   @override
   void initState() {
     super.initState();
-    _year = DateTime.now().year;
+    _year = _yearOptions.first;
+    _subject = 1; // 기본값: 국어
+    _format = 1; // 기본값: 일반
+    _grade = 10; // 기본값: 고1
+    _curriculum = 1; // 기본값: 정시반
+    _level = 5; // 기본값: 모든레벨
 
     if (isEditMode) {
       _loadClassData();
+    } else {
+      _updateClassTypeName();
     }
   }
 
@@ -126,13 +161,16 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
       final classDetail = await repository.getById(widget.classId!);
 
       setState(() {
-        _genreId = classDetail.genreId;
+        _subject = classDetail.genreId;
         _grade = classDetail.info.grade;
         _curriculum = classDetail.info.curriculum;
         _level = classDetail.info.level;
         _year = classDetail.info.year;
         _monthlyFeeController.text = classDetail.info.monthlyFee?.toString() ?? '';
         _classNameController.text = classDetail.className;
+
+        // 중고 구분 추론
+        _schoolLevel = (_grade != null && _grade! <= 9) ? 'middle' : 'high';
 
         // 강의 기간
         if (classDetail.info.termStart != null) {
@@ -169,6 +207,9 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
 
         _isInitialized = true;
       });
+
+      // 반 형태명 업데이트 및 매칭
+      _updateClassTypeName();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -199,24 +240,38 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
     }
   }
 
-  String _generateClassName() {
-    if (_genreId == null || _grade == null || _curriculum == null || _level == null || _year == null) {
+  // 반 형태명 생성 (class_type_list_screen과 동일한 규칙)
+  String _generateClassTypeName() {
+    if (_year == null || _subject == null || _format == null || _grade == null) {
       return '';
     }
 
-    final genreCode = _genreItems.firstWhere((e) => e.$1 == _genreId).$3;
+    final levelStr = _schoolLevel == 'middle' ? '중등부' : '고등부';
+    final subjectStr = _subjectItems.firstWhere((e) => e.$1 == _subject).$2;
+    final formatStr = _formatOptions.firstWhere((e) => e.key == _format).value;
+    final gradeStr = _gradeToString(_grade!);
 
-    String gradeStr;
-    if (_grade! >= 7 && _grade! <= 9) {
-      gradeStr = '중${_grade! - 6}';
-    } else if (_grade! >= 10 && _grade! <= 12) {
-      gradeStr = '고${_grade! - 9}';
-    } else {
-      gradeStr = '기타';
+    return '$_year $levelStr $subjectStr $formatStr ($gradeStr)';
+  }
+
+  // 반 이름 생성 (기존 방식 유지)
+  String _generateClassName() {
+    if (_subject == null || _grade == null || _year == null) {
+      return '';
     }
 
-    final curriculumStr = _curriculumItems.firstWhere((e) => e.$1 == _curriculum).$3;
-    final levelStr = _levelItems.firstWhere((e) => e.$1 == _level).$3;
+    // 과목 코드
+    const genreCodes = {1: 'K', 2: 'M', 3: 'E', 4: 'S', 5: 'So'};
+    final genreCode = genreCodes[_subject] ?? 'X';
+
+    // 학년 문자열
+    final gradeStr = _gradeToString(_grade!);
+
+    // 커리큘럼과 레벨 (기본값 사용)
+    final curriculumStr = _curriculum == 1 ? '정' : '특';
+    const levelCodes = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E'};
+    final levelStr = levelCodes[_level] ?? 'X';
+
     final teamStr = _selectedTeachers.length > 1 ? 'T' : 'S';
 
     final teacherSuffix = _selectedTeachers.isNotEmpty
@@ -233,6 +288,48 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
         .join('');
 
     return '$_year $genreCode$gradeStr$curriculumStr$levelStr$teamStr$teacherSuffix($lectureDateStr)';
+  }
+
+  void _updateClassTypeName() {
+    final newName = _generateClassTypeName();
+    setState(() {
+      _generatedClassTypeName = newName;
+      _classTypeId = null;
+      _unitPrice = null;
+    });
+
+    // 자동 매칭 시도
+    if (newName.isNotEmpty) {
+      _tryMatchClassType(newName);
+    }
+  }
+
+  Future<void> _tryMatchClassType(String classTypeName) async {
+    if (classTypeName.isEmpty) return;
+
+    setState(() => _isSearchingClassType = true);
+
+    try {
+      final repository = ref.read(classTypeRepositoryProvider);
+      final classType = await repository.findByName(classTypeName);
+
+      if (mounted) {
+        setState(() {
+          if (classType != null) {
+            _classTypeId = classType.classTypeId;
+            _unitPrice = classType.unitPrice;
+          } else {
+            _classTypeId = null;
+            _unitPrice = null;
+          }
+          _isSearchingClassType = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSearchingClassType = false);
+      }
+    }
   }
 
   void _updateClassName() {
@@ -337,10 +434,10 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
         await repository.update(
           widget.classId!,
           ClassUpdate(
-            genreId: _genreId,
+            genreId: _subject,
             grade: _grade,
-            curriculum: _curriculum,
-            level: _level,
+            curriculum: _curriculum ?? 1,
+            level: _level ?? 5,
             year: _year,
             termStart: formatDate(_termStart),
             termEnd: formatDate(_termEnd),
@@ -355,10 +452,10 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
         // 신규 등록
         await repository.create(
           ClassCreate(
-            genreId: _genreId!,
+            genreId: _subject!,
             grade: _grade!,
-            curriculum: _curriculum!,
-            level: _level!,
+            curriculum: _curriculum ?? 1,
+            level: _level ?? 5,
             year: _year!,
             termStart: formatDate(_termStart),
             termEnd: formatDate(_termEnd),
@@ -388,6 +485,28 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showClassTypeSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => _ClassTypeSearchDialog(
+        onSelect: (classType) {
+          setState(() {
+            _classTypeId = classType.classTypeId;
+            _unitPrice = classType.unitPrice;
+            _generatedClassTypeName = classType.classTypeName;
+
+            // 선택한 반 형태의 정보로 업데이트
+            _year = classType.year ?? _year;
+            _grade = classType.grade;
+            _subject = classType.subject;
+            _format = classType.format;
+            _schoolLevel = classType.grade <= 9 ? 'middle' : 'high';
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -433,9 +552,14 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 기본 정보
+              // 기본 정보 (반 형태와 동일한 방식)
               _buildSectionTitle('기본 정보'),
               _buildBasicInfoSection(),
+              const SizedBox(height: 24),
+
+              // 반 형태 정보 (자동 생성된 반 형태명 + 수업 단가)
+              _buildSectionTitle('반 형태'),
+              _buildClassTypeSection(),
               const SizedBox(height: 24),
 
               // 강의 기간
@@ -489,98 +613,14 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
   }
 
   Widget _buildBasicInfoSection() {
+    final availableGrades = _getGradeOptionsForLevel(_schoolLevel);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 과목, 학년
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    value: _genreId,
-                    decoration: const InputDecoration(
-                      labelText: '과목 *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: _genreItems.map((e) => DropdownMenuItem(
-                      value: e.$1,
-                      child: Text(e.$2),
-                    )).toList(),
-                    onChanged: (value) {
-                      setState(() => _genreId = value);
-                      _updateClassName();
-                    },
-                    validator: (value) => value == null ? '과목을 선택하세요' : null,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    value: _grade,
-                    decoration: const InputDecoration(
-                      labelText: '학년 *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: _gradeItems.map((e) => DropdownMenuItem(
-                      value: e.$1,
-                      child: Text(e.$2),
-                    )).toList(),
-                    onChanged: (value) {
-                      setState(() => _grade = value);
-                      _updateClassName();
-                    },
-                    validator: (value) => value == null ? '학년을 선택하세요' : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // 커리큘럼, 레벨
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    value: _curriculum,
-                    decoration: const InputDecoration(
-                      labelText: '커리큘럼 *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: _curriculumItems.map((e) => DropdownMenuItem(
-                      value: e.$1,
-                      child: Text(e.$2),
-                    )).toList(),
-                    onChanged: (value) {
-                      setState(() => _curriculum = value);
-                      _updateClassName();
-                    },
-                    validator: (value) => value == null ? '커리큘럼을 선택하세요' : null,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButtonFormField<int>(
-                    value: _level,
-                    decoration: const InputDecoration(
-                      labelText: '레벨 *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: _levelItems.map((e) => DropdownMenuItem(
-                      value: e.$1,
-                      child: Text(e.$2),
-                    )).toList(),
-                    onChanged: (value) {
-                      setState(() => _level = value);
-                      _updateClassName();
-                    },
-                    validator: (value) => value == null ? '레벨을 선택하세요' : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // 년도
+            // 년도, 중고 구분
             Row(
               children: [
                 Expanded(
@@ -590,23 +630,219 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
                       labelText: '년도 *',
                       border: OutlineInputBorder(),
                     ),
-                    items: [
-                      DateTime.now().year,
-                      DateTime.now().year + 1,
-                    ].map((y) => DropdownMenuItem(
+                    items: _yearOptions.map((y) => DropdownMenuItem(
                       value: y,
                       child: Text('$y년'),
                     )).toList(),
                     onChanged: (value) {
                       setState(() => _year = value);
+                      _updateClassTypeName();
                       _updateClassName();
                     },
                     validator: (value) => value == null ? '년도를 선택하세요' : null,
                   ),
                 ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _schoolLevel,
+                    decoration: const InputDecoration(
+                      labelText: '중고 구분 *',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _schoolLevelOptions.map((e) => DropdownMenuItem(
+                      value: e.key,
+                      child: Text(e.value),
+                    )).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _schoolLevel = value;
+                          // 중등부 선택시 학년을 중3으로 변경
+                          if (_schoolLevel == 'middle') {
+                            _grade = 9;
+                          } else if (_grade == 9) {
+                            // 고등부 선택시 중3이었으면 고1로 변경
+                            _grade = 10;
+                          }
+                        });
+                        _updateClassTypeName();
+                        _updateClassName();
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // 과목, 형태
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _subject,
+                    decoration: const InputDecoration(
+                      labelText: '과목 *',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _subjectItems.map((e) => DropdownMenuItem(
+                      value: e.$1,
+                      child: Text(e.$2),
+                    )).toList(),
+                    onChanged: (value) {
+                      setState(() => _subject = value);
+                      _updateClassTypeName();
+                      _updateClassName();
+                    },
+                    validator: (value) => value == null ? '과목을 선택하세요' : null,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _format,
+                    decoration: const InputDecoration(
+                      labelText: '형태 *',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _formatOptions.map((e) => DropdownMenuItem(
+                      value: e.key,
+                      child: Text(e.value),
+                    )).toList(),
+                    onChanged: (value) {
+                      setState(() => _format = value);
+                      _updateClassTypeName();
+                    },
+                    validator: (value) => value == null ? '형태를 선택하세요' : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // 학년
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _grade,
+                    decoration: const InputDecoration(
+                      labelText: '학년 *',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: availableGrades.map((e) => DropdownMenuItem(
+                      value: e.key,
+                      child: Text(e.value),
+                    )).toList(),
+                    onChanged: (value) {
+                      setState(() => _grade = value);
+                      _updateClassTypeName();
+                      _updateClassName();
+                    },
+                    validator: (value) => value == null ? '학년을 선택하세요' : null,
+                  ),
+                ),
                 const Expanded(child: SizedBox()),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClassTypeSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 반 형태명 표시
+            Row(
+              children: [
+                Expanded(
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: '반 형태명',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: _isSearchingClassType
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : _classTypeId != null
+                              ? const Icon(Icons.check_circle, color: Colors.green)
+                              : const Icon(Icons.warning, color: Colors.orange),
+                    ),
+                    child: Text(
+                      _generatedClassTypeName.isNotEmpty ? _generatedClassTypeName : '기본 정보를 선택하세요',
+                      style: TextStyle(
+                        color: _generatedClassTypeName.isEmpty ? Colors.grey : null,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: _showClassTypeSearchDialog,
+                  icon: const Icon(Icons.search),
+                  label: const Text('반 형태 검색'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // 상태 메시지 및 수업 단가
+            if (_classTypeId != null) ...[
+              Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    '반 형태가 매칭되었습니다 (ID: $_classTypeId)',
+                    style: const TextStyle(color: Colors.green, fontSize: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // 수업 단가 표시
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.attach_money, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Text(
+                      '수업 단가: ${_numberFormat.format(_unitPrice ?? 0)}원',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (_generatedClassTypeName.isNotEmpty) ...[
+              Row(
+                children: [
+                  const Icon(Icons.warning, color: Colors.orange, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '일치하는 반 형태가 없습니다. "반 형태 검색" 버튼으로 검색하세요.',
+                      style: TextStyle(color: Colors.orange.shade700, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -960,7 +1196,7 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
               decoration: const InputDecoration(
                 labelText: '반 이름',
                 border: OutlineInputBorder(),
-                hintText: '예: 2026 K고1정AS동현(월7화8)',
+                hintText: '예: 2026 K고1정ES동현(월7화8)',
               ),
             ),
           ],
@@ -994,6 +1230,120 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// 반 형태 검색 다이얼로그
+class _ClassTypeSearchDialog extends ConsumerStatefulWidget {
+  final void Function(ClassType) onSelect;
+
+  const _ClassTypeSearchDialog({required this.onSelect});
+
+  @override
+  ConsumerState<_ClassTypeSearchDialog> createState() => _ClassTypeSearchDialogState();
+}
+
+class _ClassTypeSearchDialogState extends ConsumerState<_ClassTypeSearchDialog> {
+  final _searchController = TextEditingController();
+  List<ClassType> _allClassTypes = []; // 전체 목록 유지
+  List<ClassType> _searchResults = [];
+  bool _isLoading = false;
+  final _numberFormat = NumberFormat('#,###');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllClassTypes();
+  }
+
+  Future<void> _loadAllClassTypes() async {
+    setState(() => _isLoading = true);
+    try {
+      final repository = ref.read(classTypeRepositoryProvider);
+      final results = await repository.getList();
+      setState(() {
+        _allClassTypes = results;
+        _searchResults = results;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _filterResults(String query) {
+    if (query.trim().isEmpty) {
+      setState(() => _searchResults = _allClassTypes);
+      return;
+    }
+
+    // 공백으로 분리하여 각 단어가 모두 포함된 항목만 표시 (AND 조건)
+    final keywords = query.toLowerCase().split(' ').where((k) => k.isNotEmpty).toList();
+
+    setState(() {
+      _searchResults = _allClassTypes.where((ct) {
+        // 검색 대상 텍스트 결합
+        final searchText = '${ct.classTypeName} ${ct.gradeString} ${ct.subjectString}'.toLowerCase();
+        // 모든 키워드가 포함되어야 함
+        return keywords.every((keyword) => searchText.contains(keyword));
+      }).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('반 형태 검색'),
+      content: SizedBox(
+        width: 500,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                hintText: '검색어 (예: 고등부 국어 → 모두 포함된 결과)',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: _filterResults,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _searchResults.isEmpty
+                      ? const Center(child: Text('검색 결과가 없습니다'))
+                      : ListView.builder(
+                          itemCount: _searchResults.length,
+                          itemBuilder: (context, index) {
+                            final ct = _searchResults[index];
+                            return ListTile(
+                              title: Text(ct.classTypeName),
+                              subtitle: Text(
+                                '${ct.gradeString} | ${ct.subjectString} | ${_numberFormat.format(ct.unitPrice)}원',
+                              ),
+                              trailing: FilledButton(
+                                onPressed: () {
+                                  widget.onSelect(ct);
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('선택'),
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+      ],
     );
   }
 }

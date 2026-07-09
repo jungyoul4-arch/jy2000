@@ -8,6 +8,9 @@ const router = Router();
 // GET /class-type/list - 반 형태 목록 조회
 router.get('/list', classTypeController.getList);
 
+// GET /class-type/find-by-name - 반 형태명으로 검색
+router.get('/find-by-name', classTypeController.findByName);
+
 // POST /class-type/init - 엑셀에서 반 형태 초기화
 router.post('/init', classTypeController.initFromExcel);
 

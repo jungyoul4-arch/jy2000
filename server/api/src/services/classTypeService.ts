@@ -389,6 +389,54 @@ export class ClassTypeService {
     }
   }
 
+  // 반 형태명으로 정확히 일치하는 항목 찾기
+  async findByName(classTypeName: string): Promise<ClassType | null> {
+    const sql = `
+      SELECT
+        ct.class_type_id,
+        ct.class_type_name,
+        ct.year,
+        ct.grade,
+        ct.subject,
+        ct.format,
+        ct.unit_price,
+        ct.is_active,
+        ct.created_at,
+        ct.updated_at,
+        GROUP_CONCAT(
+          CONCAT(ctt.teacher_id, ':', COALESCE(u.name, ''))
+          ORDER BY ctt.id SEPARATOR ','
+        ) as teacher_info
+      FROM class_type ct
+      LEFT JOIN class_type_teacher ctt ON ct.class_type_id = ctt.class_type_id
+      LEFT JOIN User u ON ctt.teacher_id = u.user_id
+      WHERE ct.class_type_name = ? AND ct.deleted_at IS NULL
+      GROUP BY ct.class_type_id
+      LIMIT 1
+    `;
+
+    const [rows] = await pool.query<RowDataPacket[]>(sql, [classTypeName]);
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    const row = rows[0];
+    let teachers: ClassTypeTeacher[] = [];
+    if (row.teacher_info) {
+      teachers = row.teacher_info.split(',').map((info: string) => {
+        const [id, name] = info.split(':');
+        return { teacher_id: parseInt(id), teacher_name: name || '' };
+      });
+    }
+
+    return {
+      ...row,
+      teachers,
+      is_active: Boolean(row.is_active)
+    } as ClassType;
+  }
+
   // 반 형태 삭제 (soft delete)
   async delete(classTypeId: number): Promise<void> {
     const [existing] = await pool.query<RowDataPacket[]>(
