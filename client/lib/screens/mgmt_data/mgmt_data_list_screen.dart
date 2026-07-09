@@ -5,10 +5,12 @@ import 'package:file_picker/file_picker.dart';
 import '../../models/mgmt_data.dart';
 import '../../models/student.dart';
 import '../../models/staff.dart';
+import '../../models/class_type.dart';
 import '../../providers/mgmt_data_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/student_repository.dart';
 import '../../repositories/staff_repository.dart';
+import '../../repositories/class_type_repository.dart';
 
 class MgmtDataListScreen extends ConsumerStatefulWidget {
   const MgmtDataListScreen({super.key});
@@ -21,6 +23,8 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
   final _filePathController = TextEditingController();
   final _searchController = TextEditingController();
   String _searchText = '';
+  int _currentPage = 1;
+  static const int _itemsPerPage = 500;
 
   @override
   void initState() {
@@ -58,7 +62,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('경영 보고서'),
+            const Text('경영 데이터'),
             const SizedBox(width: 16),
             // 년월 선택
             _buildYearMonthSelector(mgmtDataState),
@@ -109,7 +113,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
                       : const Icon(Icons.upload),
-                  label: const Text('경영데이터 업로드'),
+                  label: Text('${mgmtDataState.selectedYear ?? DateTime.now().year}년 ${mgmtDataState.selectedMonth ?? DateTime.now().month}월 업로드'),
                 ),
               ],
             ),
@@ -140,7 +144,10 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                           : null,
                     ),
                     onChanged: (value) {
-                      setState(() => _searchText = value);
+                      setState(() {
+                        _searchText = value;
+                        _currentPage = 1;
+                      });
                     },
                   ),
                 ),
@@ -194,53 +201,170 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                               ],
                             ),
                           )
-                        : _buildDataTable(_filterData(mgmtDataState.data), isAdmin),
+                        : _buildPaginatedTable(_filterData(mgmtDataState.data), isAdmin),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildYearMonthSelector(MgmtDataListState state) {
-    if (state.availableMonths.isEmpty) {
-      final now = DateTime.now();
-      return OutlinedButton.icon(
-        onPressed: null,
-        icon: const Icon(Icons.calendar_today, size: 18),
-        label: Text('${now.year}년 ${now.month}월'),
-      );
+  Widget _buildPaginatedTable(List<MgmtData> allData, bool isAdmin) {
+    final totalPages = (allData.length / _itemsPerPage).ceil();
+    if (_currentPage > totalPages && totalPages > 0) {
+      _currentPage = totalPages;
     }
 
-    return PopupMenuButton<YearMonth>(
-      initialValue: state.selectedYear != null && state.selectedMonth != null
-          ? YearMonth(year: state.selectedYear!, month: state.selectedMonth!)
-          : null,
-      onSelected: (ym) {
-        ref.read(mgmtDataListProvider.notifier).changeYearMonth(ym.year, ym.month);
-      },
-      itemBuilder: (context) {
-        return state.availableMonths.map((ym) {
-          return PopupMenuItem(
-            value: ym,
-            child: Text('${ym.year}년 ${ym.month}월'),
-          );
-        }).toList();
-      },
-      child: OutlinedButton.icon(
-        onPressed: null,
-        icon: const Icon(Icons.calendar_today, size: 18),
-        label: Row(
+    final startIndex = (_currentPage - 1) * _itemsPerPage;
+    final endIndex = (startIndex + _itemsPerPage).clamp(0, allData.length);
+    final pageData = allData.sublist(startIndex, endIndex);
+
+    return Column(
+      children: [
+        Expanded(
+          child: _buildDataTable(pageData, isAdmin, startIndex),
+        ),
+        if (totalPages > 1)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              border: Border(top: BorderSide(color: Colors.grey.shade300)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: _currentPage > 1
+                      ? () => setState(() => _currentPage = 1)
+                      : null,
+                  icon: const Icon(Icons.first_page),
+                  tooltip: '첫 페이지',
+                ),
+                IconButton(
+                  onPressed: _currentPage > 1
+                      ? () => setState(() => _currentPage--)
+                      : null,
+                  icon: const Icon(Icons.chevron_left),
+                  tooltip: '이전 페이지',
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  '$_currentPage / $totalPages 페이지',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  onPressed: _currentPage < totalPages
+                      ? () => setState(() => _currentPage++)
+                      : null,
+                  icon: const Icon(Icons.chevron_right),
+                  tooltip: '다음 페이지',
+                ),
+                IconButton(
+                  onPressed: _currentPage < totalPages
+                      ? () => setState(() => _currentPage = totalPages)
+                      : null,
+                  icon: const Icon(Icons.last_page),
+                  tooltip: '마지막 페이지',
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildYearMonthSelector(MgmtDataListState state) {
+    final now = DateTime.now();
+    final displayYear = state.selectedYear ?? now.year;
+    final displayMonth = state.selectedMonth ?? now.month;
+
+    return InkWell(
+      onTap: () => _selectYearMonth(displayYear, displayMonth),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).colorScheme.primary),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${state.selectedYear ?? '-'}년 ${state.selectedMonth ?? '-'}월'),
-            const Icon(Icons.arrow_drop_down),
+            Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Text(
+              '$displayYear년 $displayMonth월',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.primary),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDataTable(List<MgmtData> data, bool isAdmin) {
+  Future<void> _selectYearMonth(int currentYear, int currentMonth) async {
+    final now = DateTime.now();
+    int selectedYear = currentYear;
+    int selectedMonth = currentMonth;
+
+    final result = await showDialog<YearMonth>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: const Text('년월 선택'),
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<int>(
+                value: selectedYear,
+                items: List.generate(5, (i) => now.year - 2 + i)
+                    .map((y) => DropdownMenuItem(value: y, child: Text('$y년')))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) setDialogState(() => selectedYear = value);
+                },
+              ),
+              const SizedBox(width: 16),
+              DropdownButton<int>(
+                value: selectedMonth,
+                items: List.generate(12, (i) => i + 1)
+                    .map((m) => DropdownMenuItem(value: m, child: Text('$m월')))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) setDialogState(() => selectedMonth = value);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, YearMonth(year: selectedYear, month: selectedMonth));
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      ref.read(mgmtDataListProvider.notifier).changeYearMonth(result.year, result.month);
+    }
+  }
+
+  Widget _buildDataTable(List<MgmtData> data, bool isAdmin, int startIndex) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: SingleChildScrollView(
@@ -248,6 +372,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
         child: DataTable(
           columnSpacing: 24,
           columns: const [
+            DataColumn(label: Text('No'), numeric: true),
             DataColumn(label: Text('학생이름')),
             DataColumn(label: Text('학교')),
             DataColumn(label: Text('학년')),
@@ -257,14 +382,18 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
             DataColumn(label: Text('강사')),
             DataColumn(label: Text('반명/교재명')),
             DataColumn(label: Text('반형태')),
+            DataColumn(label: Text('가격'), numeric: true),
           ],
-          rows: data.map((d) {
+          rows: data.asMap().entries.map((entry) {
+            final index = entry.key;
+            final d = entry.value;
             return DataRow(
               cells: [
-                // 학생이름 - 관리자만 수정 가능
+                DataCell(Text('${startIndex + index + 1}')),
+                // 학생이름 - 관리자만 수정 가능 (미지정시 원본 이름 표시)
                 DataCell(
                   _buildEditableCell(
-                    text: d.studentName ?? '',
+                    text: d.studentId != null ? (d.studentName ?? '') : (d.studentNameOrig ?? ''),
                     isEditable: isAdmin,
                     hasValue: d.studentId != null,
                     onTap: () => _showStudentSearchDialog(d),
@@ -275,10 +404,10 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                 DataCell(Text(d.enrollmentCount.toString())),
                 DataCell(Text(d.compClassType ?? '')),
                 DataCell(Text(d.subject ?? '')),
-                // 강사 - 관리자만 수정 가능
+                // 강사 - 관리자만 수정 가능 (미지정시 원본 이름 표시)
                 DataCell(
                   _buildEditableCell(
-                    text: d.teacherName ?? '',
+                    text: d.teacherId != null ? (d.teacherName ?? '') : (d.teacherNameOrig ?? ''),
                     isEditable: isAdmin,
                     hasValue: d.teacherId != null,
                     onTap: () => _showTeacherSearchDialog(d),
@@ -293,15 +422,17 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                     ),
                   ),
                 ),
+                // 반형태 - 관리자만 수정 가능 (미지정시 원본 이름 표시)
                 DataCell(
-                  SizedBox(
+                  _buildEditableCell(
+                    text: d.classTypeId != null ? (d.classTypeName ?? '') : (d.classTypeNameOrig ?? ''),
+                    isEditable: isAdmin,
+                    hasValue: d.classTypeId != null,
+                    onTap: () => _showClassTypeSearchDialog(d),
                     width: 150,
-                    child: Text(
-                      d.classTypeName ?? '',
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   ),
                 ),
+                DataCell(Text(d.price > 0 ? '${d.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}' : '')),
               ],
             );
           }).toList(),
@@ -315,17 +446,21 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
     required bool isEditable,
     required bool hasValue,
     required VoidCallback onTap,
+    double? width,
   }) {
     if (!isEditable) {
-      return Text(
+      final textWidget = Text(
         text,
         style: TextStyle(color: hasValue ? null : Colors.red),
+        overflow: width != null ? TextOverflow.ellipsis : null,
       );
+      return width != null ? SizedBox(width: width, child: textWidget) : textWidget;
     }
 
     return InkWell(
       onTap: onTap,
       child: Container(
+        width: width,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
           border: Border.all(color: hasValue ? Colors.blue.shade200 : Colors.red.shade200),
@@ -335,9 +470,12 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              text.isEmpty ? '(미지정)' : text,
-              style: TextStyle(color: hasValue ? Colors.blue.shade700 : Colors.red.shade700),
+            Flexible(
+              child: Text(
+                text.isEmpty ? '(미지정)' : text,
+                style: TextStyle(color: hasValue ? Colors.blue.shade700 : Colors.red.shade700),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 4),
             Icon(Icons.edit, size: 14, color: hasValue ? Colors.blue.shade400 : Colors.red.shade400),
@@ -389,6 +527,27 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
     }
   }
 
+  // 반형태 검색 다이얼로그
+  Future<void> _showClassTypeSearchDialog(MgmtData mgmtData) async {
+    final result = await showDialog<ClassType?>(
+      context: context,
+      builder: (context) => _ClassTypeSearchDialog(),
+    );
+
+    if (result != null && mounted) {
+      final updated = await ref.read(mgmtDataListProvider.notifier).update(
+        mgmtData.mgmtDataId,
+        classTypeId: result.classTypeId,
+      );
+
+      if (updated != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('반형태가 "${result.classTypeName}"(으)로 변경되었습니다'), backgroundColor: Colors.green),
+        );
+      }
+    }
+  }
+
   Future<void> _selectFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -411,14 +570,16 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
       return;
     }
 
-    // 년월 선택 다이얼로그
-    final yearMonth = await _showYearMonthDialog();
-    if (yearMonth == null) return;
+    // 현재 선택된 년월 사용
+    final state = ref.read(mgmtDataListProvider);
+    final now = DateTime.now();
+    final year = state.selectedYear ?? now.year;
+    final month = state.selectedMonth ?? now.month;
 
     final result = await ref.read(mgmtDataListProvider.notifier).uploadExcel(
       _filePathController.text,
-      yearMonth.year,
-      yearMonth.month,
+      year,
+      month,
     );
 
     if (mounted) {
@@ -440,57 +601,6 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
         );
       }
     }
-  }
-
-  Future<YearMonth?> _showYearMonthDialog() async {
-    final now = DateTime.now();
-    int selectedYear = now.year;
-    int selectedMonth = now.month;
-
-    return showDialog<YearMonth>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: const Text('업로드할 년월 선택'),
-          content: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButton<int>(
-                value: selectedYear,
-                items: List.generate(5, (i) => now.year - 2 + i)
-                    .map((y) => DropdownMenuItem(value: y, child: Text('$y년')))
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) setDialogState(() => selectedYear = value);
-                },
-              ),
-              const SizedBox(width: 16),
-              DropdownButton<int>(
-                value: selectedMonth,
-                items: List.generate(12, (i) => i + 1)
-                    .map((m) => DropdownMenuItem(value: m, child: Text('$m월')))
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) setDialogState(() => selectedMonth = value);
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('취소'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, YearMonth(year: selectedYear, month: selectedMonth));
-              },
-              child: const Text('확인'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _confirmDeleteMonth(BuildContext context, int year, int month) {
@@ -683,6 +793,99 @@ class _TeacherSearchDialogState extends State<_TeacherSearchDialog> {
                               title: Text(teacher.name),
                               subtitle: Text(teacher.kindName),
                               onTap: () => Navigator.pop(context, teacher),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+      ],
+    );
+  }
+}
+
+// 반형태 검색 다이얼로그
+class _ClassTypeSearchDialog extends StatefulWidget {
+  @override
+  State<_ClassTypeSearchDialog> createState() => _ClassTypeSearchDialogState();
+}
+
+class _ClassTypeSearchDialogState extends State<_ClassTypeSearchDialog> {
+  final _searchController = TextEditingController();
+  final _repository = ClassTypeRepository();
+  List<ClassType> _classTypes = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAll();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadAll() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _repository.getList();
+      setState(() => _classTypes = result);
+    } catch (e) {
+      // ignore
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  List<ClassType> get _filteredClassTypes {
+    if (_searchController.text.isEmpty) return _classTypes;
+    final query = _searchController.text.toLowerCase();
+    return _classTypes.where((ct) =>
+      ct.classTypeName.toLowerCase().contains(query)
+    ).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('반형태 검색'),
+      content: SizedBox(
+        width: 500,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                hintText: '반형태명으로 검색',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _filteredClassTypes.isEmpty
+                      ? const Center(child: Text('검색 결과가 없습니다'))
+                      : ListView.builder(
+                          itemCount: _filteredClassTypes.length,
+                          itemBuilder: (context, index) {
+                            final classType = _filteredClassTypes[index];
+                            return ListTile(
+                              title: Text(classType.classTypeName),
+                              subtitle: Text('${gradeToString(classType.grade)} / ${subjectToString(classType.subject)} / ${classType.unitPrice}원'),
+                              onTap: () => Navigator.pop(context, classType),
                             );
                           },
                         ),

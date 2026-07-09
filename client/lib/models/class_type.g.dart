@@ -24,8 +24,10 @@ _$ClassTypeImpl _$$ClassTypeImplFromJson(Map<String, dynamic> json) =>
     _$ClassTypeImpl(
       classTypeId: (json['class_type_id'] as num).toInt(),
       classTypeName: json['class_type_name'] as String,
+      year: (json['year'] as num?)?.toInt(),
       grade: (json['grade'] as num).toInt(),
       subject: (json['subject'] as num).toInt(),
+      format: (json['format'] as num?)?.toInt(),
       unitPrice: (json['unit_price'] as num?)?.toInt() ?? 0,
       teachers:
           (json['teachers'] as List<dynamic>?)
@@ -43,8 +45,10 @@ Map<String, dynamic> _$$ClassTypeImplToJson(_$ClassTypeImpl instance) =>
     <String, dynamic>{
       'class_type_id': instance.classTypeId,
       'class_type_name': instance.classTypeName,
+      'year': instance.year,
       'grade': instance.grade,
       'subject': instance.subject,
+      'format': instance.format,
       'unit_price': instance.unitPrice,
       'teachers': instance.teachers,
       'is_active': const IntToBoolConverter().toJson(instance.isActive),
@@ -56,8 +60,10 @@ _$ClassTypeCreateImpl _$$ClassTypeCreateImplFromJson(
   Map<String, dynamic> json,
 ) => _$ClassTypeCreateImpl(
   classTypeName: json['class_type_name'] as String,
+  year: (json['year'] as num?)?.toInt(),
   grade: (json['grade'] as num).toInt(),
   subject: (json['subject'] as num).toInt(),
+  format: (json['format'] as num?)?.toInt(),
   unitPrice: (json['unit_price'] as num?)?.toInt() ?? 0,
   teacherIds:
       (json['teacher_ids'] as List<dynamic>?)
@@ -75,8 +81,10 @@ Map<String, dynamic> _$$ClassTypeCreateImplToJson(
   _$ClassTypeCreateImpl instance,
 ) => <String, dynamic>{
   'class_type_name': instance.classTypeName,
+  'year': instance.year,
   'grade': instance.grade,
   'subject': instance.subject,
+  'format': instance.format,
   'unit_price': instance.unitPrice,
   'teacher_ids': instance.teacherIds,
   'teacher_names': instance.teacherNames,

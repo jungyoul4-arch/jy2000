@@ -45,8 +45,10 @@ class ClassTypeRepository {
   // 반 형태 생성
   Future<ClassType> create({
     required String classTypeName,
+    int? year,
     required int grade,
     required int subject,
+    int? format,
     int unitPrice = 0,
     List<int>? teacherIds,
     List<String>? teacherNames,
@@ -55,8 +57,10 @@ class ClassTypeRepository {
       '/class-type',
       data: {
         'class_type_name': classTypeName,
+        if (year != null) 'year': year,
         'grade': grade,
         'subject': subject,
+        if (format != null) 'format': format,
         'unit_price': unitPrice,
         if (teacherIds != null && teacherIds.isNotEmpty) 'teacher_ids': teacherIds,
         if (teacherNames != null && teacherNames.isNotEmpty) 'teacher_names': teacherNames,
@@ -69,16 +73,20 @@ class ClassTypeRepository {
   // 반 형태 수정
   Future<ClassType> update(int classTypeId, {
     String? classTypeName,
+    int? year,
     int? grade,
     int? subject,
+    int? format,
     int? unitPrice,
     List<int>? teacherIds,
     List<String>? teacherNames,
   }) async {
     final data = <String, dynamic>{};
     if (classTypeName != null) data['class_type_name'] = classTypeName;
+    if (year != null) data['year'] = year;
     if (grade != null) data['grade'] = grade;
     if (subject != null) data['subject'] = subject;
+    if (format != null) data['format'] = format;
     if (unitPrice != null) data['unit_price'] = unitPrice;
     if (teacherIds != null) data['teacher_ids'] = teacherIds;
     if (teacherNames != null) data['teacher_names'] = teacherNames;

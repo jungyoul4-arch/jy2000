@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../core/api/api_client.dart';
 import '../models/mgmt_data.dart';
+import '../models/mgmt_report.dart';
 
 class MgmtDataRepository {
   final ApiClient _apiClient = ApiClient.instance;
@@ -65,6 +66,50 @@ class MgmtDataRepository {
     );
 
     return MgmtData.fromJson(response['data']);
+  }
+
+  // 경영 보고서 데이터 조회
+  Future<MgmtReport> getReport({
+    required int startYear,
+    required int startMonth,
+    required int endYear,
+    required int endMonth,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'startYear': startYear.toString(),
+      'startMonth': startMonth.toString(),
+      'endYear': endYear.toString(),
+      'endMonth': endMonth.toString(),
+    };
+
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/mgmt-data/report',
+      queryParameters: queryParams,
+    );
+
+    return MgmtReport.fromJson(response['data']);
+  }
+
+  // 지역별 보고서 데이터 조회
+  Future<RegionReport> getRegionReport({
+    required int startYear,
+    required int startMonth,
+    required int endYear,
+    required int endMonth,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'startYear': startYear.toString(),
+      'startMonth': startMonth.toString(),
+      'endYear': endYear.toString(),
+      'endMonth': endMonth.toString(),
+    };
+
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/mgmt-data/region-report',
+      queryParameters: queryParams,
+    );
+
+    return RegionReport.fromJson(response['data']);
   }
 
   // 엑셀 파일 업로드

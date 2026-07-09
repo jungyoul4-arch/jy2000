@@ -23,6 +23,8 @@ import '../screens/class/class_form_screen.dart';
 import '../screens/staff/staff_list_screen.dart';
 import '../screens/class_type/class_type_list_screen.dart';
 import '../screens/mgmt_data/mgmt_data_list_screen.dart';
+import '../screens/mgmt_report/mgmt_report_screen.dart';
+import '../screens/mgmt_report/region_report_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -46,6 +48,8 @@ class AppRoutes {
   static const String classCreate = '/classes/create';
   static const String classEdit = '/classes/:id/edit';
   static const String mgmtDataList = '/mgmt-data';
+  static const String mgmtReport = '/mgmt-report';
+  static const String mgmtReportRegion = '/mgmt-report/region';
 }
 
 // GoRouter Refresh Notifier
@@ -232,11 +236,25 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
 
-          // 경영 보고서
+          // 경영 데이터
           GoRoute(
             path: AppRoutes.mgmtDataList,
             name: 'mgmtDataList',
             builder: (context, state) => const MgmtDataListScreen(),
+          ),
+
+          // 경영 보고서
+          GoRoute(
+            path: AppRoutes.mgmtReport,
+            name: 'mgmtReport',
+            builder: (context, state) => const MgmtReportScreen(),
+          ),
+
+          // 지역별 보고서
+          GoRoute(
+            path: AppRoutes.mgmtReportRegion,
+            name: 'mgmtReportRegion',
+            builder: (context, state) => const RegionReportScreen(),
           ),
         ],
       ),

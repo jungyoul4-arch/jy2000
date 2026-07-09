@@ -46,8 +46,8 @@ export class MgmtDataController {
   // PATCH /mgmt-data/:id - 경영 데이터 수정 (관리자만)
   update = asyncHandler(async (req: Request, res: Response) => {
     // 관리자 권한 확인
-    const user = (req as any).user;
-    if (!user?.isAdmin) {
+    const isAdmin = (req as any).userIsAdmin;
+    if (!isAdmin) {
       return res.status(403).json({
         success: false,
         code: 403,
@@ -74,6 +74,32 @@ export class MgmtDataController {
     }
 
     return sendSuccess(res, result, '수정되었습니다');
+  });
+
+  // GET /mgmt-data/report - 경영 보고서 데이터 조회
+  getReport = asyncHandler(async (req: Request, res: Response) => {
+    const now = new Date();
+    const startYear = parseInt(req.query.startYear as string) || now.getFullYear();
+    const startMonth = parseInt(req.query.startMonth as string) || 1;
+    const endYear = parseInt(req.query.endYear as string) || now.getFullYear();
+    const endMonth = parseInt(req.query.endMonth as string) || now.getMonth() + 1;
+
+    const result = await mgmtDataService.getReport(startYear, startMonth, endYear, endMonth);
+
+    return sendSuccess(res, result, '경영 보고서 데이터 조회 완료');
+  });
+
+  // GET /mgmt-data/region-report - 지역별 보고서 데이터 조회
+  getRegionReport = asyncHandler(async (req: Request, res: Response) => {
+    const now = new Date();
+    const startYear = parseInt(req.query.startYear as string) || now.getFullYear();
+    const startMonth = parseInt(req.query.startMonth as string) || 1;
+    const endYear = parseInt(req.query.endYear as string) || now.getFullYear();
+    const endMonth = parseInt(req.query.endMonth as string) || now.getMonth() + 1;
+
+    const result = await mgmtDataService.getRegionReport(startYear, startMonth, endYear, endMonth);
+
+    return sendSuccess(res, result, '지역별 보고서 데이터 조회 완료');
   });
 
   // POST /mgmt-data/upload - 엑셀 파일 업로드

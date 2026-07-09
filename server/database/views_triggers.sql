@@ -19,7 +19,7 @@ SELECT
     s.gender_code,
     g.code_name AS gender_name,
     s.school_id,
-    s.school_name,
+    sch.school_name,
     u.grade,
     CASE u.grade
         WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
@@ -58,6 +58,7 @@ SELECT
     s.updated_at
 FROM student_info s
 JOIN User u ON s.student_id = u.user_id
+LEFT JOIN School sch ON s.school_id = sch.school_id
 LEFT JOIN code_master g ON s.gender_code = g.code_id
 LEFT JOIN code_master st ON s.status_code = st.code_id
 LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
@@ -65,7 +66,7 @@ LEFT JOIN code_master src ON s.source_code = src.code_id
 LEFT JOIN User tc ON s.tc_id = tc.user_id
 LEFT JOIN ParentPhone pp ON pp.student_id = s.student_id AND pp.seq = 1
 LEFT JOIN User p ON pp.parent_id = p.user_id
-WHERE s.deleted_at IS NULL;
+WHERE u.active_flag = 1;
 
 -- ============================================================
 -- 2. 상담 상세 뷰 - User 테이블 JOIN
@@ -104,7 +105,7 @@ LEFT JOIN code_master ch ON c.channel_code = ch.code_id
 LEFT JOIN code_master cr ON c.consult_result_code = cr.code_id
 LEFT JOIN code_master na ON c.next_action_code = na.code_id
 LEFT JOIN User tc ON c.tc_id = tc.user_id
-WHERE c.deleted_at IS NULL;
+WHERE 1=1;
 
 -- ============================================================
 -- 3. 퍼널 통계 뷰 (상태별 학생 수)
@@ -117,7 +118,7 @@ SELECT
     COUNT(*) AS student_count
 FROM student_info s
 JOIN code_master cm ON s.status_code = cm.code_id
-WHERE s.deleted_at IS NULL
+WHERE cm.code_group = 'STATUS'
 GROUP BY s.status_code, cm.code_name, cm.sort_order
 ORDER BY cm.sort_order;
 
@@ -135,9 +136,9 @@ SELECT
     SUM(CASE WHEN s.status_code = 'STATUS_ENROLLED' THEN 1 ELSE 0 END) AS enrolled_count,
     COUNT(DISTINCT c.consult_id) AS consult_total
 FROM User u
-LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
-LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
-WHERE u.kind = 5 AND u.active_flag = 1 AND u.deleted_at IS NULL
+LEFT JOIN student_info s ON u.user_id = s.tc_id
+LEFT JOIN consult c ON u.user_id = c.tc_id
+WHERE u.kind = 5 AND u.active_flag = 1
 GROUP BY u.user_id, u.name;
 
 -- ============================================================
@@ -159,8 +160,7 @@ FROM consult c
 JOIN User u ON c.student_id = u.user_id
 LEFT JOIN code_master na ON c.next_action_code = na.code_id
 LEFT JOIN User tc ON c.tc_id = tc.user_id
-WHERE c.deleted_at IS NULL
-  AND DATE(c.next_consult_date) = CURDATE()
+WHERE DATE(c.next_consult_date) = CURDATE()
   AND c.next_action_code IS NOT NULL
   AND c.next_action_code != 'ACTION_NONE'
 ORDER BY c.next_consult_date;
@@ -173,8 +173,7 @@ SELECT
     DATE_FORMAT(register_date, '%Y-%m') AS month,
     COUNT(*) AS register_count
 FROM student_info
-WHERE deleted_at IS NULL
-  AND register_date IS NOT NULL
+WHERE register_date IS NOT NULL
 GROUP BY DATE_FORMAT(register_date, '%Y-%m')
 ORDER BY month DESC;
 

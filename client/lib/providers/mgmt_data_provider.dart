@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/mgmt_data.dart';
+import '../models/mgmt_report.dart';
 import '../repositories/mgmt_data_repository.dart';
 
 // Repository Provider
@@ -158,4 +159,308 @@ class MgmtDataListNotifier extends StateNotifier<MgmtDataListState> {
 final mgmtDataListProvider =
     StateNotifierProvider<MgmtDataListNotifier, MgmtDataListState>((ref) {
   return MgmtDataListNotifier(ref.read(mgmtDataRepositoryProvider));
+});
+
+// ============================================================
+// 경영 보고서 Provider
+// ============================================================
+
+// 경영 보고서 상태
+class MgmtReportState {
+  final MgmtReport? report;
+  final int startYear;
+  final int startMonth;
+  final int endYear;
+  final int endMonth;
+  final bool isLoading;
+  final String? error;
+
+  MgmtReportState({
+    this.report,
+    required this.startYear,
+    required this.startMonth,
+    required this.endYear,
+    required this.endMonth,
+    this.isLoading = false,
+    this.error,
+  });
+
+  MgmtReportState copyWith({
+    MgmtReport? report,
+    int? startYear,
+    int? startMonth,
+    int? endYear,
+    int? endMonth,
+    bool? isLoading,
+    String? error,
+  }) {
+    return MgmtReportState(
+      report: report ?? this.report,
+      startYear: startYear ?? this.startYear,
+      startMonth: startMonth ?? this.startMonth,
+      endYear: endYear ?? this.endYear,
+      endMonth: endMonth ?? this.endMonth,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
+}
+
+// 경영 보고서 Notifier
+class MgmtReportNotifier extends StateNotifier<MgmtReportState> {
+  final MgmtDataRepository _repository;
+
+  MgmtReportNotifier(this._repository)
+      : super(MgmtReportState(
+          startYear: DateTime.now().year,
+          startMonth: 1,
+          endYear: DateTime.now().year,
+          endMonth: DateTime.now().month,
+        ));
+
+  // 경영 보고서 데이터 로드
+  Future<void> loadReport() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final result = await _repository.getReport(
+        startYear: state.startYear,
+        startMonth: state.startMonth,
+        endYear: state.endYear,
+        endMonth: state.endMonth,
+      );
+
+      state = state.copyWith(
+        report: result,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  // 기간 변경
+  void changePeriod({
+    required int startYear,
+    required int startMonth,
+    required int endYear,
+    required int endMonth,
+  }) {
+    state = state.copyWith(
+      startYear: startYear,
+      startMonth: startMonth,
+      endYear: endYear,
+      endMonth: endMonth,
+    );
+    loadReport();
+  }
+
+  // 빠른 선택: 이번 달
+  void selectThisMonth() {
+    final now = DateTime.now();
+    changePeriod(
+      startYear: now.year,
+      startMonth: now.month,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 빠른 선택: 최근 3개월
+  void selectLast3Months() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - 2, 1);
+    changePeriod(
+      startYear: start.year,
+      startMonth: start.month,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 빠른 선택: 최근 6개월
+  void selectLast6Months() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - 5, 1);
+    changePeriod(
+      startYear: start.year,
+      startMonth: start.month,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 빠른 선택: 올해 전체
+  void selectThisYear() {
+    final now = DateTime.now();
+    changePeriod(
+      startYear: now.year,
+      startMonth: 1,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 에러 초기화
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
+}
+
+// Provider
+final mgmtReportProvider =
+    StateNotifierProvider<MgmtReportNotifier, MgmtReportState>((ref) {
+  return MgmtReportNotifier(ref.read(mgmtDataRepositoryProvider));
+});
+
+// ============================================================
+// 지역별 보고서 Provider
+// ============================================================
+
+// 지역별 보고서 상태
+class RegionReportState {
+  final RegionReport? report;
+  final int startYear;
+  final int startMonth;
+  final int endYear;
+  final int endMonth;
+  final bool isLoading;
+  final String? error;
+
+  RegionReportState({
+    this.report,
+    required this.startYear,
+    required this.startMonth,
+    required this.endYear,
+    required this.endMonth,
+    this.isLoading = false,
+    this.error,
+  });
+
+  RegionReportState copyWith({
+    RegionReport? report,
+    int? startYear,
+    int? startMonth,
+    int? endYear,
+    int? endMonth,
+    bool? isLoading,
+    String? error,
+  }) {
+    return RegionReportState(
+      report: report ?? this.report,
+      startYear: startYear ?? this.startYear,
+      startMonth: startMonth ?? this.startMonth,
+      endYear: endYear ?? this.endYear,
+      endMonth: endMonth ?? this.endMonth,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
+}
+
+// 지역별 보고서 Notifier
+class RegionReportNotifier extends StateNotifier<RegionReportState> {
+  final MgmtDataRepository _repository;
+
+  RegionReportNotifier(this._repository)
+      : super(RegionReportState(
+          startYear: DateTime.now().year,
+          startMonth: 1,
+          endYear: DateTime.now().year,
+          endMonth: DateTime.now().month,
+        ));
+
+  // 지역별 보고서 데이터 로드
+  Future<void> loadReport() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final result = await _repository.getRegionReport(
+        startYear: state.startYear,
+        startMonth: state.startMonth,
+        endYear: state.endYear,
+        endMonth: state.endMonth,
+      );
+
+      state = state.copyWith(
+        report: result,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  // 기간 변경
+  void changePeriod({
+    required int startYear,
+    required int startMonth,
+    required int endYear,
+    required int endMonth,
+  }) {
+    state = state.copyWith(
+      startYear: startYear,
+      startMonth: startMonth,
+      endYear: endYear,
+      endMonth: endMonth,
+    );
+    loadReport();
+  }
+
+  // 빠른 선택: 이번 달
+  void selectThisMonth() {
+    final now = DateTime.now();
+    changePeriod(
+      startYear: now.year,
+      startMonth: now.month,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 빠른 선택: 최근 3개월
+  void selectLast3Months() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - 2, 1);
+    changePeriod(
+      startYear: start.year,
+      startMonth: start.month,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 빠른 선택: 최근 6개월
+  void selectLast6Months() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - 5, 1);
+    changePeriod(
+      startYear: start.year,
+      startMonth: start.month,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 빠른 선택: 올해 전체
+  void selectThisYear() {
+    final now = DateTime.now();
+    changePeriod(
+      startYear: now.year,
+      startMonth: 1,
+      endYear: now.year,
+      endMonth: now.month,
+    );
+  }
+
+  // 에러 초기화
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
+}
+
+// Provider
+final regionReportProvider =
+    StateNotifierProvider<RegionReportNotifier, RegionReportState>((ref) {
+  return RegionReportNotifier(ref.read(mgmtDataRepositoryProvider));
 });

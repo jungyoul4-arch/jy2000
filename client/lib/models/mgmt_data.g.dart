@@ -26,6 +26,11 @@ _$MgmtDataImpl _$$MgmtDataImplFromJson(Map<String, dynamic> json) =>
       className1: json['class_name1'] as String?,
       classTypeId: (json['class_type_id'] as num?)?.toInt(),
       classTypeName: json['class_type_name'] as String?,
+      unitPrice: (json['unit_price'] as num?)?.toInt() ?? 0,
+      price: (json['price'] as num?)?.toInt() ?? 0,
+      studentNameOrig: json['student_name_orig'] as String?,
+      teacherNameOrig: json['teacher_name_orig'] as String?,
+      classTypeNameOrig: json['class_type_name_orig'] as String?,
       createdAt: json['created_at'] as String?,
     );
 
@@ -49,6 +54,11 @@ Map<String, dynamic> _$$MgmtDataImplToJson(_$MgmtDataImpl instance) =>
       'class_name1': instance.className1,
       'class_type_id': instance.classTypeId,
       'class_type_name': instance.classTypeName,
+      'unit_price': instance.unitPrice,
+      'price': instance.price,
+      'student_name_orig': instance.studentNameOrig,
+      'teacher_name_orig': instance.teacherNameOrig,
+      'class_type_name_orig': instance.classTypeNameOrig,
       'created_at': instance.createdAt,
     };
 

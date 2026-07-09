@@ -213,8 +213,10 @@ mixin _$ClassType {
   int get classTypeId => throw _privateConstructorUsedError;
   @JsonKey(name: 'class_type_name')
   String get classTypeName => throw _privateConstructorUsedError;
+  int? get year => throw _privateConstructorUsedError;
   int get grade => throw _privateConstructorUsedError;
   int get subject => throw _privateConstructorUsedError;
+  int? get format => throw _privateConstructorUsedError;
   @JsonKey(name: 'unit_price')
   int get unitPrice => throw _privateConstructorUsedError;
   List<ClassTypeTeacher> get teachers => throw _privateConstructorUsedError;
@@ -244,8 +246,10 @@ abstract class $ClassTypeCopyWith<$Res> {
   $Res call({
     @JsonKey(name: 'class_type_id') int classTypeId,
     @JsonKey(name: 'class_type_name') String classTypeName,
+    int? year,
     int grade,
     int subject,
+    int? format,
     @JsonKey(name: 'unit_price') int unitPrice,
     List<ClassTypeTeacher> teachers,
     @JsonKey(name: 'is_active') @IntToBoolConverter() bool isActive,
@@ -271,8 +275,10 @@ class _$ClassTypeCopyWithImpl<$Res, $Val extends ClassType>
   $Res call({
     Object? classTypeId = null,
     Object? classTypeName = null,
+    Object? year = freezed,
     Object? grade = null,
     Object? subject = null,
+    Object? format = freezed,
     Object? unitPrice = null,
     Object? teachers = null,
     Object? isActive = null,
@@ -289,6 +295,10 @@ class _$ClassTypeCopyWithImpl<$Res, $Val extends ClassType>
                 ? _value.classTypeName
                 : classTypeName // ignore: cast_nullable_to_non_nullable
                       as String,
+            year: freezed == year
+                ? _value.year
+                : year // ignore: cast_nullable_to_non_nullable
+                      as int?,
             grade: null == grade
                 ? _value.grade
                 : grade // ignore: cast_nullable_to_non_nullable
@@ -297,6 +307,10 @@ class _$ClassTypeCopyWithImpl<$Res, $Val extends ClassType>
                 ? _value.subject
                 : subject // ignore: cast_nullable_to_non_nullable
                       as int,
+            format: freezed == format
+                ? _value.format
+                : format // ignore: cast_nullable_to_non_nullable
+                      as int?,
             unitPrice: null == unitPrice
                 ? _value.unitPrice
                 : unitPrice // ignore: cast_nullable_to_non_nullable
@@ -335,8 +349,10 @@ abstract class _$$ClassTypeImplCopyWith<$Res>
   $Res call({
     @JsonKey(name: 'class_type_id') int classTypeId,
     @JsonKey(name: 'class_type_name') String classTypeName,
+    int? year,
     int grade,
     int subject,
+    int? format,
     @JsonKey(name: 'unit_price') int unitPrice,
     List<ClassTypeTeacher> teachers,
     @JsonKey(name: 'is_active') @IntToBoolConverter() bool isActive,
@@ -361,8 +377,10 @@ class __$$ClassTypeImplCopyWithImpl<$Res>
   $Res call({
     Object? classTypeId = null,
     Object? classTypeName = null,
+    Object? year = freezed,
     Object? grade = null,
     Object? subject = null,
+    Object? format = freezed,
     Object? unitPrice = null,
     Object? teachers = null,
     Object? isActive = null,
@@ -379,6 +397,10 @@ class __$$ClassTypeImplCopyWithImpl<$Res>
             ? _value.classTypeName
             : classTypeName // ignore: cast_nullable_to_non_nullable
                   as String,
+        year: freezed == year
+            ? _value.year
+            : year // ignore: cast_nullable_to_non_nullable
+                  as int?,
         grade: null == grade
             ? _value.grade
             : grade // ignore: cast_nullable_to_non_nullable
@@ -387,6 +409,10 @@ class __$$ClassTypeImplCopyWithImpl<$Res>
             ? _value.subject
             : subject // ignore: cast_nullable_to_non_nullable
                   as int,
+        format: freezed == format
+            ? _value.format
+            : format // ignore: cast_nullable_to_non_nullable
+                  as int?,
         unitPrice: null == unitPrice
             ? _value.unitPrice
             : unitPrice // ignore: cast_nullable_to_non_nullable
@@ -418,8 +444,10 @@ class _$ClassTypeImpl extends _ClassType {
   const _$ClassTypeImpl({
     @JsonKey(name: 'class_type_id') required this.classTypeId,
     @JsonKey(name: 'class_type_name') required this.classTypeName,
+    this.year,
     required this.grade,
     required this.subject,
+    this.format,
     @JsonKey(name: 'unit_price') this.unitPrice = 0,
     final List<ClassTypeTeacher> teachers = const [],
     @JsonKey(name: 'is_active') @IntToBoolConverter() this.isActive = true,
@@ -438,9 +466,13 @@ class _$ClassTypeImpl extends _ClassType {
   @JsonKey(name: 'class_type_name')
   final String classTypeName;
   @override
+  final int? year;
+  @override
   final int grade;
   @override
   final int subject;
+  @override
+  final int? format;
   @override
   @JsonKey(name: 'unit_price')
   final int unitPrice;
@@ -466,7 +498,7 @@ class _$ClassTypeImpl extends _ClassType {
 
   @override
   String toString() {
-    return 'ClassType(classTypeId: $classTypeId, classTypeName: $classTypeName, grade: $grade, subject: $subject, unitPrice: $unitPrice, teachers: $teachers, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ClassType(classTypeId: $classTypeId, classTypeName: $classTypeName, year: $year, grade: $grade, subject: $subject, format: $format, unitPrice: $unitPrice, teachers: $teachers, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -478,8 +510,10 @@ class _$ClassTypeImpl extends _ClassType {
                 other.classTypeId == classTypeId) &&
             (identical(other.classTypeName, classTypeName) ||
                 other.classTypeName == classTypeName) &&
+            (identical(other.year, year) || other.year == year) &&
             (identical(other.grade, grade) || other.grade == grade) &&
             (identical(other.subject, subject) || other.subject == subject) &&
+            (identical(other.format, format) || other.format == format) &&
             (identical(other.unitPrice, unitPrice) ||
                 other.unitPrice == unitPrice) &&
             const DeepCollectionEquality().equals(other._teachers, _teachers) &&
@@ -497,8 +531,10 @@ class _$ClassTypeImpl extends _ClassType {
     runtimeType,
     classTypeId,
     classTypeName,
+    year,
     grade,
     subject,
+    format,
     unitPrice,
     const DeepCollectionEquality().hash(_teachers),
     isActive,
@@ -524,8 +560,10 @@ abstract class _ClassType extends ClassType {
   const factory _ClassType({
     @JsonKey(name: 'class_type_id') required final int classTypeId,
     @JsonKey(name: 'class_type_name') required final String classTypeName,
+    final int? year,
     required final int grade,
     required final int subject,
+    final int? format,
     @JsonKey(name: 'unit_price') final int unitPrice,
     final List<ClassTypeTeacher> teachers,
     @JsonKey(name: 'is_active') @IntToBoolConverter() final bool isActive,
@@ -544,9 +582,13 @@ abstract class _ClassType extends ClassType {
   @JsonKey(name: 'class_type_name')
   String get classTypeName;
   @override
+  int? get year;
+  @override
   int get grade;
   @override
   int get subject;
+  @override
+  int? get format;
   @override
   @JsonKey(name: 'unit_price')
   int get unitPrice;
@@ -579,8 +621,10 @@ ClassTypeCreate _$ClassTypeCreateFromJson(Map<String, dynamic> json) {
 mixin _$ClassTypeCreate {
   @JsonKey(name: 'class_type_name')
   String get classTypeName => throw _privateConstructorUsedError;
+  int? get year => throw _privateConstructorUsedError;
   int get grade => throw _privateConstructorUsedError;
   int get subject => throw _privateConstructorUsedError;
+  int? get format => throw _privateConstructorUsedError;
   @JsonKey(name: 'unit_price')
   int get unitPrice => throw _privateConstructorUsedError;
   @JsonKey(name: 'teacher_ids')
@@ -607,8 +651,10 @@ abstract class $ClassTypeCreateCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: 'class_type_name') String classTypeName,
+    int? year,
     int grade,
     int subject,
+    int? format,
     @JsonKey(name: 'unit_price') int unitPrice,
     @JsonKey(name: 'teacher_ids') List<int> teacherIds,
     @JsonKey(name: 'teacher_names') List<String> teacherNames,
@@ -631,8 +677,10 @@ class _$ClassTypeCreateCopyWithImpl<$Res, $Val extends ClassTypeCreate>
   @override
   $Res call({
     Object? classTypeName = null,
+    Object? year = freezed,
     Object? grade = null,
     Object? subject = null,
+    Object? format = freezed,
     Object? unitPrice = null,
     Object? teacherIds = null,
     Object? teacherNames = null,
@@ -643,6 +691,10 @@ class _$ClassTypeCreateCopyWithImpl<$Res, $Val extends ClassTypeCreate>
                 ? _value.classTypeName
                 : classTypeName // ignore: cast_nullable_to_non_nullable
                       as String,
+            year: freezed == year
+                ? _value.year
+                : year // ignore: cast_nullable_to_non_nullable
+                      as int?,
             grade: null == grade
                 ? _value.grade
                 : grade // ignore: cast_nullable_to_non_nullable
@@ -651,6 +703,10 @@ class _$ClassTypeCreateCopyWithImpl<$Res, $Val extends ClassTypeCreate>
                 ? _value.subject
                 : subject // ignore: cast_nullable_to_non_nullable
                       as int,
+            format: freezed == format
+                ? _value.format
+                : format // ignore: cast_nullable_to_non_nullable
+                      as int?,
             unitPrice: null == unitPrice
                 ? _value.unitPrice
                 : unitPrice // ignore: cast_nullable_to_non_nullable
@@ -680,8 +736,10 @@ abstract class _$$ClassTypeCreateImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: 'class_type_name') String classTypeName,
+    int? year,
     int grade,
     int subject,
+    int? format,
     @JsonKey(name: 'unit_price') int unitPrice,
     @JsonKey(name: 'teacher_ids') List<int> teacherIds,
     @JsonKey(name: 'teacher_names') List<String> teacherNames,
@@ -703,8 +761,10 @@ class __$$ClassTypeCreateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? classTypeName = null,
+    Object? year = freezed,
     Object? grade = null,
     Object? subject = null,
+    Object? format = freezed,
     Object? unitPrice = null,
     Object? teacherIds = null,
     Object? teacherNames = null,
@@ -715,6 +775,10 @@ class __$$ClassTypeCreateImplCopyWithImpl<$Res>
             ? _value.classTypeName
             : classTypeName // ignore: cast_nullable_to_non_nullable
                   as String,
+        year: freezed == year
+            ? _value.year
+            : year // ignore: cast_nullable_to_non_nullable
+                  as int?,
         grade: null == grade
             ? _value.grade
             : grade // ignore: cast_nullable_to_non_nullable
@@ -723,6 +787,10 @@ class __$$ClassTypeCreateImplCopyWithImpl<$Res>
             ? _value.subject
             : subject // ignore: cast_nullable_to_non_nullable
                   as int,
+        format: freezed == format
+            ? _value.format
+            : format // ignore: cast_nullable_to_non_nullable
+                  as int?,
         unitPrice: null == unitPrice
             ? _value.unitPrice
             : unitPrice // ignore: cast_nullable_to_non_nullable
@@ -745,8 +813,10 @@ class __$$ClassTypeCreateImplCopyWithImpl<$Res>
 class _$ClassTypeCreateImpl implements _ClassTypeCreate {
   const _$ClassTypeCreateImpl({
     @JsonKey(name: 'class_type_name') required this.classTypeName,
+    this.year,
     required this.grade,
     required this.subject,
+    this.format,
     @JsonKey(name: 'unit_price') this.unitPrice = 0,
     @JsonKey(name: 'teacher_ids') final List<int> teacherIds = const [],
     @JsonKey(name: 'teacher_names') final List<String> teacherNames = const [],
@@ -760,9 +830,13 @@ class _$ClassTypeCreateImpl implements _ClassTypeCreate {
   @JsonKey(name: 'class_type_name')
   final String classTypeName;
   @override
+  final int? year;
+  @override
   final int grade;
   @override
   final int subject;
+  @override
+  final int? format;
   @override
   @JsonKey(name: 'unit_price')
   final int unitPrice;
@@ -786,7 +860,7 @@ class _$ClassTypeCreateImpl implements _ClassTypeCreate {
 
   @override
   String toString() {
-    return 'ClassTypeCreate(classTypeName: $classTypeName, grade: $grade, subject: $subject, unitPrice: $unitPrice, teacherIds: $teacherIds, teacherNames: $teacherNames)';
+    return 'ClassTypeCreate(classTypeName: $classTypeName, year: $year, grade: $grade, subject: $subject, format: $format, unitPrice: $unitPrice, teacherIds: $teacherIds, teacherNames: $teacherNames)';
   }
 
   @override
@@ -796,8 +870,10 @@ class _$ClassTypeCreateImpl implements _ClassTypeCreate {
             other is _$ClassTypeCreateImpl &&
             (identical(other.classTypeName, classTypeName) ||
                 other.classTypeName == classTypeName) &&
+            (identical(other.year, year) || other.year == year) &&
             (identical(other.grade, grade) || other.grade == grade) &&
             (identical(other.subject, subject) || other.subject == subject) &&
+            (identical(other.format, format) || other.format == format) &&
             (identical(other.unitPrice, unitPrice) ||
                 other.unitPrice == unitPrice) &&
             const DeepCollectionEquality().equals(
@@ -815,8 +891,10 @@ class _$ClassTypeCreateImpl implements _ClassTypeCreate {
   int get hashCode => Object.hash(
     runtimeType,
     classTypeName,
+    year,
     grade,
     subject,
+    format,
     unitPrice,
     const DeepCollectionEquality().hash(_teacherIds),
     const DeepCollectionEquality().hash(_teacherNames),
@@ -842,8 +920,10 @@ class _$ClassTypeCreateImpl implements _ClassTypeCreate {
 abstract class _ClassTypeCreate implements ClassTypeCreate {
   const factory _ClassTypeCreate({
     @JsonKey(name: 'class_type_name') required final String classTypeName,
+    final int? year,
     required final int grade,
     required final int subject,
+    final int? format,
     @JsonKey(name: 'unit_price') final int unitPrice,
     @JsonKey(name: 'teacher_ids') final List<int> teacherIds,
     @JsonKey(name: 'teacher_names') final List<String> teacherNames,
@@ -856,9 +936,13 @@ abstract class _ClassTypeCreate implements ClassTypeCreate {
   @JsonKey(name: 'class_type_name')
   String get classTypeName;
   @override
+  int? get year;
+  @override
   int get grade;
   @override
   int get subject;
+  @override
+  int? get format;
   @override
   @JsonKey(name: 'unit_price')
   int get unitPrice;

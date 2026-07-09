@@ -51,6 +51,16 @@ mixin _$MgmtData {
   int? get classTypeId => throw _privateConstructorUsedError;
   @JsonKey(name: 'class_type_name')
   String? get classTypeName => throw _privateConstructorUsedError; // JOIN으로 가져옴
+  @JsonKey(name: 'unit_price')
+  int get unitPrice => throw _privateConstructorUsedError; // 단가 (class_type JOIN으로 가져옴)
+  int get price =>
+      throw _privateConstructorUsedError; // 가격 (unit_price × enrollment_count)
+  @JsonKey(name: 'student_name_orig')
+  String? get studentNameOrig => throw _privateConstructorUsedError; // 엑셀 원본 학생 이름
+  @JsonKey(name: 'teacher_name_orig')
+  String? get teacherNameOrig => throw _privateConstructorUsedError; // 엑셀 원본 강사 이름
+  @JsonKey(name: 'class_type_name_orig')
+  String? get classTypeNameOrig => throw _privateConstructorUsedError; // 엑셀 원본 반형태 이름
   @JsonKey(name: 'created_at')
   String? get createdAt => throw _privateConstructorUsedError;
 
@@ -88,6 +98,11 @@ abstract class $MgmtDataCopyWith<$Res> {
     @JsonKey(name: 'class_name1') String? className1,
     @JsonKey(name: 'class_type_id') int? classTypeId,
     @JsonKey(name: 'class_type_name') String? classTypeName,
+    @JsonKey(name: 'unit_price') int unitPrice,
+    int price,
+    @JsonKey(name: 'student_name_orig') String? studentNameOrig,
+    @JsonKey(name: 'teacher_name_orig') String? teacherNameOrig,
+    @JsonKey(name: 'class_type_name_orig') String? classTypeNameOrig,
     @JsonKey(name: 'created_at') String? createdAt,
   });
 }
@@ -123,6 +138,11 @@ class _$MgmtDataCopyWithImpl<$Res, $Val extends MgmtData>
     Object? className1 = freezed,
     Object? classTypeId = freezed,
     Object? classTypeName = freezed,
+    Object? unitPrice = null,
+    Object? price = null,
+    Object? studentNameOrig = freezed,
+    Object? teacherNameOrig = freezed,
+    Object? classTypeNameOrig = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -191,6 +211,26 @@ class _$MgmtDataCopyWithImpl<$Res, $Val extends MgmtData>
                 ? _value.classTypeName
                 : classTypeName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            unitPrice: null == unitPrice
+                ? _value.unitPrice
+                : unitPrice // ignore: cast_nullable_to_non_nullable
+                      as int,
+            price: null == price
+                ? _value.price
+                : price // ignore: cast_nullable_to_non_nullable
+                      as int,
+            studentNameOrig: freezed == studentNameOrig
+                ? _value.studentNameOrig
+                : studentNameOrig // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            teacherNameOrig: freezed == teacherNameOrig
+                ? _value.teacherNameOrig
+                : teacherNameOrig // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            classTypeNameOrig: freezed == classTypeNameOrig
+                ? _value.classTypeNameOrig
+                : classTypeNameOrig // ignore: cast_nullable_to_non_nullable
+                      as String?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -229,6 +269,11 @@ abstract class _$$MgmtDataImplCopyWith<$Res>
     @JsonKey(name: 'class_name1') String? className1,
     @JsonKey(name: 'class_type_id') int? classTypeId,
     @JsonKey(name: 'class_type_name') String? classTypeName,
+    @JsonKey(name: 'unit_price') int unitPrice,
+    int price,
+    @JsonKey(name: 'student_name_orig') String? studentNameOrig,
+    @JsonKey(name: 'teacher_name_orig') String? teacherNameOrig,
+    @JsonKey(name: 'class_type_name_orig') String? classTypeNameOrig,
     @JsonKey(name: 'created_at') String? createdAt,
   });
 }
@@ -263,6 +308,11 @@ class __$$MgmtDataImplCopyWithImpl<$Res>
     Object? className1 = freezed,
     Object? classTypeId = freezed,
     Object? classTypeName = freezed,
+    Object? unitPrice = null,
+    Object? price = null,
+    Object? studentNameOrig = freezed,
+    Object? teacherNameOrig = freezed,
+    Object? classTypeNameOrig = freezed,
     Object? createdAt = freezed,
   }) {
     return _then(
@@ -331,6 +381,26 @@ class __$$MgmtDataImplCopyWithImpl<$Res>
             ? _value.classTypeName
             : classTypeName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        unitPrice: null == unitPrice
+            ? _value.unitPrice
+            : unitPrice // ignore: cast_nullable_to_non_nullable
+                  as int,
+        price: null == price
+            ? _value.price
+            : price // ignore: cast_nullable_to_non_nullable
+                  as int,
+        studentNameOrig: freezed == studentNameOrig
+            ? _value.studentNameOrig
+            : studentNameOrig // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        teacherNameOrig: freezed == teacherNameOrig
+            ? _value.teacherNameOrig
+            : teacherNameOrig // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        classTypeNameOrig: freezed == classTypeNameOrig
+            ? _value.classTypeNameOrig
+            : classTypeNameOrig // ignore: cast_nullable_to_non_nullable
+                  as String?,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -362,6 +432,11 @@ class _$MgmtDataImpl extends _MgmtData {
     @JsonKey(name: 'class_name1') this.className1,
     @JsonKey(name: 'class_type_id') this.classTypeId,
     @JsonKey(name: 'class_type_name') this.classTypeName,
+    @JsonKey(name: 'unit_price') this.unitPrice = 0,
+    this.price = 0,
+    @JsonKey(name: 'student_name_orig') this.studentNameOrig,
+    @JsonKey(name: 'teacher_name_orig') this.teacherNameOrig,
+    @JsonKey(name: 'class_type_name_orig') this.classTypeNameOrig,
     @JsonKey(name: 'created_at') this.createdAt,
   }) : super._();
 
@@ -419,12 +494,32 @@ class _$MgmtDataImpl extends _MgmtData {
   final String? classTypeName;
   // JOIN으로 가져옴
   @override
+  @JsonKey(name: 'unit_price')
+  final int unitPrice;
+  // 단가 (class_type JOIN으로 가져옴)
+  @override
+  @JsonKey()
+  final int price;
+  // 가격 (unit_price × enrollment_count)
+  @override
+  @JsonKey(name: 'student_name_orig')
+  final String? studentNameOrig;
+  // 엑셀 원본 학생 이름
+  @override
+  @JsonKey(name: 'teacher_name_orig')
+  final String? teacherNameOrig;
+  // 엑셀 원본 강사 이름
+  @override
+  @JsonKey(name: 'class_type_name_orig')
+  final String? classTypeNameOrig;
+  // 엑셀 원본 반형태 이름
+  @override
   @JsonKey(name: 'created_at')
   final String? createdAt;
 
   @override
   String toString() {
-    return 'MgmtData(mgmtDataId: $mgmtDataId, year: $year, month: $month, studentId: $studentId, studentName: $studentName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, enrollmentCount: $enrollmentCount, compClassType: $compClassType, subject: $subject, teacherId: $teacherId, teacherName: $teacherName, className1: $className1, classTypeId: $classTypeId, classTypeName: $classTypeName, createdAt: $createdAt)';
+    return 'MgmtData(mgmtDataId: $mgmtDataId, year: $year, month: $month, studentId: $studentId, studentName: $studentName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, enrollmentCount: $enrollmentCount, compClassType: $compClassType, subject: $subject, teacherId: $teacherId, teacherName: $teacherName, className1: $className1, classTypeId: $classTypeId, classTypeName: $classTypeName, unitPrice: $unitPrice, price: $price, studentNameOrig: $studentNameOrig, teacherNameOrig: $teacherNameOrig, classTypeNameOrig: $classTypeNameOrig, createdAt: $createdAt)';
   }
 
   @override
@@ -460,13 +555,22 @@ class _$MgmtDataImpl extends _MgmtData {
                 other.classTypeId == classTypeId) &&
             (identical(other.classTypeName, classTypeName) ||
                 other.classTypeName == classTypeName) &&
+            (identical(other.unitPrice, unitPrice) ||
+                other.unitPrice == unitPrice) &&
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.studentNameOrig, studentNameOrig) ||
+                other.studentNameOrig == studentNameOrig) &&
+            (identical(other.teacherNameOrig, teacherNameOrig) ||
+                other.teacherNameOrig == teacherNameOrig) &&
+            (identical(other.classTypeNameOrig, classTypeNameOrig) ||
+                other.classTypeNameOrig == classTypeNameOrig) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     mgmtDataId,
     year,
@@ -484,8 +588,13 @@ class _$MgmtDataImpl extends _MgmtData {
     className1,
     classTypeId,
     classTypeName,
+    unitPrice,
+    price,
+    studentNameOrig,
+    teacherNameOrig,
+    classTypeNameOrig,
     createdAt,
-  );
+  ]);
 
   /// Create a copy of MgmtData
   /// with the given fields replaced by the non-null parameter values.
@@ -521,6 +630,11 @@ abstract class _MgmtData extends MgmtData {
     @JsonKey(name: 'class_name1') final String? className1,
     @JsonKey(name: 'class_type_id') final int? classTypeId,
     @JsonKey(name: 'class_type_name') final String? classTypeName,
+    @JsonKey(name: 'unit_price') final int unitPrice,
+    final int price,
+    @JsonKey(name: 'student_name_orig') final String? studentNameOrig,
+    @JsonKey(name: 'teacher_name_orig') final String? teacherNameOrig,
+    @JsonKey(name: 'class_type_name_orig') final String? classTypeNameOrig,
     @JsonKey(name: 'created_at') final String? createdAt,
   }) = _$MgmtDataImpl;
   const _MgmtData._() : super._();
@@ -573,6 +687,20 @@ abstract class _MgmtData extends MgmtData {
   @override
   @JsonKey(name: 'class_type_name')
   String? get classTypeName; // JOIN으로 가져옴
+  @override
+  @JsonKey(name: 'unit_price')
+  int get unitPrice; // 단가 (class_type JOIN으로 가져옴)
+  @override
+  int get price; // 가격 (unit_price × enrollment_count)
+  @override
+  @JsonKey(name: 'student_name_orig')
+  String? get studentNameOrig; // 엑셀 원본 학생 이름
+  @override
+  @JsonKey(name: 'teacher_name_orig')
+  String? get teacherNameOrig; // 엑셀 원본 강사 이름
+  @override
+  @JsonKey(name: 'class_type_name_orig')
+  String? get classTypeNameOrig; // 엑셀 원본 반형태 이름
   @override
   @JsonKey(name: 'created_at')
   String? get createdAt;

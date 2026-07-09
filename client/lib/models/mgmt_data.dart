@@ -44,6 +44,11 @@ class MgmtData with _$MgmtData {
     @JsonKey(name: 'class_name1') String? className1,
     @JsonKey(name: 'class_type_id') int? classTypeId,
     @JsonKey(name: 'class_type_name') String? classTypeName, // JOIN으로 가져옴
+    @JsonKey(name: 'unit_price') @Default(0) int unitPrice, // 단가 (class_type JOIN으로 가져옴)
+    @Default(0) int price, // 가격 (unit_price × enrollment_count)
+    @JsonKey(name: 'student_name_orig') String? studentNameOrig, // 엑셀 원본 학생 이름
+    @JsonKey(name: 'teacher_name_orig') String? teacherNameOrig, // 엑셀 원본 강사 이름
+    @JsonKey(name: 'class_type_name_orig') String? classTypeNameOrig, // 엑셀 원본 반형태 이름
     @JsonKey(name: 'created_at') String? createdAt,
   }) = _MgmtData;
 

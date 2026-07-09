@@ -48,6 +48,12 @@ const upload = multer({
 // GET /mgmt-data/list - 경영 데이터 목록 조회
 router.get('/list', mgmtDataController.getList);
 
+// GET /mgmt-data/report - 경영 보고서 데이터 조회
+router.get('/report', mgmtDataController.getReport);
+
+// GET /mgmt-data/region-report - 지역별 보고서 데이터 조회
+router.get('/region-report', mgmtDataController.getRegionReport);
+
 // POST /mgmt-data/upload - 엑셀 파일 업로드
 router.post('/upload', upload.single('file'), mgmtDataController.upload);
 

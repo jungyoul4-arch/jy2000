@@ -78,8 +78,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _NavItem(
         icon: Icons.analytics_outlined,
         selectedIcon: Icons.analytics,
-        label: '경영 보고서',
+        label: '경영 데이터',
         path: AppRoutes.mgmtDataList,
+      ),
+      _NavItem(
+        icon: Icons.assessment_outlined,
+        selectedIcon: Icons.assessment,
+        label: '경영 보고서',
+        path: AppRoutes.mgmtReport,
       ),
     ];
   }

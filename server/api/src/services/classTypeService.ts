@@ -68,6 +68,16 @@ export class ClassTypeService {
       params.push(query.subject);
     }
 
+    if (query.year !== undefined) {
+      conditions.push('ct.year = ?');
+      params.push(query.year);
+    }
+
+    if (query.format !== undefined) {
+      conditions.push('ct.format = ?');
+      params.push(query.format);
+    }
+
     if (query.search) {
       conditions.push('ct.class_type_name LIKE ?');
       params.push(`%${query.search}%`);
@@ -85,8 +95,10 @@ export class ClassTypeService {
       SELECT
         ct.class_type_id,
         ct.class_type_name,
+        ct.year,
         ct.grade,
         ct.subject,
+        ct.format,
         ct.unit_price,
         ct.is_active,
         ct.created_at,
@@ -132,8 +144,10 @@ export class ClassTypeService {
       SELECT
         ct.class_type_id,
         ct.class_type_name,
+        ct.year,
         ct.grade,
         ct.subject,
+        ct.format,
         ct.unit_price,
         ct.is_active,
         ct.created_at,
@@ -197,9 +211,9 @@ export class ClassTypeService {
 
       // Insert class_type
       const [result] = await connection.query<ResultSetHeader>(
-        `INSERT INTO class_type (class_type_name, grade, subject, unit_price)
-         VALUES (?, ?, ?, ?)`,
-        [data.class_type_name, data.grade, data.subject, data.unit_price || 0]
+        `INSERT INTO class_type (class_type_name, year, grade, subject, format, unit_price)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [data.class_type_name, data.year || null, data.grade, data.subject, data.format || null, data.unit_price || 0]
       );
 
       const classTypeId = result.insertId;
@@ -296,6 +310,10 @@ export class ClassTypeService {
         updates.push('class_type_name = ?');
         params.push(data.class_type_name);
       }
+      if (data.year !== undefined) {
+        updates.push('year = ?');
+        params.push(data.year);
+      }
       if (data.grade !== undefined) {
         updates.push('grade = ?');
         params.push(data.grade);
@@ -303,6 +321,10 @@ export class ClassTypeService {
       if (data.subject !== undefined) {
         updates.push('subject = ?');
         params.push(data.subject);
+      }
+      if (data.format !== undefined) {
+        updates.push('format = ?');
+        params.push(data.format);
       }
       if (data.unit_price !== undefined) {
         updates.push('unit_price = ?');

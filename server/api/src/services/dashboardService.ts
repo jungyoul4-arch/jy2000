@@ -9,51 +9,45 @@ export class DashboardService {
 
     // Total students
     const [totalResult] = await pool.query<RowDataPacket[]>(
-      'SELECT COUNT(*) as count FROM student_info WHERE deleted_at IS NULL'
+      'SELECT COUNT(*) as count FROM student_info'
     );
 
     // New students this month
     const [newStudentsResult] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM student_info
-       WHERE deleted_at IS NULL
-       AND DATE_FORMAT(created_at, '%Y-%m') = ?`,
+       WHERE DATE_FORMAT(created_at, '%Y-%m') = ?`,
       [currentMonth]
     );
 
     // Consults this month
     const [consultsResult] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM consult
-       WHERE deleted_at IS NULL
-       AND DATE_FORMAT(consult_date, '%Y-%m') = ?`,
+       WHERE DATE_FORMAT(consult_date, '%Y-%m') = ?`,
       [currentMonth]
     );
 
     // Registers this month
     const [registersResult] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM student_info
-       WHERE deleted_at IS NULL
-       AND DATE_FORMAT(register_date, '%Y-%m') = ?`,
+       WHERE DATE_FORMAT(register_date, '%Y-%m') = ?`,
       [currentMonth]
     );
 
     // Currently enrolled
     const [enrolledResult] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM student_info
-       WHERE deleted_at IS NULL
-       AND status_code = 'STATUS_ENROLLED'`
+       WHERE status_code = 'STATUS_ENROLLED'`
     );
 
     // Conversion rate (consult_done -> registered)
     const [consultDoneResult] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM student_info
-       WHERE deleted_at IS NULL
-       AND status_code IN ('STATUS_CONSULT_DONE', 'STATUS_REGISTER', 'STATUS_ENROLLED', 'STATUS_WITHDRAW', 'STATUS_LOST')`
+       WHERE status_code IN ('STATUS_CONSULT_DONE', 'STATUS_REGISTER', 'STATUS_ENROLLED', 'STATUS_WITHDRAW', 'STATUS_LOST')`
     );
 
     const [convertedResult] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as count FROM student_info
-       WHERE deleted_at IS NULL
-       AND status_code IN ('STATUS_REGISTER', 'STATUS_ENROLLED', 'STATUS_WITHDRAW')`
+       WHERE status_code IN ('STATUS_REGISTER', 'STATUS_ENROLLED', 'STATUS_WITHDRAW')`
     );
 
     const consultDoneCount = consultDoneResult[0].count || 0;
@@ -82,8 +76,7 @@ export class DashboardService {
         COUNT(*) as count
       FROM student_info s
       JOIN code_master cm ON s.status_code = cm.code_id
-      WHERE s.deleted_at IS NULL
-        AND cm.code_group = 'STATUS'
+      WHERE cm.code_group = 'STATUS'
       GROUP BY s.status_code, cm.code_name, cm.sort_order
       ORDER BY cm.sort_order
     `;
@@ -113,8 +106,8 @@ export class DashboardService {
         SUM(CASE WHEN s.status_code IN ('STATUS_REGISTER', 'STATUS_ENROLLED') THEN 1 ELSE 0 END) as register_count,
         COUNT(DISTINCT c.consult_id) as consult_total
       FROM User u
-      LEFT JOIN student_info s ON u.user_id = s.tc_id AND s.deleted_at IS NULL
-      LEFT JOIN consult c ON u.user_id = c.tc_id AND c.deleted_at IS NULL
+      LEFT JOIN student_info s ON u.user_id = s.tc_id
+      LEFT JOIN consult c ON u.user_id = c.tc_id
       WHERE u.active_flag = 1 AND u.kind = 5
       GROUP BY u.user_id, u.name
       ORDER BY register_count DESC
@@ -132,8 +125,7 @@ export class DashboardService {
         DATE_FORMAT(register_date, '%Y-%m') as month,
         COUNT(*) as register_count
       FROM student_info
-      WHERE deleted_at IS NULL
-        AND register_date IS NOT NULL
+      WHERE register_date IS NOT NULL
         AND register_date >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
       GROUP BY DATE_FORMAT(register_date, '%Y-%m')
       ORDER BY month

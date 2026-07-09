@@ -56,8 +56,10 @@ class ClassTypeListNotifier extends StateNotifier<ClassTypeListState> {
   // 반 형태 추가
   Future<bool> addClassType({
     required String classTypeName,
+    int? year,
     required int grade,
     required int subject,
+    int? format,
     int unitPrice = 0,
     List<int>? teacherIds,
     List<String>? teacherNames,
@@ -65,8 +67,10 @@ class ClassTypeListNotifier extends StateNotifier<ClassTypeListState> {
     try {
       final newClassType = await _repository.create(
         classTypeName: classTypeName,
+        year: year,
         grade: grade,
         subject: subject,
+        format: format,
         unitPrice: unitPrice,
         teacherIds: teacherIds,
         teacherNames: teacherNames,
@@ -85,8 +89,10 @@ class ClassTypeListNotifier extends StateNotifier<ClassTypeListState> {
   Future<bool> updateClassType({
     required int classTypeId,
     String? classTypeName,
+    int? year,
     int? grade,
     int? subject,
+    int? format,
     int? unitPrice,
     List<int>? teacherIds,
     List<String>? teacherNames,
@@ -95,8 +101,10 @@ class ClassTypeListNotifier extends StateNotifier<ClassTypeListState> {
       final updatedClassType = await _repository.update(
         classTypeId,
         classTypeName: classTypeName,
+        year: year,
         grade: grade,
         subject: subject,
+        format: format,
         unitPrice: unitPrice,
         teacherIds: teacherIds,
         teacherNames: teacherNames,

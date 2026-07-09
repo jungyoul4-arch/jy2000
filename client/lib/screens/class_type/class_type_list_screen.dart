@@ -18,14 +18,16 @@ class _ClassTypeListScreenState extends ConsumerState<ClassTypeListScreen> {
   String _searchText = '';
   final _numberFormat = NumberFormat('#,###');
 
-  // 학년 옵션 (int 코드 -> 문자열)
-  static const List<MapEntry<int, String>> gradeOptions = [
-    MapEntry(7, '중1'),
-    MapEntry(8, '중2'),
-    MapEntry(9, '중3'),
-    MapEntry(10, '고1'),
-    MapEntry(11, '고2'),
-    MapEntry(12, '고3'),
+  // 년도 옵션 (올해, 다음해)
+  static List<int> get yearOptions {
+    final currentYear = DateTime.now().year;
+    return [currentYear, currentYear + 1];
+  }
+
+  // 중고 구분 옵션
+  static const List<MapEntry<String, String>> levelOptions = [
+    MapEntry('middle', '중등부'),
+    MapEntry('high', '고등부'),
   ];
 
   // 과목 옵션 (int 코드 -> 문자열)
@@ -36,6 +38,53 @@ class _ClassTypeListScreenState extends ConsumerState<ClassTypeListScreen> {
     MapEntry(4, '과학'),
     MapEntry(5, '사회'),
   ];
+
+  // 형태 옵션 (int 코드 -> 문자열)
+  static const List<MapEntry<int, String>> formatOptions = [
+    MapEntry(1, '일반'),
+    MapEntry(2, '종합'),
+    MapEntry(3, '논술'),
+    MapEntry(4, '모의'),
+    MapEntry(5, '특강'),
+    MapEntry(6, '썸머'),
+    MapEntry(7, '윈터'),
+  ];
+
+  // 학년 옵션 (int 코드 -> 문자열)
+  static const List<MapEntry<int, String>> gradeOptions = [
+    MapEntry(9, '중3'),
+    MapEntry(10, '고1'),
+    MapEntry(11, '고2'),
+    MapEntry(12, '고3'),
+  ];
+
+  // 중등부/고등부에 따른 학년 옵션
+  static List<MapEntry<int, String>> getGradeOptionsForLevel(String level) {
+    if (level == 'middle') {
+      return [const MapEntry(9, '중3')];
+    } else {
+      return [
+        const MapEntry(10, '고1'),
+        const MapEntry(11, '고2'),
+        const MapEntry(12, '고3'),
+      ];
+    }
+  }
+
+  // 반형태명 자동 생성
+  static String generateClassTypeName({
+    required int year,
+    required String level,
+    required int subject,
+    required int format,
+    required int grade,
+  }) {
+    final levelStr = level == 'middle' ? '중등부' : '고등부';
+    final subjectStr = subjectOptions.firstWhere((e) => e.key == subject).value;
+    final formatStr = formatOptions.firstWhere((e) => e.key == format).value;
+    final gradeStr = gradeOptions.firstWhere((e) => e.key == grade).value;
+    return '$year $levelStr $subjectStr $formatStr ($gradeStr)';
+  }
 
   @override
   void initState() {
@@ -217,121 +266,230 @@ class _ClassTypeListScreenState extends ConsumerState<ClassTypeListScreen> {
   void _showAddDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    String classTypeName = '';
-    int grade = 10; // 기본값: 고1
+    final classTypeNameController = TextEditingController();
+
+    int year = yearOptions.first; // 기본값: 올해
+    String level = 'high'; // 기본값: 고등부
     int subject = 1; // 기본값: 국어
+    int format = 1; // 기본값: 일반
+    int grade = 10; // 기본값: 고1
     int unitPrice = 0;
     String teachersText = '';
+
+    // 초기 반형태명 설정
+    classTypeNameController.text = generateClassTypeName(
+      year: year,
+      level: level,
+      subject: subject,
+      format: format,
+      grade: grade,
+    );
+
+    void updateClassTypeName(StateSetter setDialogState) {
+      classTypeNameController.text = generateClassTypeName(
+        year: year,
+        level: level,
+        subject: subject,
+        format: format,
+        grade: grade,
+      );
+    }
 
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: const Text('반 형태 추가'),
-          content: SizedBox(
-            width: 400,
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: '반형태명',
-                        hintText: '예: 2026 고등부 국어 (고1)',
+        builder: (dialogContext, setDialogState) {
+          final availableGrades = getGradeOptionsForLevel(level);
+
+          return AlertDialog(
+            title: const Text('반 형태 추가'),
+            content: SizedBox(
+              width: 450,
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 1. 년도
+                      DropdownButtonFormField<int>(
+                        value: year,
+                        decoration: const InputDecoration(labelText: '년도'),
+                        items: yearOptions
+                            .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              year = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '반형태명을 입력하세요';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) => classTypeName = value!,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
-                      value: grade,
-                      decoration: const InputDecoration(labelText: '학년'),
-                      items: gradeOptions
-                          .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => grade = value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
-                      value: subject,
-                      decoration: const InputDecoration(labelText: '과목'),
-                      items: subjectOptions
-                          .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => subject = value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: '단가 (원)',
-                        hintText: '예: 300000',
+                      const SizedBox(height: 16),
+
+                      // 2. 중고 구분
+                      DropdownButtonFormField<String>(
+                        value: level,
+                        decoration: const InputDecoration(labelText: '중고 구분'),
+                        items: levelOptions
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              level = value;
+                              // 중등부 선택시 학년을 중3으로 변경
+                              if (level == 'middle') {
+                                grade = 9;
+                              } else if (grade == 9) {
+                                // 고등부 선택시 중3이었으면 고1로 변경
+                                grade = 10;
+                              }
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
                       ),
-                      keyboardType: TextInputType.number,
-                      onSaved: (value) {
-                        unitPrice = int.tryParse(value ?? '') ?? 0;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: '강사들 (쉼표로 구분)',
-                        hintText: '예: 김철수, 박영희',
+                      const SizedBox(height: 16),
+
+                      // 3. 과목
+                      DropdownButtonFormField<int>(
+                        value: subject,
+                        decoration: const InputDecoration(labelText: '과목'),
+                        items: subjectOptions
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              subject = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
                       ),
-                      onSaved: (value) => teachersText = value ?? '',
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+
+                      // 4. 형태
+                      DropdownButtonFormField<int>(
+                        value: format,
+                        decoration: const InputDecoration(labelText: '형태'),
+                        items: formatOptions
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              format = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 5. 학년
+                      DropdownButtonFormField<int>(
+                        value: grade,
+                        decoration: const InputDecoration(labelText: '학년'),
+                        items: availableGrades
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              grade = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 6. 반형태명 (자동 생성 + 수정 가능)
+                      TextFormField(
+                        controller: classTypeNameController,
+                        decoration: const InputDecoration(
+                          labelText: '반형태명',
+                          hintText: '예: 2026 고등부 국어 모의 (고3)',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '반형태명을 입력하세요';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 7. 단가
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: '단가 (원)',
+                          hintText: '예: 300000',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onSaved: (value) {
+                          unitPrice = int.tryParse(value ?? '') ?? 0;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 8. 강사들
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: '강사들 (쉼표로 구분)',
+                          hintText: '예: 김철수, 박영희',
+                        ),
+                        onSaved: (value) => teachersText = value ?? '',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('취소'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (formKey.currentState?.validate() ?? false) {
-                  formKey.currentState?.save();
-                  Navigator.pop(dialogContext);
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('취소'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (formKey.currentState?.validate() ?? false) {
+                    formKey.currentState?.save();
+                    Navigator.pop(dialogContext);
 
-                  final teacherNames = teachersText.isEmpty
-                      ? <String>[]
-                      : teachersText.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+                    final teacherNames = teachersText.isEmpty
+                        ? <String>[]
+                        : teachersText.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
 
-                  final success = await ref.read(classTypeListProvider.notifier).addClassType(
-                    classTypeName: classTypeName,
-                    grade: grade,
-                    subject: subject,
-                    unitPrice: unitPrice,
-                    teacherNames: teacherNames,
-                  );
-
-                  if (mounted) {
-                    scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text(success ? '반 형태가 추가되었습니다' : '반 형태 추가 실패'),
-                        backgroundColor: success ? Colors.green : Colors.red,
-                      ),
+                    final success = await ref.read(classTypeListProvider.notifier).addClassType(
+                      classTypeName: classTypeNameController.text,
+                      year: year,
+                      grade: grade,
+                      subject: subject,
+                      format: format,
+                      unitPrice: unitPrice,
+                      teacherNames: teacherNames,
                     );
+
+                    if (mounted) {
+                      scaffoldMessenger.showSnackBar(
+                        SnackBar(
+                          content: Text(success ? '반 형태가 추가되었습니다' : '반 형태 추가 실패'),
+                          backgroundColor: success ? Colors.green : Colors.red,
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-              child: const Text('추가'),
-            ),
-          ],
-        ),
+                },
+                child: const Text('추가'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -339,125 +497,245 @@ class _ClassTypeListScreenState extends ConsumerState<ClassTypeListScreen> {
   void _showEditDialog(BuildContext context, ClassType classType) {
     final formKey = GlobalKey<FormState>();
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    String classTypeName = classType.classTypeName;
-    int grade = classType.grade;
+    final classTypeNameController = TextEditingController(text: classType.classTypeName);
+
+    int year = classType.year ?? yearOptions.first;
+    // 학년에서 중고 구분 추론
+    String level = classType.grade == 9 ? 'middle' : 'high';
     int subject = classType.subject;
+    int format = classType.format ?? 1;
+    int grade = classType.grade;
     int unitPrice = classType.unitPrice;
     String teachersText = classType.teachersString;
 
-    // 학년/과목 옵션에 현재 값이 없으면 추가
-    final grades = List<MapEntry<int, String>>.from(gradeOptions);
-    if (!grades.any((e) => e.key == grade)) {
-      grades.add(MapEntry(grade, gradeToString(grade)));
+    // 년도 옵션에 현재 값이 없으면 추가
+    final years = List<int>.from(yearOptions);
+    if (!years.contains(year)) {
+      years.insert(0, year);
     }
 
-    final subjects = List<MapEntry<int, String>>.from(subjectOptions);
-    if (!subjects.any((e) => e.key == subject)) {
-      subjects.add(MapEntry(subject, subjectToString(subject)));
+    void updateClassTypeName(StateSetter setDialogState) {
+      classTypeNameController.text = generateClassTypeName(
+        year: year,
+        level: level,
+        subject: subject,
+        format: format,
+        grade: grade,
+      );
     }
 
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: const Text('반 형태 수정'),
-          content: SizedBox(
-            width: 400,
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      initialValue: classTypeName,
-                      decoration: const InputDecoration(labelText: '반형태명'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '반형태명을 입력하세요';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) => classTypeName = value!,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
-                      value: grade,
-                      decoration: const InputDecoration(labelText: '학년'),
-                      items: grades.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => grade = value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
-                      value: subject,
-                      decoration: const InputDecoration(labelText: '과목'),
-                      items: subjects.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
-                      onChanged: (value) {
-                        if (value != null) setDialogState(() => subject = value);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      initialValue: unitPrice.toString(),
-                      decoration: const InputDecoration(labelText: '단가 (원)'),
-                      keyboardType: TextInputType.number,
-                      onSaved: (value) {
-                        unitPrice = int.tryParse(value ?? '') ?? 0;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      initialValue: teachersText,
-                      decoration: const InputDecoration(
-                        labelText: '강사들 (쉼표로 구분)',
+        builder: (dialogContext, setDialogState) {
+          final availableGrades = getGradeOptionsForLevel(level);
+
+          // 학년 옵션에 현재 값이 없으면 추가
+          final grades = List<MapEntry<int, String>>.from(availableGrades);
+          if (!grades.any((e) => e.key == grade)) {
+            grades.add(MapEntry(grade, gradeToString(grade)));
+          }
+
+          // 과목 옵션에 현재 값이 없으면 추가
+          final subjects = List<MapEntry<int, String>>.from(subjectOptions);
+          if (!subjects.any((e) => e.key == subject)) {
+            subjects.add(MapEntry(subject, subjectToString(subject)));
+          }
+
+          // 형태 옵션에 현재 값이 없으면 추가
+          final formats = List<MapEntry<int, String>>.from(formatOptions);
+          if (!formats.any((e) => e.key == format)) {
+            formats.add(MapEntry(format, formatToString(format)));
+          }
+
+          return AlertDialog(
+            title: const Text('반 형태 수정'),
+            content: SizedBox(
+              width: 450,
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 1. 년도
+                      DropdownButtonFormField<int>(
+                        value: year,
+                        decoration: const InputDecoration(labelText: '년도'),
+                        items: years
+                            .map((y) => DropdownMenuItem(value: y, child: Text('$y')))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              year = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
                       ),
-                      onSaved: (value) => teachersText = value ?? '',
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+
+                      // 2. 중고 구분
+                      DropdownButtonFormField<String>(
+                        value: level,
+                        decoration: const InputDecoration(labelText: '중고 구분'),
+                        items: levelOptions
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              level = value;
+                              // 중등부 선택시 학년을 중3으로 변경
+                              if (level == 'middle') {
+                                grade = 9;
+                              } else if (grade == 9) {
+                                // 고등부 선택시 중3이었으면 고1로 변경
+                                grade = 10;
+                              }
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 3. 과목
+                      DropdownButtonFormField<int>(
+                        value: subject,
+                        decoration: const InputDecoration(labelText: '과목'),
+                        items: subjects
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              subject = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 4. 형태
+                      DropdownButtonFormField<int>(
+                        value: format,
+                        decoration: const InputDecoration(labelText: '형태'),
+                        items: formats
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              format = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 5. 학년
+                      DropdownButtonFormField<int>(
+                        value: grade,
+                        decoration: const InputDecoration(labelText: '학년'),
+                        items: grades
+                            .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              grade = value;
+                              updateClassTypeName(setDialogState);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 6. 반형태명 (자동 생성 + 수정 가능)
+                      TextFormField(
+                        controller: classTypeNameController,
+                        decoration: const InputDecoration(
+                          labelText: '반형태명',
+                          hintText: '예: 2026 고등부 국어 모의 (고3)',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '반형태명을 입력하세요';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 7. 단가
+                      TextFormField(
+                        initialValue: unitPrice.toString(),
+                        decoration: const InputDecoration(labelText: '단가 (원)'),
+                        keyboardType: TextInputType.number,
+                        onSaved: (value) {
+                          unitPrice = int.tryParse(value ?? '') ?? 0;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 8. 강사들
+                      TextFormField(
+                        initialValue: teachersText,
+                        decoration: const InputDecoration(
+                          labelText: '강사들 (쉼표로 구분)',
+                        ),
+                        onSaved: (value) => teachersText = value ?? '',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('취소'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (formKey.currentState?.validate() ?? false) {
-                  formKey.currentState?.save();
-                  Navigator.pop(dialogContext);
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('취소'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (formKey.currentState?.validate() ?? false) {
+                    formKey.currentState?.save();
+                    Navigator.pop(dialogContext);
 
-                  final teacherNames = teachersText.isEmpty
-                      ? <String>[]
-                      : teachersText.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+                    final teacherNames = teachersText.isEmpty
+                        ? <String>[]
+                        : teachersText.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
 
-                  final success = await ref.read(classTypeListProvider.notifier).updateClassType(
-                    classTypeId: classType.classTypeId,
-                    classTypeName: classTypeName,
-                    grade: grade,
-                    subject: subject,
-                    unitPrice: unitPrice,
-                    teacherNames: teacherNames,
-                  );
-
-                  if (mounted) {
-                    scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text(success ? '반 형태가 수정되었습니다' : '반 형태 수정 실패'),
-                        backgroundColor: success ? Colors.green : Colors.red,
-                      ),
+                    final success = await ref.read(classTypeListProvider.notifier).updateClassType(
+                      classTypeId: classType.classTypeId,
+                      classTypeName: classTypeNameController.text,
+                      year: year,
+                      grade: grade,
+                      subject: subject,
+                      format: format,
+                      unitPrice: unitPrice,
+                      teacherNames: teacherNames,
                     );
+
+                    if (mounted) {
+                      scaffoldMessenger.showSnackBar(
+                        SnackBar(
+                          content: Text(success ? '반 형태가 수정되었습니다' : '반 형태 수정 실패'),
+                          backgroundColor: success ? Colors.green : Colors.red,
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-              child: const Text('저장'),
-            ),
-          ],
-        ),
+                },
+                child: const Text('저장'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

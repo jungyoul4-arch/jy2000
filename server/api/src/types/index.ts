@@ -405,8 +405,9 @@ export interface ClassListQuery extends ListQueryParams {
 }
 
 // Class Type (반 형태 관리)
-// grade: 1~6=초1~초6, 7~9=중1~중3, 10~12=고1~고3
+// grade: 9=중3, 10=고1, 11=고2, 12=고3
 // subject: 1=국어, 2=수학, 3=영어, 4=과학, 5=사회
+// format: 1=일반, 2=종합, 3=논술, 4=모의, 5=특강, 6=썸머, 7=윈터
 export interface ClassTypeTeacher {
   teacher_id: number;
   teacher_name: string;
@@ -415,8 +416,10 @@ export interface ClassTypeTeacher {
 export interface ClassType {
   class_type_id: number;
   class_type_name: string;
+  year?: number;
   grade: number;
   subject: number;
+  format?: number;
   unit_price: number;
   teachers?: ClassTypeTeacher[];
   is_active: boolean;
@@ -426,19 +429,23 @@ export interface ClassType {
 
 export interface ClassTypeCreate {
   class_type_name: string;
+  year?: number;
   grade: number;
   subject: number;
+  format?: number;
   unit_price: number;
   teacher_ids?: number[];        // 강사 ID 배열
   teacher_names?: string[];      // 강사 이름 배열 (ID 없을 시 이름으로 조회)
 }
 
 export interface ClassTypeListQuery extends ListQueryParams {
+  year?: number;
   grade?: number;
   subject?: number;
+  format?: number;
 }
 
-// Mgmt Data (경영 보고서)
+// Mgmt Data (경영 데이터)
 // grade: 1~6=초1~초6, 7~9=중1~중3, 10~12=고1~고3
 export interface MgmtData {
   mgmt_data_id: number;
@@ -457,6 +464,11 @@ export interface MgmtData {
   class_name1?: string;
   class_type_id?: number;
   class_type_name?: string;   // JOIN으로 가져옴
+  unit_price?: number;        // 단가 (class_type JOIN으로 가져옴)
+  price: number;              // 가격 (unit_price × enrollment_count)
+  student_name_orig?: string; // 엑셀 원본 학생 이름
+  teacher_name_orig?: string; // 엑셀 원본 강사 이름
+  class_type_name_orig?: string; // 엑셀 원본 반형태 이름
   created_at?: string;
 }
 
@@ -482,4 +494,36 @@ export interface MgmtDataListQuery extends ListQueryParams {
 export interface MgmtDataUpload {
   year: number;
   month: number;
+}
+
+// 지역별 보고서 타입
+export interface RegionMonthlyStat {
+  regionName: string;
+  year: number;
+  month: number;
+  studentCount: number;
+}
+
+export interface RegionGradeMonthlyStat {
+  regionName: string;
+  year: number;
+  month: number;
+  grade: number;
+  gradeName: string;
+  studentCount: number;
+}
+
+export interface SchoolRegionMonthlyStat {
+  schoolId: number;
+  schoolName: string;
+  regionName: string;
+  year: number;
+  month: number;
+  studentCount: number;
+}
+
+export interface RegionReport {
+  byRegionMonthly: RegionMonthlyStat[];
+  byRegionGradeMonthly: RegionGradeMonthlyStat[];
+  bySchoolRegionMonthly: SchoolRegionMonthlyStat[];
 }

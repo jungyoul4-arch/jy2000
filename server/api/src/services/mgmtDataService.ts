@@ -1,6 +1,6 @@
 import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import { MgmtData, MgmtDataListQuery } from '../types';
+import { MgmtData, MgmtDataListQuery, RegionReport, RegionMonthlyStat, RegionGradeMonthlyStat, SchoolRegionMonthlyStat } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 import * as XLSX from 'xlsx';
 
@@ -24,6 +24,33 @@ function parseGrade(gradeStr: string | null | undefined, schoolLevel: string | n
 
   // school_level 없으면 그대로 반환 (1~12)
   return gradeNum;
+}
+
+// 과목 문자열을 숫자로 변환
+// 1=국어, 2=수학, 3=영어, 4=과학
+function parseSubject(subjectStr: string | null | undefined): number | null {
+  if (!subjectStr) return null;
+
+  const subject = subjectStr.trim();
+
+  // 국어 계열
+  if (['국어', '극어', '국모', '국어(특)', '국어(윈특)'].includes(subject)) {
+    return 1;
+  }
+  // 수학 계열
+  if (['수학', '숳가', '수모', '수학(특)', '수학(윈특)', '수리논술'].includes(subject)) {
+    return 2;
+  }
+  // 영어 계열
+  if (['영어', '영모', '영어(특)', '영어(윈특)'].includes(subject)) {
+    return 3;
+  }
+  // 과학 계열
+  if (['과학', '과학(윈특)'].includes(subject)) {
+    return 4;
+  }
+
+  return null;
 }
 
 export class MgmtDataService {
@@ -96,6 +123,11 @@ export class MgmtDataService {
         m.class_name1,
         m.class_type_id,
         ct.class_type_name,
+        ct.unit_price,
+        m.price,
+        m.student_name_orig,
+        m.teacher_name_orig,
+        m.class_type_name_orig,
         m.created_at
       FROM mgmt_data m
       LEFT JOIN User u_student ON m.student_id = u_student.user_id
@@ -146,6 +178,32 @@ export class MgmtDataService {
     if (data.classTypeId !== undefined) {
       updates.push('class_type_id = ?');
       params.push(data.classTypeId);
+
+      // classTypeId 변경 시 price도 재계산
+      if (data.classTypeId !== null) {
+        // 1. 해당 class_type의 unit_price 조회
+        const [classTypeRows] = await pool.query<RowDataPacket[]>(
+          'SELECT unit_price FROM class_type WHERE class_type_id = ?',
+          [data.classTypeId]
+        );
+        const unitPrice = classTypeRows.length > 0 ? (classTypeRows[0].unit_price || 0) : 0;
+
+        // 2. 해당 mgmt_data의 enrollment_count 조회
+        const [mgmtDataRows] = await pool.query<RowDataPacket[]>(
+          'SELECT enrollment_count FROM mgmt_data WHERE mgmt_data_id = ?',
+          [mgmtDataId]
+        );
+        const enrollmentCount = mgmtDataRows.length > 0 ? (mgmtDataRows[0].enrollment_count || 1) : 1;
+
+        // 3. price = unit_price × enrollment_count
+        const price = Math.round(unitPrice * enrollmentCount);
+        updates.push('price = ?');
+        params.push(price);
+      } else {
+        // classTypeId가 null이면 price도 0으로
+        updates.push('price = ?');
+        params.push(0);
+      }
     }
 
     if (updates.length === 0) {
@@ -178,6 +236,11 @@ export class MgmtDataService {
         m.class_name1,
         m.class_type_id,
         ct.class_type_name,
+        ct.unit_price,
+        m.price,
+        m.student_name_orig,
+        m.teacher_name_orig,
+        m.class_type_name_orig,
         m.created_at
       FROM mgmt_data m
       LEFT JOIN User u_student ON m.student_id = u_student.user_id
@@ -283,16 +346,33 @@ export class MgmtDataService {
     return result.insertId;
   }
 
-  // 반형태 ID 찾기 (반형태명으로 매칭)
-  private async findClassTypeId(connection: any, classTypeName: string): Promise<number | null> {
-    if (!classTypeName) return null;
+  // 반형태 ID 및 단가 찾기 (반형태명 + 학년 + 과목으로 매칭)
+  private async findClassTypeWithPrice(
+    connection: any,
+    classTypeName: string,
+    grade: number | null,
+    subjectCode: number | null
+  ): Promise<{ classTypeId: number | null; unitPrice: number }> {
+    if (!classTypeName || grade === null || subjectCode === null) {
+      return { classTypeId: null, unitPrice: 0 };
+    }
 
     const [classTypes] = await connection.query(
-      `SELECT class_type_id FROM class_type WHERE class_type_name = ? AND deleted_at IS NULL LIMIT 1`,
-      [classTypeName]
+      `SELECT class_type_id, unit_price
+       FROM class_type
+       WHERE class_type_name = ? AND grade = ? AND subject = ? AND deleted_at IS NULL
+       LIMIT 1`,
+      [classTypeName, grade, subjectCode]
     ) as [RowDataPacket[], any];
 
-    return classTypes.length > 0 ? classTypes[0].class_type_id : null;
+    if (classTypes.length > 0) {
+      return {
+        classTypeId: classTypes[0].class_type_id,
+        unitPrice: classTypes[0].unit_price || 0
+      };
+    }
+
+    return { classTypeId: null, unitPrice: 0 };
   }
 
   // 엑셀 파일에서 데이터 업로드
@@ -341,6 +421,8 @@ export class MgmtDataService {
         const classTypeName = row[headerMap['반형태']] || '';
         const schoolLevel = row[headerMap['중등/고등']] || '';
         const gradeStr = row[headerMap['학년']] || '';
+        const subjectStr = row[headerMap['과목']] || '';
+        const enrollmentCount = parseFloat(row[headerMap['수강인원']]) || 1;
 
         if (!studentName) continue;
 
@@ -356,11 +438,22 @@ export class MgmtDataService {
         // 강사 ID 찾기
         const teacherId = await this.findTeacherId(connection, teacherName);
 
-        // 반형태 ID 찾기
-        const classTypeId = await this.findClassTypeId(connection, classTypeName);
-
         // 학년 변환
         const grade = parseGrade(gradeStr, schoolLevel);
+
+        // 과목 코드 변환
+        const subjectCode = parseSubject(subjectStr);
+
+        // 반형태 ID 및 단가 찾기 (반형태 + 학년 + 과목으로 매칭)
+        const { classTypeId, unitPrice } = await this.findClassTypeWithPrice(
+          connection,
+          classTypeName,
+          grade,
+          subjectCode
+        );
+
+        // 가격 계산: unit_price × enrollment_count
+        const price = Math.round(unitPrice * enrollmentCount);
 
         // 매칭 통계
         if (studentId) {
@@ -380,20 +473,24 @@ export class MgmtDataService {
         // 데이터 삽입
         await connection.query(
           `INSERT INTO mgmt_data
-           (year, month, student_id, school_id, grade, enrollment_count, comp_class_type, subject, teacher_id, class_name1, class_type_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (year, month, student_id, school_id, grade, enrollment_count, comp_class_type, subject, teacher_id, class_name1, class_type_id, price, student_name_orig, teacher_name_orig, class_type_name_orig)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             year,
             month,
             studentId,
             schoolId,
             grade,
-            row[headerMap['수강인원']] || 1,
+            enrollmentCount,
             row[headerMap['종합반종류']] || null,
-            row[headerMap['과목']] || null,
+            subjectStr || null,
             teacherId,
             row[headerMap['반명/교재명']] || null,
-            classTypeId
+            classTypeId,
+            price,
+            studentName || null,
+            teacherName || null,
+            classTypeName || null
           ]
         );
 
@@ -420,6 +517,278 @@ export class MgmtDataService {
     } finally {
       connection.release();
     }
+  }
+
+  // 경영 보고서 데이터 조회 (집계)
+  async getReport(startYear: number, startMonth: number, endYear: number, endMonth: number): Promise<{
+    summary: { totalRevenue: number; totalEnrollments: number; studentCount: number; avgUnitPrice: number };
+    monthlyTrend: { year: number; month: number; revenue: number; enrollments: number; studentCount: number }[];
+    bySubject: { subject: string; revenue: number; enrollments: number; percentage: number }[];
+    byGrade: { grade: number; gradeName: string; revenue: number; studentCount: number }[];
+    byTeacher: { teacherId: number | null; teacherName: string; revenue: number; enrollments: number; studentCount: number }[];
+    bySchool: { schoolId: number | null; schoolName: string; revenue: number; studentCount: number }[];
+    byClassType: { classTypeId: number | null; classTypeName: string; revenue: number; enrollments: number }[];
+  }> {
+    // 기간 조건 생성 (시작월 ~ 종료월)
+    const periodCondition = `
+      ((m.year > ? OR (m.year = ? AND m.month >= ?))
+      AND (m.year < ? OR (m.year = ? AND m.month <= ?)))
+    `;
+    const periodParams = [startYear, startYear, startMonth, endYear, endYear, endMonth];
+
+    // 1. 요약 KPI
+    const [summaryResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        COALESCE(SUM(m.price), 0) as total_revenue,
+        COALESCE(SUM(m.enrollment_count), 0) as total_enrollments,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      WHERE ${periodCondition}
+    `, periodParams);
+
+    const summary = {
+      totalRevenue: Number(summaryResult[0].total_revenue) || 0,
+      totalEnrollments: Number(summaryResult[0].total_enrollments) || 0,
+      studentCount: Number(summaryResult[0].student_count) || 0,
+      avgUnitPrice: Number(summaryResult[0].total_enrollments) > 0
+        ? Math.round(Number(summaryResult[0].total_revenue) / Number(summaryResult[0].total_enrollments))
+        : 0
+    };
+
+    // 2. 월별 추이
+    const [monthlyResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        m.year,
+        m.month,
+        COALESCE(SUM(m.price), 0) as revenue,
+        COALESCE(SUM(m.enrollment_count), 0) as enrollments,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      WHERE ${periodCondition}
+      GROUP BY m.year, m.month
+      ORDER BY m.year, m.month
+    `, periodParams);
+
+    const monthlyTrend = monthlyResult.map(row => ({
+      year: Number(row.year),
+      month: Number(row.month),
+      revenue: Number(row.revenue) || 0,
+      enrollments: Number(row.enrollments) || 0,
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    // 3. 과목별 집계
+    const [subjectResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        COALESCE(m.subject, '미지정') as subject,
+        COALESCE(SUM(m.price), 0) as revenue,
+        COALESCE(SUM(m.enrollment_count), 0) as enrollments
+      FROM mgmt_data m
+      WHERE ${periodCondition}
+      GROUP BY m.subject
+      ORDER BY revenue DESC
+    `, periodParams);
+
+    const totalSubjectRevenue = subjectResult.reduce((sum, row) => sum + Number(row.revenue || 0), 0);
+    const bySubject = subjectResult.map(row => ({
+      subject: row.subject || '미지정',
+      revenue: Number(row.revenue) || 0,
+      enrollments: Number(row.enrollments) || 0,
+      percentage: totalSubjectRevenue > 0 ? Math.round((Number(row.revenue) / totalSubjectRevenue) * 1000) / 10 : 0
+    }));
+
+    // 4. 학년별 집계
+    const [gradeResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        m.grade,
+        COALESCE(SUM(m.price), 0) as revenue,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      WHERE ${periodCondition}
+      GROUP BY m.grade
+      ORDER BY m.grade
+    `, periodParams);
+
+    const gradeNames: { [key: number]: string } = {
+      1: '초1', 2: '초2', 3: '초3', 4: '초4', 5: '초5', 6: '초6',
+      7: '중1', 8: '중2', 9: '중3',
+      10: '고1', 11: '고2', 12: '고3'
+    };
+
+    const byGrade = gradeResult.map(row => ({
+      grade: Number(row.grade) || 0,
+      gradeName: row.grade ? (gradeNames[row.grade] || `${row.grade}학년`) : '미지정',
+      revenue: Number(row.revenue) || 0,
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    // 5. 강사별 집계
+    const [teacherResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        m.teacher_id,
+        COALESCE(MAX(u.name), MAX(m.teacher_name_orig), '미지정') as teacher_name,
+        COALESCE(SUM(m.price), 0) as revenue,
+        COALESCE(SUM(m.enrollment_count), 0) as enrollments,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      LEFT JOIN User u ON m.teacher_id = u.user_id
+      WHERE ${periodCondition}
+      GROUP BY m.teacher_id
+      ORDER BY revenue DESC
+    `, periodParams);
+
+    const byTeacher = teacherResult.map(row => ({
+      teacherId: row.teacher_id,
+      teacherName: row.teacher_name || '미지정',
+      revenue: Number(row.revenue) || 0,
+      enrollments: Number(row.enrollments) || 0,
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    // 6. 학교별 집계
+    const [schoolResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        m.school_id,
+        COALESCE(MAX(s.school_name), '미지정') as school_name,
+        COALESCE(SUM(m.price), 0) as revenue,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      LEFT JOIN School s ON m.school_id = s.school_id
+      WHERE ${periodCondition}
+      GROUP BY m.school_id
+      ORDER BY revenue DESC
+    `, periodParams);
+
+    const bySchool = schoolResult.map(row => ({
+      schoolId: row.school_id,
+      schoolName: row.school_name || '미지정',
+      revenue: Number(row.revenue) || 0,
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    // 7. 반형태별 집계
+    const [classTypeResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        m.class_type_id,
+        COALESCE(MAX(ct.class_type_name), MAX(m.class_type_name_orig), '미지정') as class_type_name,
+        COALESCE(SUM(m.price), 0) as revenue,
+        COALESCE(SUM(m.enrollment_count), 0) as enrollments
+      FROM mgmt_data m
+      LEFT JOIN class_type ct ON m.class_type_id = ct.class_type_id
+      WHERE ${periodCondition}
+      GROUP BY m.class_type_id
+      ORDER BY revenue DESC
+    `, periodParams);
+
+    const byClassType = classTypeResult.map(row => ({
+      classTypeId: row.class_type_id,
+      classTypeName: row.class_type_name || '미지정',
+      revenue: Number(row.revenue) || 0,
+      enrollments: Number(row.enrollments) || 0
+    }));
+
+    return {
+      summary,
+      monthlyTrend,
+      bySubject,
+      byGrade,
+      byTeacher,
+      bySchool,
+      byClassType
+    };
+  }
+
+  // 지역별 보고서 데이터 조회
+  async getRegionReport(startYear: number, startMonth: number, endYear: number, endMonth: number): Promise<RegionReport> {
+    // 기간 조건 생성 (시작월 ~ 종료월)
+    const periodCondition = `
+      ((m.year > ? OR (m.year = ? AND m.month >= ?))
+      AND (m.year < ? OR (m.year = ? AND m.month <= ?)))
+    `;
+    const periodParams = [startYear, startYear, startMonth, endYear, endYear, endMonth];
+
+    // 학년명 매핑
+    const gradeNames: { [key: number]: string } = {
+      1: '초1', 2: '초2', 3: '초3', 4: '초4', 5: '초5', 6: '초6',
+      7: '중1', 8: '중2', 9: '중3',
+      10: '고1', 11: '고2', 12: '고3'
+    };
+
+    // 1. 지역별 월별 학생수
+    const [regionMonthlyResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        COALESCE(s.region_name, '미지정') as region_name,
+        m.year,
+        m.month,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      LEFT JOIN School s ON m.school_id = s.school_id
+      WHERE ${periodCondition}
+      GROUP BY s.region_name, m.year, m.month
+      ORDER BY s.region_name, m.year, m.month
+    `, periodParams);
+
+    const byRegionMonthly: RegionMonthlyStat[] = regionMonthlyResult.map(row => ({
+      regionName: row.region_name || '미지정',
+      year: Number(row.year),
+      month: Number(row.month),
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    // 2. 지역별 월별 학년별 학생수
+    const [regionGradeResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        COALESCE(s.region_name, '미지정') as region_name,
+        m.year,
+        m.month,
+        m.grade,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      LEFT JOIN School s ON m.school_id = s.school_id
+      WHERE ${periodCondition}
+      GROUP BY s.region_name, m.year, m.month, m.grade
+      ORDER BY s.region_name, m.year, m.month, m.grade
+    `, periodParams);
+
+    const byRegionGradeMonthly: RegionGradeMonthlyStat[] = regionGradeResult.map(row => ({
+      regionName: row.region_name || '미지정',
+      year: Number(row.year),
+      month: Number(row.month),
+      grade: Number(row.grade) || 0,
+      gradeName: row.grade ? (gradeNames[row.grade] || `${row.grade}학년`) : '미지정',
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    // 3. 학교별 지역별 월별 학생수
+    const [schoolRegionResult] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        m.school_id,
+        COALESCE(MAX(s.school_name), '미지정') as school_name,
+        COALESCE(MAX(s.region_name), '미지정') as region_name,
+        m.year,
+        m.month,
+        COUNT(DISTINCT m.student_id) as student_count
+      FROM mgmt_data m
+      LEFT JOIN School s ON m.school_id = s.school_id
+      WHERE ${periodCondition}
+      GROUP BY m.school_id, m.year, m.month
+      ORDER BY region_name, school_name, m.year, m.month
+    `, periodParams);
+
+    const bySchoolRegionMonthly: SchoolRegionMonthlyStat[] = schoolRegionResult.map(row => ({
+      schoolId: row.school_id,
+      schoolName: row.school_name || '미지정',
+      regionName: row.region_name || '미지정',
+      year: Number(row.year),
+      month: Number(row.month),
+      studentCount: Number(row.student_count) || 0
+    }));
+
+    return {
+      byRegionMonthly,
+      byRegionGradeMonthly,
+      bySchoolRegionMonthly
+    };
   }
 }
 

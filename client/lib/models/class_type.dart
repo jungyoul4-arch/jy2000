@@ -77,6 +77,29 @@ int stringToSubject(String str) {
   return 0;
 }
 
+// 형태 코드 변환 헬퍼
+// format: 1=일반, 2=종합, 3=논술, 4=모의, 5=특강, 6=썸머, 7=윈터
+const Map<int, String> formatMap = {
+  1: '일반',
+  2: '종합',
+  3: '논술',
+  4: '모의',
+  5: '특강',
+  6: '썸머',
+  7: '윈터',
+};
+
+String formatToString(int format) {
+  return formatMap[format] ?? '$format';
+}
+
+int stringToFormat(String str) {
+  for (final entry in formatMap.entries) {
+    if (entry.value == str) return entry.key;
+  }
+  return 0;
+}
+
 @freezed
 class ClassType with _$ClassType {
   const ClassType._();
@@ -84,8 +107,10 @@ class ClassType with _$ClassType {
   const factory ClassType({
     @JsonKey(name: 'class_type_id') required int classTypeId,
     @JsonKey(name: 'class_type_name') required String classTypeName,
+    int? year,
     required int grade,
     required int subject,
+    int? format,
     @JsonKey(name: 'unit_price') @Default(0) int unitPrice,
     @Default([]) List<ClassTypeTeacher> teachers,
     @JsonKey(name: 'is_active')
@@ -105,6 +130,9 @@ class ClassType with _$ClassType {
   // 과목 문자열 반환
   String get subjectString => subjectToString(subject);
 
+  // 형태 문자열 반환
+  String get formatString => format != null ? formatToString(format!) : '';
+
   // 강사 이름 목록 반환
   List<String> get teacherNames => teachers.map((t) => t.teacherName).toList();
 
@@ -116,8 +144,10 @@ class ClassType with _$ClassType {
 class ClassTypeCreate with _$ClassTypeCreate {
   const factory ClassTypeCreate({
     @JsonKey(name: 'class_type_name') required String classTypeName,
+    int? year,
     required int grade,
     required int subject,
+    int? format,
     @JsonKey(name: 'unit_price') @Default(0) int unitPrice,
     @JsonKey(name: 'teacher_ids') @Default([]) List<int> teacherIds,
     @JsonKey(name: 'teacher_names') @Default([]) List<String> teacherNames,
