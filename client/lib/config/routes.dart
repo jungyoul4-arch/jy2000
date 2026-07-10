@@ -25,6 +25,7 @@ import '../screens/class_type/class_type_list_screen.dart';
 import '../screens/mgmt_data/mgmt_data_list_screen.dart';
 import '../screens/mgmt_report/mgmt_report_screen.dart';
 import '../screens/mgmt_report/region_report_screen.dart';
+import '../screens/schedule/schedule_calendar_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -50,6 +51,7 @@ class AppRoutes {
   static const String mgmtDataList = '/mgmt-data';
   static const String mgmtReport = '/mgmt-report';
   static const String mgmtReportRegion = '/mgmt-report/region';
+  static const String scheduleCalendar = '/schedule';
 }
 
 // GoRouter Refresh Notifier
@@ -255,6 +257,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.mgmtReportRegion,
             name: 'mgmtReportRegion',
             builder: (context, state) => const RegionReportScreen(),
+          ),
+
+          // 일정 캘린더
+          GoRoute(
+            path: AppRoutes.scheduleCalendar,
+            name: 'scheduleCalendar',
+            builder: (context, state) => const ScheduleCalendarScreen(),
           ),
         ],
       ),

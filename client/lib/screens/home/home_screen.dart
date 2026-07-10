@@ -70,10 +70,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         path: AppRoutes.classList,
       ),
       _NavItem(
-        icon: Icons.calendar_month_outlined,
-        selectedIcon: Icons.calendar_month,
-        label: '상담 달력',
-        path: AppRoutes.calendar,
+        icon: Icons.table_chart_outlined,
+        selectedIcon: Icons.table_chart,
+        label: '일정 캘린더',
+        path: AppRoutes.scheduleCalendar,
       ),
       _NavItem(
         icon: Icons.analytics_outlined,

@@ -527,3 +527,76 @@ export interface RegionReport {
   byRegionGradeMonthly: RegionGradeMonthlyStat[];
   bySchoolRegionMonthly: SchoolRegionMonthlyStat[];
 }
+
+// ============================================================
+// Schedule Calendar Types (일정 캘린더)
+// ============================================================
+
+// 일정 카테고리
+export interface ScheduleCategory {
+  category_id: number;
+  category_name: string;
+  category_type: 'INFO' | 'TIME_SLOT' | 'ISSUE' | 'OTHER';
+  sort_order: number;
+  is_active: boolean;
+}
+
+// 일정 유형 (색상)
+export interface ScheduleEventType {
+  event_type_id: number;
+  event_type_name: string;
+  color_code: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+// 일정 이벤트
+export interface ScheduleEvent {
+  event_id: number;
+  category_id: number;
+  category_name?: string;
+  category_type?: string;
+  event_type_id: number;
+  event_type_name?: string;
+  color_code?: string;
+  event_date: string;
+  content?: string;
+  student_id?: number;
+  student_name?: string;
+  student_phone?: string;
+  consult_id?: number;
+  created_by: number;
+  created_by_name?: string;
+  updated_by?: number;
+  updated_by_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// 일정 생성
+export interface ScheduleEventCreate {
+  category_id: number;
+  event_type_id: number;
+  event_date: string;
+  content?: string;
+  student_id?: number;
+}
+
+// 일정 수정
+export interface ScheduleEventUpdate {
+  category_id?: number;
+  event_type_id?: number;
+  event_date?: string;
+  content?: string;
+  student_id?: number;
+}
+
+// 일정 목록 조회 파라미터
+export interface ScheduleEventListQuery extends ListQueryParams {
+  from_date?: string;
+  to_date?: string;
+  category_id?: number;
+  event_type_id?: number;
+  student_id?: number;
+  created_by?: number;
+}

@@ -44,6 +44,7 @@ dependencies:
 
   # 파일 선택
   file_picker: ^8.0.0+1
+  linked_scroll_controller: ^0.2.0
 
 dev_dependencies:
   flutter_test:
