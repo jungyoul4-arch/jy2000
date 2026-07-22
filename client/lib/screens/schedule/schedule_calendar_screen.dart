@@ -777,9 +777,9 @@ class _WeekSectionState extends State<_WeekSection> {
   }
 
   double _getMinCategoryRowHeight(ScheduleCategory category) {
-    if (category.isTimeSlot) return 60;
-    if (category.isPromotion) return 80;
-    return 80;
+    if (category.isTimeSlot) return 40;
+    if (category.isPromotion) return 50;
+    return 50;
   }
 
   Color? _getCategoryColor(ScheduleCategory category) {
