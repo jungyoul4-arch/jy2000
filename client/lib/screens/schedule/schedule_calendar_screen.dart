@@ -304,47 +304,56 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
     // 전체 컨텐츠 너비 계산: (카테고리 열 + 셀) * 7일
     final totalWidth = (categoryColumnWidth + cellWidth) * 7;
 
-    return Scrollbar(
-      controller: _verticalScrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _verticalScrollController,
-        scrollDirection: Axis.vertical,
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Scrollbar(
-          controller: _horizontalScrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: _horizontalScrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: SizedBox(
-              width: totalWidth,
-              child: Column(
-                children: List.generate(totalWeeks, (weekIndex) {
-                  final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
-                  final weekKey = 'week_${weekStartDate.toString()}';
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Column(
+          children: [
+            // 가로 스크롤 영역
+            Expanded(
+              child: Scrollbar(
+                controller: _horizontalScrollController,
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  controller: _horizontalScrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: totalWidth,
+                    child: Scrollbar(
+                      controller: _verticalScrollController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: _verticalScrollController,
+                        scrollDirection: Axis.vertical,
+                        child: Column(
+                          children: List.generate(totalWeeks, (weekIndex) {
+                            final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
+                            final weekKey = 'week_${weekStartDate.toString()}';
 
-                  // GlobalKey가 없으면 생성
-                  _weekKeys.putIfAbsent(weekKey, () => GlobalKey());
+                            // GlobalKey가 없으면 생성
+                            _weekKeys.putIfAbsent(weekKey, () => GlobalKey());
 
-                  return _WeekSection(
-                    key: _weekKeys[weekKey],
-                    weekStartDate: weekStartDate,
-                    month: month,
-                    eventsState: eventsState,
-                    categories: categories,
-                    eventTypes: eventTypes,
-                    promotions: promotions,
-                    onShowEventDialog: _showEventDialog,
-                    totalWidth: totalWidth,
-                  );
-                }),
+                            return _WeekSection(
+                              key: _weekKeys[weekKey],
+                              weekStartDate: weekStartDate,
+                              month: month,
+                              eventsState: eventsState,
+                              categories: categories,
+                              eventTypes: eventTypes,
+                              promotions: promotions,
+                              onShowEventDialog: _showEventDialog,
+                              totalWidth: totalWidth,
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+          ],
+        );
+      },
     );
   }
 
