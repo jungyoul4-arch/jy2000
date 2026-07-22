@@ -21,6 +21,7 @@ class ScheduleCalendarScreen extends ConsumerStatefulWidget {
 
 class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen> {
   final ScrollController _verticalScrollController = ScrollController();
+  final ScrollController _horizontalScrollController = ScrollController();
   final Map<String, GlobalKey> _weekKeys = {};
 
   // 셀 크기
@@ -43,6 +44,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
   @override
   void dispose() {
     _verticalScrollController.dispose();
+    _horizontalScrollController.dispose();
     _weekKeys.clear();
     super.dispose();
   }
@@ -309,8 +311,10 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
         controller: _verticalScrollController,
         scrollDirection: Axis.vertical,
         child: Scrollbar(
+          controller: _horizontalScrollController,
           thumbVisibility: true,
           child: SingleChildScrollView(
+            controller: _horizontalScrollController,
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               width: totalWidth,
