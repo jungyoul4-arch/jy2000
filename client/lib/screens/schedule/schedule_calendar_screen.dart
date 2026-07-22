@@ -11,6 +11,7 @@ import '../../models/schedule_event_type.dart';
 import '../../providers/promotion_provider.dart';
 import '../../providers/schedule_provider.dart';
 import 'schedule_event_dialog.dart';
+import 'schedule_event_list_dialog.dart';
 
 class ScheduleCalendarScreen extends ConsumerStatefulWidget {
   const ScheduleCalendarScreen({super.key});
@@ -341,6 +342,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
                               eventTypes: eventTypes,
                               promotions: promotions,
                               onShowEventDialog: _showEventDialog,
+                              onShowEventListDialog: _showEventListDialog,
                               totalWidth: totalWidth,
                             );
                           }),
@@ -399,6 +401,47 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
                 return success;
               }
             : null,
+      ),
+    );
+  }
+
+  void _showEventListDialog(
+    BuildContext context,
+    ScheduleCategory category,
+    DateTime date,
+    List<ScheduleEvent> events,
+    List<ScheduleEventType> eventTypes,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => ScheduleEventListDialog(
+        category: category,
+        date: date,
+        events: events,
+        eventTypes: eventTypes,
+        onEditEvent: (event) {
+          _showEventDialog(
+            context,
+            category,
+            date,
+            eventTypes,
+            existingEvent: event,
+          );
+        },
+        onAddEvent: () {
+          _showEventDialog(
+            context,
+            category,
+            date,
+            eventTypes,
+          );
+        },
+        onDeleteEvent: (eventId) async {
+          final success = await ref
+              .read(scheduleEventsProvider.notifier)
+              .deleteEvent(eventId);
+          return success;
+        },
       ),
     );
   }
@@ -470,6 +513,13 @@ class _WeekSection extends StatefulWidget {
     List<ScheduleEventType> eventTypes, {
     ScheduleEvent? existingEvent,
   }) onShowEventDialog;
+  final void Function(
+    BuildContext context,
+    ScheduleCategory category,
+    DateTime date,
+    List<ScheduleEvent> events,
+    List<ScheduleEventType> eventTypes,
+  ) onShowEventListDialog;
 
   const _WeekSection({
     super.key,
@@ -481,6 +531,7 @@ class _WeekSection extends StatefulWidget {
     required this.promotions,
     required this.totalWidth,
     required this.onShowEventDialog,
+    required this.onShowEventListDialog,
   });
 
   @override
@@ -638,7 +689,7 @@ class _WeekSectionState extends State<_WeekSection> {
 
     return GestureDetector(
       onTap: isCurrentMonth
-          ? () => widget.onShowEventDialog(context, category, date, widget.eventTypes)
+          ? () => widget.onShowEventListDialog(context, category, date, events, widget.eventTypes)
           : null,
       child: Container(
         width: cellWidth,
@@ -657,27 +708,18 @@ class _WeekSectionState extends State<_WeekSection> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: events.map((event) {
-                  return GestureDetector(
-                    onTap: () => widget.onShowEventDialog(
-                      context,
-                      category,
-                      date,
-                      widget.eventTypes,
-                      existingEvent: event,
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: event.color,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: event.color,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        event.content ?? '',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: event.textColor,
-                        ),
+                    child: Text(
+                      event.content ?? '',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: event.textColor,
                       ),
                     ),
                   );
