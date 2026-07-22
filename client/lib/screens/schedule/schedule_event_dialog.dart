@@ -187,16 +187,43 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   Widget build(BuildContext context) {
     final weekdays = ['', '월', '화', '수', '목', '금', '토', '일'];
     final dateStr = '${widget.date.year}년 ${widget.date.month}월 ${widget.date.day}일 (${weekdays[widget.date.weekday]})';
+    final screenSize = MediaQuery.of(context).size;
 
-    return AlertDialog(
-      title: Text(widget.existingEvent != null ? '일정 수정' : '일정 등록'),
-      content: SizedBox(
-        width: 400,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 500,
+          maxHeight: screenSize.height * 0.85,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 타이틀 바
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Text(
+                    widget.existingEvent != null ? '일정 수정' : '일정 등록',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // 컨텐츠
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               // 날짜 및 카테고리 정보
               Container(
                 padding: const EdgeInsets.all(12),
@@ -354,34 +381,45 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                     ],
                   ),
                 ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            // 액션 버튼
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  // 삭제 버튼 (수정 시에만)
+                  if (widget.onDelete != null)
+                    TextButton(
+                      onPressed: _isSaving ? null : _delete,
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      child: const Text('삭제'),
+                    ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+                    child: const Text('취소'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _isSaving ? null : _save,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(widget.existingEvent != null ? '수정' : '저장'),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      actions: [
-        // 삭제 버튼 (수정 시에만)
-        if (widget.onDelete != null)
-          TextButton(
-            onPressed: _isSaving ? null : _delete,
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('삭제'),
-          ),
-        const Spacer(),
-        TextButton(
-          onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
-          child: const Text('취소'),
-        ),
-        ElevatedButton(
-          onPressed: _isSaving ? null : _save,
-          child: _isSaving
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(widget.existingEvent != null ? '수정' : '저장'),
-        ),
-      ],
     );
   }
 }
