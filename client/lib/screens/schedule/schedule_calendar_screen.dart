@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 import '../../config/routes.dart';
 import '../../models/promotion.dart';
@@ -300,27 +299,44 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
       return const Center(child: CircularProgressIndicator());
     }
 
-    return SingleChildScrollView(
+    // 전체 컨텐츠 너비 계산: (카테고리 열 + 셀) * 7일
+    final totalWidth = (categoryColumnWidth + cellWidth) * 7;
+
+    return Scrollbar(
       controller: _verticalScrollController,
-      child: Column(
-        children: List.generate(totalWeeks, (weekIndex) {
-          final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
-          final weekKey = 'week_${weekStartDate.toString()}';
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: _verticalScrollController,
+        scrollDirection: Axis.vertical,
+        child: Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: totalWidth,
+              child: Column(
+                children: List.generate(totalWeeks, (weekIndex) {
+                  final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
+                  final weekKey = 'week_${weekStartDate.toString()}';
 
-          // GlobalKey가 없으면 생성
-          _weekKeys.putIfAbsent(weekKey, () => GlobalKey());
+                  // GlobalKey가 없으면 생성
+                  _weekKeys.putIfAbsent(weekKey, () => GlobalKey());
 
-          return _WeekSection(
-            key: _weekKeys[weekKey],
-            weekStartDate: weekStartDate,
-            month: month,
-            eventsState: eventsState,
-            categories: categories,
-            eventTypes: eventTypes,
-            promotions: promotions,
-            onShowEventDialog: _showEventDialog,
-          );
-        }),
+                  return _WeekSection(
+                    key: _weekKeys[weekKey],
+                    weekStartDate: weekStartDate,
+                    month: month,
+                    eventsState: eventsState,
+                    categories: categories,
+                    eventTypes: eventTypes,
+                    promotions: promotions,
+                    onShowEventDialog: _showEventDialog,
+                  );
+                }),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -442,31 +458,9 @@ class _WeekSection extends StatefulWidget {
 }
 
 class _WeekSectionState extends State<_WeekSection> {
-  late LinkedScrollControllerGroup _controllers;
-  late List<ScrollController> _scrollControllers;
-
   static const double cellWidth = 360.0;
   static const double categoryColumnWidth = 100.0;
   static const double dayHeaderHeight = 40.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _controllers = LinkedScrollControllerGroup();
-    // 헤더 + 각 카테고리 행에 대한 스크롤 컨트롤러
-    _scrollControllers = List.generate(
-      widget.categories.length + 1,
-      (_) => _controllers.addAndGet(),
-    );
-  }
-
-  @override
-  void dispose() {
-    for (final controller in _scrollControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -480,79 +474,69 @@ class _WeekSectionState extends State<_WeekSection> {
       child: Column(
         children: [
           // 주차 헤더
-          _buildWeekHeader(weekDates, _scrollControllers[0]),
+          _buildWeekHeader(weekDates),
           // 카테고리별 행
-          ...widget.categories.asMap().entries.map((entry) {
-            final index = entry.key;
-            final category = entry.value;
-            return _buildCategoryRow(
-              category,
-              weekDates,
-              _scrollControllers[index + 1],
-            );
+          ...widget.categories.map((category) {
+            return _buildCategoryRow(category, weekDates);
           }),
         ],
       ),
     );
   }
 
-  Widget _buildWeekHeader(List<DateTime> weekDates, ScrollController scrollController) {
+  Widget _buildWeekHeader(List<DateTime> weekDates) {
     return Container(
       height: dayHeaderHeight,
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
         border: Border(bottom: BorderSide(color: Colors.grey.shade400)),
       ),
-      child: SingleChildScrollView(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: weekDates.map((date) {
-            final isCurrentMonth = date.month == widget.month.month;
-            final isToday = _isToday(date);
-            final weekdayNames = ['', '월', '화', '수', '목', '금', '토', '일'];
+      child: Row(
+        children: weekDates.map((date) {
+          final isCurrentMonth = date.month == widget.month.month;
+          final isToday = _isToday(date);
+          final weekdayNames = ['', '월', '화', '수', '목', '금', '토', '일'];
 
-            return Row(
-              children: [
-                // 카테고리 열 헤더
-                Container(
-                  width: categoryColumnWidth,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    border: Border(right: BorderSide(color: Colors.grey.shade400)),
-                  ),
-                  child: const Center(
-                    child: Text('카테고리', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                  ),
+          return Row(
+            children: [
+              // 카테고리 열 헤더
+              Container(
+                width: categoryColumnWidth,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  border: Border(right: BorderSide(color: Colors.grey.shade400)),
                 ),
-                // 날짜 헤더
-                Container(
-                  width: cellWidth,
-                  decoration: BoxDecoration(
-                    color: isToday ? Colors.orange.shade100 : null,
-                    border: Border(right: BorderSide(color: Colors.grey.shade400, width: 2)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${date.month}/${date.day} (${weekdayNames[date.weekday]})',
-                      style: TextStyle(
-                        fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                        fontSize: 13,
-                        color: !isCurrentMonth
-                            ? Colors.grey
-                            : date.weekday == DateTime.sunday
-                                ? Colors.red
-                                : date.weekday == DateTime.saturday
-                                    ? Colors.blue
-                                    : Colors.black,
-                      ),
+                child: const Center(
+                  child: Text('카테고리', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                ),
+              ),
+              // 날짜 헤더
+              Container(
+                width: cellWidth,
+                decoration: BoxDecoration(
+                  color: isToday ? Colors.orange.shade100 : null,
+                  border: Border(right: BorderSide(color: Colors.grey.shade400, width: 2)),
+                ),
+                child: Center(
+                  child: Text(
+                    '${date.month}/${date.day} (${weekdayNames[date.weekday]})',
+                    style: TextStyle(
+                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 13,
+                      color: !isCurrentMonth
+                          ? Colors.grey
+                          : date.weekday == DateTime.sunday
+                              ? Colors.red
+                              : date.weekday == DateTime.saturday
+                                  ? Colors.blue
+                                  : Colors.black,
                     ),
                   ),
                 ),
-              ],
-            );
-          }).toList(),
-        ),
+              ),
+            ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -560,7 +544,6 @@ class _WeekSectionState extends State<_WeekSection> {
   Widget _buildCategoryRow(
     ScheduleCategory category,
     List<DateTime> weekDates,
-    ScrollController scrollController,
   ) {
     final minRowHeight = _getMinCategoryRowHeight(category);
 
@@ -569,45 +552,41 @@ class _WeekSectionState extends State<_WeekSection> {
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
       ),
-      child: SingleChildScrollView(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: weekDates.map((date) {
-              final isCurrentMonth = date.month == widget.month.month;
-              final events = widget.eventsState.eventsForCategoryAndDate(category.categoryId, date);
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: weekDates.map((date) {
+            final isCurrentMonth = date.month == widget.month.month;
+            final events = widget.eventsState.eventsForCategoryAndDate(category.categoryId, date);
 
-              return Row(
-                children: [
-                  // 카테고리명 (각 날짜 앞에 반복)
-                  Container(
-                    width: categoryColumnWidth,
-                    decoration: BoxDecoration(
-                      color: _getCategoryColor(category),
-                      border: Border(right: BorderSide(color: Colors.grey.shade400)),
-                    ),
-                    child: Center(
-                      child: Text(
-                        category.categoryName,
-                        style: const TextStyle(fontSize: 11),
-                        textAlign: TextAlign.center,
-                      ),
+            return Row(
+              children: [
+                // 카테고리명 (각 날짜 앞에 반복)
+                Container(
+                  width: categoryColumnWidth,
+                  decoration: BoxDecoration(
+                    color: _getCategoryColor(category),
+                    border: Border(right: BorderSide(color: Colors.grey.shade400)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      category.categoryName,
+                      style: const TextStyle(fontSize: 11),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  // 셀
-                  _buildCell(
-                    context,
-                    category,
-                    date,
-                    isCurrentMonth,
-                    events,
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
+                ),
+                // 셀
+                _buildCell(
+                  context,
+                  category,
+                  date,
+                  isCurrentMonth,
+                  events,
+                ),
+              ],
+            );
+          }).toList(),
         ),
       ),
     );
