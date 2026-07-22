@@ -422,7 +422,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
     final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
     final weekKey = 'week_${weekStartDate.toString()}';
 
-    // GlobalKey를 통해 해당 주 위젯 찾기
+    // 세로 스크롤: 해당 주로 이동
     final key = _weekKeys[weekKey];
     if (key?.currentContext != null) {
       // RenderBox를 통해 실제 위치 계산
@@ -439,6 +439,18 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
         );
       }
     }
+
+    // 가로 스크롤: 해당 날짜 열로 이동
+    final dayOfWeek = date.weekday % 7; // 0=일요일, 1=월요일, ..., 6=토요일
+    final columnWidth = categoryColumnWidth + cellWidth; // 100 + 360 = 460
+    final horizontalOffset = dayOfWeek * columnWidth;
+
+    // 화면 중앙에 오도록 조정 (선택사항)
+    _horizontalScrollController.animateTo(
+      horizontalOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 }
 
