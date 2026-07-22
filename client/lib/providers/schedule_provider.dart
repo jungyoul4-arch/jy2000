@@ -71,9 +71,11 @@ class ScheduleEventsState {
     ).toList();
   }
 
-  /// 날짜 포맷 (YYYY-MM-DD)
+  /// 날짜 포맷 (YYYY-MM-DD) - 로컬 날짜만 사용
   String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    // UTC 변환 없이 로컬 날짜의 year/month/day만 사용
+    final localDate = DateTime(date.year, date.month, date.day);
+    return '${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}';
   }
 
   /// 서버에서 온 날짜 문자열을 YYYY-MM-DD 형식으로 정규화
@@ -211,9 +213,11 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     await loadEvents();
   }
 
-  /// 날짜 포맷 (YYYY-MM-DD)
+  /// 날짜 포맷 (YYYY-MM-DD) - 로컬 날짜만 사용
   String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    // UTC 변환 없이 로컬 날짜의 year/month/day만 사용
+    final localDate = DateTime(date.year, date.month, date.day);
+    return '${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}';
   }
 }
 
