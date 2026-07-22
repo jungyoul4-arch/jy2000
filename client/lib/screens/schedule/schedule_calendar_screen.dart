@@ -310,12 +310,14 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
       child: SingleChildScrollView(
         controller: _verticalScrollController,
         scrollDirection: Axis.vertical,
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Scrollbar(
           controller: _horizontalScrollController,
           thumbVisibility: true,
           child: SingleChildScrollView(
             controller: _horizontalScrollController,
             scrollDirection: Axis.horizontal,
+            physics: const AlwaysScrollableScrollPhysics(),
             child: SizedBox(
               width: totalWidth,
               child: Column(
@@ -335,6 +337,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
                     eventTypes: eventTypes,
                     promotions: promotions,
                     onShowEventDialog: _showEventDialog,
+                    totalWidth: totalWidth,
                   );
                 }),
               ),
@@ -430,7 +433,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
   }
 }
 
-/// 한 주 섹션 (연결된 스크롤 컨트롤러 사용)
+/// 한 주 섹션
 class _WeekSection extends StatefulWidget {
   final DateTime weekStartDate;
   final DateTime month;
@@ -438,6 +441,7 @@ class _WeekSection extends StatefulWidget {
   final List<ScheduleCategory> categories;
   final List<ScheduleEventType> eventTypes;
   final List<Promotion> promotions;
+  final double totalWidth;
   final void Function(
     BuildContext context,
     ScheduleCategory category,
@@ -454,6 +458,7 @@ class _WeekSection extends StatefulWidget {
     required this.categories,
     required this.eventTypes,
     required this.promotions,
+    required this.totalWidth,
     required this.onShowEventDialog,
   });
 
@@ -471,6 +476,7 @@ class _WeekSectionState extends State<_WeekSection> {
     final weekDates = List.generate(7, (i) => widget.weekStartDate.add(Duration(days: i)));
 
     return Container(
+      width: widget.totalWidth,
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade400),
