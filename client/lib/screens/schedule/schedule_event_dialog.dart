@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,7 +7,7 @@ import '../../models/schedule_category.dart';
 import '../../models/schedule_event.dart';
 import '../../models/schedule_event_type.dart';
 import '../../models/student.dart';
-import '../../providers/student_provider.dart';
+import '../../repositories/student_repository.dart';
 
 class ScheduleEventDialog extends ConsumerStatefulWidget {
   final ScheduleCategory category;
@@ -38,6 +40,9 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   bool _isSearching = false;
   bool _isSaving = false;
 
+  // 디바운스용 타이머
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
@@ -59,13 +64,16 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _contentController.dispose();
     _studentSearchController.dispose();
     super.dispose();
   }
 
-  /// 학생 검색
-  Future<void> _searchStudents(String query) async {
+  /// 학생 검색 (디바운스 적용)
+  void _onStudentSearchChanged(String query) {
+    _debounce?.cancel();
+
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -76,22 +84,33 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
 
     setState(() => _isSearching = true);
 
-    try {
-      final studentState = ref.read(studentListProvider);
-      // 이미 로드된 학생 목록에서 검색
-      final results = studentState.students
-          .where((s) =>
-              s.studentName.contains(query) ||
-              s.phone.contains(query))
-          .take(10)
-          .toList();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _searchStudents(query);
+    });
+  }
 
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
+  /// 학생 검색 (API 호출)
+  Future<void> _searchStudents(String query) async {
+    try {
+      final repository = StudentRepository();
+      final result = await repository.getList(
+        StudentListParams(
+          page: 1,
+          perPage: 10,
+          search: query,
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _searchResults = result.data;
+          _isSearching = false;
+        });
+      }
     } catch (e) {
-      setState(() => _isSearching = false);
+      if (mounted) {
+        setState(() => _isSearching = false);
+      }
     }
   }
 
@@ -319,7 +338,7 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                       _selectedStudent = null;
                     });
                   }
-                  _searchStudents(value);
+                  _onStudentSearchChanged(value);
                 },
               ),
 
