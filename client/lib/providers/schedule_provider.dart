@@ -145,16 +145,15 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     int? studentId,
   }) async {
     try {
-      final newEvent = await _repository.createEvent(
+      await _repository.createEvent(
         categoryId: categoryId,
         eventTypeId: eventTypeId,
         eventDate: _formatDate(eventDate),
         content: content,
         studentId: studentId,
       );
-      state = state.copyWith(
-        events: [...state.events, newEvent],
-      );
+      // 전체 목록 다시 로드 (조인된 정보를 포함하여)
+      await loadEvents();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -172,7 +171,7 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     int? studentId,
   }) async {
     try {
-      final updatedEvent = await _repository.updateEvent(
+      await _repository.updateEvent(
         eventId,
         categoryId: categoryId,
         eventTypeId: eventTypeId,
@@ -180,11 +179,8 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
         content: content,
         studentId: studentId,
       );
-      state = state.copyWith(
-        events: state.events.map((e) =>
-          e.eventId == eventId ? updatedEvent : e
-        ).toList(),
-      );
+      // 전체 목록 다시 로드 (조인된 정보를 포함하여)
+      await loadEvents();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -196,9 +192,8 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
   Future<bool> deleteEvent(int eventId) async {
     try {
       await _repository.deleteEvent(eventId);
-      state = state.copyWith(
-        events: state.events.where((e) => e.eventId != eventId).toList(),
-      );
+      // 전체 목록 다시 로드
+      await loadEvents();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
