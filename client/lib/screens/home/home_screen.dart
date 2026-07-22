@@ -144,7 +144,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   if (isExtended) ...[
                     const SizedBox(height: 8),
                     Text(
-                      '상담 관리',
+                      '학원 관리',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),

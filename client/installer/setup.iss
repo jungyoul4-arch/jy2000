@@ -1,4 +1,4 @@
-; Inno Setup Script for 학생 상담 관리 시스템
+; Inno Setup Script for 학원 관리 시스템
 
 #define MyAppName "JY2000"
 #define MyAppVersion "1.0.0"

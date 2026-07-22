@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
+
 class AppConfig {
-  static const String appName = '학생 상담 관리';
+  static const String appName = '학원 관리';
   static const String appVersion = '1.0.0 Beta';
 
   // API 설정
@@ -14,8 +16,8 @@ class AppConfig {
   static const int defaultPageSize = 20;
   static const int maxPageSize = 100;
 
-  // 현재 환경
-  static bool get isDevelopment => true; // 개발 중에는 true
+  // 현재 환경 - 웹이거나 릴리스 모드면 프로덕션
+  static bool get isDevelopment => !kIsWeb && !kReleaseMode;
 
   static String get baseUrl => isDevelopment ? devApiBaseUrl : apiBaseUrl;
 }

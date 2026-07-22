@@ -150,6 +150,23 @@ export class AuthService {
       isAdmin: user.is_admin === 1
     };
   }
+
+  // ID/PW 로그인
+  async loginWithCredentials(loginId: string, password: string): Promise<any> {
+    // 하드코딩된 관리자 계정
+    if (loginId === 'admin' && password === 'jysk') {
+      return {
+        userId: 0,
+        name: '관리자',
+        kind: 1,
+        phone: '',
+        email: '',
+        isAdmin: true
+      };
+    }
+
+    throw new AppError('아이디 또는 비밀번호가 일치하지 않습니다.', 401);
+  }
 }
 
 export default new AuthService();

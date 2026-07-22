@@ -22,6 +22,7 @@ class ScheduleCalendarScreen extends ConsumerStatefulWidget {
 
 class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen> {
   final ScrollController _verticalScrollController = ScrollController();
+  final Map<String, GlobalKey> _weekKeys = {};
 
   // 셀 크기
   static const double cellWidth = 360.0;
@@ -43,6 +44,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
   @override
   void dispose() {
     _verticalScrollController.dispose();
+    _weekKeys.clear();
     super.dispose();
   }
 
@@ -192,46 +194,49 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
               final hasEvents = eventsState.eventsForDate(date).isNotEmpty;
               final weekday = date.weekday;
 
-              return Container(
-                margin: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: isToday ? Colors.orange.shade100 : null,
-                  borderRadius: BorderRadius.circular(4),
-                  border: isToday ? Border.all(color: Colors.orange, width: 2) : null,
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Text(
-                        '$day',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                          color: weekday == DateTime.sunday
-                              ? Colors.red
-                              : weekday == DateTime.saturday
-                                  ? Colors.blue
-                                  : Colors.black,
-                        ),
-                      ),
-                    ),
-                    if (hasEvents)
-                      Positioned(
-                        bottom: 2,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Container(
-                            width: 4,
-                            height: 4,
-                            decoration: const BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                            ),
+              return InkWell(
+                onTap: () => _scrollToDate(date),
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: isToday ? Colors.orange.shade100 : null,
+                    borderRadius: BorderRadius.circular(4),
+                    border: isToday ? Border.all(color: Colors.orange, width: 2) : null,
+                  ),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Text(
+                          '$day',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                            color: weekday == DateTime.sunday
+                                ? Colors.red
+                                : weekday == DateTime.saturday
+                                    ? Colors.blue
+                                    : Colors.black,
                           ),
                         ),
                       ),
-                  ],
+                      if (hasEvents)
+                        Positioned(
+                          bottom: 2,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Container(
+                              width: 4,
+                              height: 4,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -300,8 +305,13 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
       child: Column(
         children: List.generate(totalWeeks, (weekIndex) {
           final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
+          final weekKey = 'week_${weekStartDate.toString()}';
+
+          // GlobalKey가 없으면 생성
+          _weekKeys.putIfAbsent(weekKey, () => GlobalKey());
+
           return _WeekSection(
-            key: ValueKey('week_${weekStartDate.toString()}'),
+            key: _weekKeys[weekKey],
             weekStartDate: weekStartDate,
             month: month,
             eventsState: eventsState,
@@ -364,6 +374,39 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
   bool _isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year && date.month == now.month && date.day == now.day;
+  }
+
+  void _scrollToDate(DateTime date) {
+    final eventsState = ref.read(scheduleEventsProvider);
+    final month = eventsState.selectedMonth;
+    final firstDayOfMonth = DateTime(month.year, month.month, 1);
+
+    final startWeekday = firstDayOfMonth.weekday % 7;
+    final calendarStartDate = firstDayOfMonth.subtract(Duration(days: startWeekday));
+
+    // 클릭한 날짜가 어느 주에 속하는지 찾기
+    final daysFromStart = date.difference(calendarStartDate).inDays;
+    final weekIndex = (daysFromStart / 7).floor();
+    final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
+    final weekKey = 'week_${weekStartDate.toString()}';
+
+    // GlobalKey를 통해 해당 주 위젯 찾기
+    final key = _weekKeys[weekKey];
+    if (key?.currentContext != null) {
+      // RenderBox를 통해 실제 위치 계산
+      final RenderBox? renderBox = key!.currentContext!.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final position = renderBox.localToGlobal(Offset.zero);
+        final scrollOffset = _verticalScrollController.offset;
+        final targetOffset = scrollOffset + position.dy - 100; // AppBar 높이만큼 여유
+
+        _verticalScrollController.animateTo(
+          targetOffset.clamp(0.0, _verticalScrollController.position.maxScrollExtent),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
   }
 }
 

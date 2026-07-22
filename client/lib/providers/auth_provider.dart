@@ -133,6 +133,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  // ID/PW 로그인
+  Future<bool> login(String loginId, String password, bool autoLogin) async {
+    state = state.copyWith(status: AuthStatus.loading, error: null);
+
+    try {
+      final response = await _repository.login(loginId, password);
+
+      // 자동 로그인 저장
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('autoLogin', autoLogin);
+      await prefs.setString('user', json.encode(response.user.toJson()));
+
+      // API 클라이언트에 사용자 정보 설정
+      ApiClient.instance.setUser(response.user.userId, response.user.kind, isAdmin: response.user.isAdmin);
+
+      state = AuthState(
+        status: AuthStatus.authenticated,
+        user: response.user,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        error: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
   // 로그아웃
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();

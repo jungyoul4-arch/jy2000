@@ -1,5 +1,5 @@
 name: student_counseling
-description: "학생 상담 관리 시스템"
+description: "학원 관리 시스템"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -60,7 +60,7 @@ dev_dependencies:
   msix: ^3.16.8
 
 msix_config:
-  display_name: 학생 상담 관리 시스템
+  display_name: 학원 관리 시스템
   publisher_display_name: JY2000
   identity_name: com.jy2000.studentcounseling
   msix_version: 1.0.0.0

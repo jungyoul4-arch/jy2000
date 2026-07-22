@@ -44,6 +44,26 @@ export class AuthController {
       message: '로그인 성공'
     }, '로그인되었습니다.');
   });
+
+  // POST /auth/login - ID/PW 로그인
+  login = asyncHandler(async (req: Request, res: Response) => {
+    const { loginId, password } = req.body;
+
+    if (!loginId || !password) {
+      return res.status(400).json({
+        success: false,
+        code: 400,
+        message: '아이디와 비밀번호를 입력해주세요.'
+      });
+    }
+
+    const user = await authService.loginWithCredentials(loginId, password);
+
+    return sendSuccess(res, {
+      user,
+      message: '로그인 성공'
+    }, '로그인되었습니다.');
+  });
 }
 
 export default new AuthController();

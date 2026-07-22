@@ -28,4 +28,15 @@ class AuthRepository {
     final data = response['data'] as Map<String, dynamic>;
     return VerifyCodeResponse.fromJson(data);
   }
+
+  // ID/PW 로그인
+  Future<VerifyCodeResponse> login(String loginId, String password) async {
+    final response = await _apiClient.post<Map<String, dynamic>>(
+      '/auth/login',
+      data: {'loginId': loginId, 'password': password},
+    );
+
+    final data = response['data'] as Map<String, dynamic>;
+    return VerifyCodeResponse.fromJson(data);
+  }
 }

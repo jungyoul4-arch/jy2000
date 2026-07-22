@@ -43,7 +43,7 @@ class _StudentCounselingAppState extends ConsumerState<StudentCounselingApp> {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: '학생 상담 관리',
+      title: '학원 관리',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: router,

@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
@@ -22,8 +21,8 @@ class WindowService with WindowListener {
 
   /// 윈도우 매니저 초기화 및 저장된 위치/크기 복원
   Future<void> initialize() async {
-    // 데스크톱 플랫폼에서만 동작
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
+    // 웹에서는 동작하지 않음
+    if (kIsWeb) {
       return;
     }
 

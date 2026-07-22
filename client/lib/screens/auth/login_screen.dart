@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,61 +14,20 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _phoneController = TextEditingController();
-  final _codeController = TextEditingController();
+  final _idController = TextEditingController();
+  final _pwController = TextEditingController();
+  final _idFocusNode = FocusNode();
+  final _pwFocusNode = FocusNode();
   bool _autoLogin = false;
-  Timer? _timer;
-  int _remainingSeconds = 0;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _phoneController.dispose();
-    _codeController.dispose();
-    _timer?.cancel();
+    _idController.dispose();
+    _pwController.dispose();
+    _idFocusNode.dispose();
+    _pwFocusNode.dispose();
     super.dispose();
-  }
-
-  String _formatPhone(String phone) {
-    final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 7) {
-      return '${digits.substring(0, 3)}-${digits.substring(3)}';
-    }
-    return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7, digits.length > 11 ? 11 : digits.length)}';
-  }
-
-  void _startTimer() {
-    _remainingSeconds = 180;
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
-        } else {
-          timer.cancel();
-        }
-      });
-    });
-  }
-
-  String _formatTime(int seconds) {
-    final min = seconds ~/ 60;
-    final sec = seconds % 60;
-    return '$min:${sec.toString().padLeft(2, '0')}';
-  }
-
-  Future<void> _requestCode() async {
-    final phone = _phoneController.text.replaceAll('-', '');
-    if (phone.length < 10) {
-      _showError('전화번호를 정확히 입력해주세요.');
-      return;
-    }
-
-    final success = await ref.read(authProvider.notifier).requestCode(phone);
-    if (success) {
-      _startTimer();
-      _showCodeDialog();
-    }
   }
 
   void _showError(String message) {
@@ -117,97 +75,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  void _showCodeDialog() {
-    _codeController.clear();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AlertDialog(
-            title: const Text('인증 코드 입력'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '전송된 4자리 인증 코드를 입력하세요',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _codeController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 4,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    letterSpacing: 8,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    counterText: '',
-                    border: OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                ),
-                const SizedBox(height: 8),
-                StreamBuilder(
-                  stream: Stream.periodic(const Duration(seconds: 1)),
-                  builder: (context, snapshot) {
-                    return Text(
-                      _remainingSeconds > 0
-                          ? '남은 시간: ${_formatTime(_remainingSeconds)}'
-                          : '시간이 만료되었습니다. 다시 요청해주세요.',
-                      style: TextStyle(
-                        color: _remainingSeconds > 30 ? Colors.grey[600] : Colors.red,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  ref.read(authProvider.notifier).resetCodeSent();
-                },
-                child: const Text('취소'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(dialogContext);
-                  await _requestCode();
-                },
-                child: const Text('재전송'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  if (_codeController.text.length != 4) {
-                    _showError('4자리 인증 코드를 입력해주세요.');
-                    return;
-                  }
-                  if (_remainingSeconds <= 0) {
-                    _showError('인증 시간이 만료되었습니다. 다시 요청해주세요.');
-                    return;
-                  }
-                  final phone = _phoneController.text.replaceAll('-', '');
-                  final success = await ref
-                      .read(authProvider.notifier)
-                      .verifyCode(phone, _codeController.text, _autoLogin);
-                  if (success && mounted) {
-                    Navigator.pop(dialogContext);
-                  }
-                },
-                child: const Text('확인'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+  Future<void> _login() async {
+    final id = _idController.text.trim();
+    final pw = _pwController.text;
+
+    if (id.isEmpty) {
+      _showError('아이디를 입력해주세요.');
+      return;
+    }
+    if (pw.isEmpty) {
+      _showError('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    final success = await ref.read(authProvider.notifier).login(id, pw, _autoLogin);
+    if (!success && mounted) {
+      // 에러는 listener에서 처리
+    }
   }
 
   @override
@@ -246,38 +130,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '학생 상담 관리',
+                      '학원 관리',
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     const SizedBox(height: 32),
 
-                    // 전화번호 입력
+                    // 아이디 입력
                     TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
+                      controller: _idController,
+                      focusNode: _idFocusNode,
                       decoration: const InputDecoration(
-                        labelText: '전화번호',
-                        hintText: '010-0000-0000',
-                        prefixIcon: Icon(Icons.phone),
+                        labelText: '아이디',
+                        hintText: '아이디 입력',
+                        prefixIcon: Icon(Icons.person),
                         border: OutlineInputBorder(),
                       ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(11),
-                      ],
-                      onChanged: (value) {
-                        final formatted = _formatPhone(value);
-                        if (formatted != value) {
-                          _phoneController.value = TextEditingValue(
-                            text: formatted,
-                            selection: TextSelection.collapsed(
-                              offset: formatted.length,
-                            ),
-                          );
-                        }
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) {
+                        _pwFocusNode.requestFocus();
                       },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 비밀번호 입력
+                    TextField(
+                      controller: _pwController,
+                      focusNode: _pwFocusNode,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: '비밀번호',
+                        hintText: '비밀번호 입력',
+                        prefixIcon: const Icon(Icons.lock),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _login(),
                     ),
                     const SizedBox(height: 16),
 
@@ -304,7 +203,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: FilledButton(
                         onPressed: authState.status == AuthStatus.loading
                             ? null
-                            : _requestCode,
+                            : _login,
                         child: authState.status == AuthStatus.loading
                             ? const SizedBox(
                                 width: 24,
