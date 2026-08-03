@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../config/theme.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../models/dashboard.dart';
+import '../../widgets/logout_button.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -35,7 +37,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             onPressed: () {
               ref.read(dashboardProvider.notifier).refresh();
             },
+            tooltip: '새로고침',
           ),
+          const SizedBox(width: 8),
+          const LogoutButton(),
         ],
       ),
       body: dashboardState.isLoading

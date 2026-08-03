@@ -298,6 +298,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         return AppRoutes.home;
       }
 
+      // 경영 보고서는 관리자(kind=1) 전용 - URL 직접 접근 차단
+      if (isLoggedIn &&
+          state.matchedLocation.startsWith(AppRoutes.mgmtReport) &&
+          authState.user?.kind != 1) {
+        return AppRoutes.home;
+      }
+
       return null;
     },
   );

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/class_model.dart';
 import '../../providers/class_provider.dart';
+import '../../widgets/logout_button.dart';
 
 // 과목 필터 항목
 const _genreFilterItems = [
@@ -166,6 +167,7 @@ class _ClassListScreenState extends ConsumerState<ClassListScreen> {
             label: const Text('반 등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Column(

@@ -8,6 +8,7 @@ import '../../providers/consult_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/consult.dart';
 import 'tc_register_dialog.dart';
+import '../../widgets/logout_button.dart';
 
 class ConsultListScreen extends ConsumerStatefulWidget {
   const ConsultListScreen({super.key});
@@ -72,6 +73,7 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
             label: const Text('상담 등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Column(

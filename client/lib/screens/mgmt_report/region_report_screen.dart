@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/mgmt_report.dart';
 import '../../providers/mgmt_data_provider.dart';
+import '../../widgets/logout_button.dart';
 
 class RegionReportScreen extends ConsumerStatefulWidget {
   const RegionReportScreen({super.key});
@@ -70,6 +71,7 @@ class _RegionReportScreenState extends ConsumerState<RegionReportScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('지역별 학생수 분석'),
+        actions: const [LogoutButton()],
       ),
       body: Column(
         children: [

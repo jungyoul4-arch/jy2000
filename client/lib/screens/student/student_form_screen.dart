@@ -10,6 +10,7 @@ import '../../models/student.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/school_provider.dart';
 import '../../providers/student_provider.dart';
+import '../../widgets/logout_button.dart';
 
 // 학년 정보 클래스
 class GradeItem {
@@ -142,6 +143,7 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                 : Text(isEdit ? '저장' : '등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: SingleChildScrollView(

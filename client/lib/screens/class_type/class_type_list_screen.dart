@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/class_type.dart';
 import '../../providers/class_type_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/logout_button.dart';
 
 class ClassTypeListScreen extends ConsumerStatefulWidget {
   const ClassTypeListScreen({super.key});
@@ -129,6 +130,7 @@ class _ClassTypeListScreenState extends ConsumerState<ClassTypeListScreen> {
             ),
             const SizedBox(width: 16),
           ],
+          const LogoutButton(),
         ],
       ),
       body: Column(

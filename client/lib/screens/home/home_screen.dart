@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/app_config.dart';
 import '../../config/routes.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/schedule_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -19,6 +20,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   List<_NavItem> _getNavItems(int? userKind) {
+    // 관리자 여부 (User.kind: 1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원)
+    final isAdmin = userKind == 1;
+
     return [
       _NavItem(
         icon: Icons.dashboard_outlined,
@@ -81,12 +85,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         label: '경영 데이터',
         path: AppRoutes.mgmtDataList,
       ),
-      _NavItem(
-        icon: Icons.assessment_outlined,
-        selectedIcon: Icons.assessment,
-        label: '경영 보고서',
-        path: AppRoutes.mgmtReport,
-      ),
+      // 경영 보고서 - 관리자(kind=1)에게만 표시
+      if (isAdmin)
+        _NavItem(
+          icon: Icons.assessment_outlined,
+          selectedIcon: Icons.assessment,
+          label: '경영 보고서',
+          path: AppRoutes.mgmtReport,
+        ),
     ];
   }
 
@@ -110,6 +116,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
 
     if (confirmed == true) {
+      // 일정 캘린더의 선택 날짜를 초기화 (다음 로그인 시 오늘 날짜부터 시작)
+      ref.invalidate(scheduleEventsProvider);
       await ref.read(authProvider.notifier).logout();
     }
   }

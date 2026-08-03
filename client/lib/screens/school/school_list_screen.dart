@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/school.dart';
 import '../../providers/school_provider.dart';
+import '../../widgets/logout_button.dart';
 
 class SchoolListScreen extends ConsumerStatefulWidget {
   const SchoolListScreen({super.key});
@@ -100,6 +101,7 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
             label: const Text('학교 추가'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Column(

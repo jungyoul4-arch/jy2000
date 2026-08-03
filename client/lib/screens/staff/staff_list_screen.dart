@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/staff_provider.dart';
 import '../../utils/formatters.dart';
 import 'staff_form_dialog.dart';
+import '../../widgets/logout_button.dart';
 
 class StaffListScreen extends ConsumerStatefulWidget {
   const StaffListScreen({super.key});
@@ -84,6 +85,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
             ),
           ],
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Column(

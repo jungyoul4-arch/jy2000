@@ -13,6 +13,7 @@ import '../../repositories/class_repository.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/consult_provider.dart';
 import '../../providers/calendar_provider.dart';
+import '../../widgets/logout_button.dart';
 
 class ConsultFormScreen extends ConsumerStatefulWidget {
   final int? studentId;
@@ -161,6 +162,7 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
                 : const Text('등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: SingleChildScrollView(

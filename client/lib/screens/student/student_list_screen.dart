@@ -10,6 +10,7 @@ import '../../providers/code_provider.dart';
 import '../../models/student.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../utils/formatters.dart';
+import '../../widgets/logout_button.dart';
 
 class StudentListScreen extends ConsumerStatefulWidget {
   final int? initialSchoolId;
@@ -222,6 +223,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
             label: const Text('학생 등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Column(

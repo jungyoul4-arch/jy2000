@@ -14,6 +14,7 @@ import '../../providers/consult_provider.dart';
 import '../../repositories/student_repository.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../utils/formatters.dart';
+import '../../widgets/logout_button.dart';
 
 // 과목 코드 (비트마스크)
 class SubjectCode {
@@ -84,6 +85,7 @@ class StudentDetailScreen extends ConsumerWidget {
               label: const Text('삭제', style: TextStyle(color: Colors.red)),
             ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: studentAsync.when(

@@ -10,6 +10,7 @@ import '../../models/school.dart';
 import '../../repositories/promotion_repository.dart';
 import '../../providers/promotion_provider.dart';
 import '../../providers/school_provider.dart';
+import '../../widgets/logout_button.dart';
 
 // 프로모션 상세 조회 Provider
 final promotionDetailProvider =
@@ -76,6 +77,7 @@ class _PromotionDetailScreenState extends ConsumerState<PromotionDetailScreen> {
             ),
           ],
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: promotionAsync.when(

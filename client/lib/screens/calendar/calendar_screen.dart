@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/calendar_event.dart';
 import '../../providers/calendar_provider.dart';
+import '../../widgets/logout_button.dart';
 
 // 한국 공휴일 데이터 (2024-2026)
 final Map<String, String> koreanHolidays = {
@@ -122,6 +123,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ],
         ),
         centerTitle: true,
+        actions: const [LogoutButton()],
       ),
       body: Column(
         children: [

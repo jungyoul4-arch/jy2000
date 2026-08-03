@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +14,7 @@ import '../../providers/promotion_provider.dart';
 import '../../providers/schedule_provider.dart';
 import 'schedule_event_dialog.dart';
 import 'schedule_event_list_dialog.dart';
+import '../../widgets/logout_button.dart';
 
 class ScheduleCalendarScreen extends ConsumerStatefulWidget {
   const ScheduleCalendarScreen({super.key});
@@ -24,6 +27,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
   final ScrollController _verticalScrollController = ScrollController();
   final ScrollController _horizontalScrollController = ScrollController();
   final Map<String, GlobalKey> _weekKeys = {};
+  Timer? _scrollRetryTimer;
 
   // 셀 크기
   static const double cellWidth = 360.0;
@@ -33,17 +37,75 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(scheduleEventsProvider.notifier).loadEvents();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final notifier = ref.read(scheduleEventsProvider.notifier);
+      final previousDate = ref.read(scheduleEventsProvider).selectedDate;
+
+      // 선택된 날짜가 없을 때(로그인 후 첫 진입)만 오늘로 이동한다.
+      // 다른 메뉴에 갔다 돌아온 경우에는 이전에 선택한 날짜를 그대로 유지한다.
+      final targetDate = previousDate ?? DateTime.now();
+
+      if (previousDate == null) {
+        notifier.selectDate(targetDate);
+      }
+
       ref.read(promotionListProvider.notifier).fetchList(
         params: const PromotionListParams(perPage: 1000),
         refresh: true,
       );
+
+      // 일정 로드가 끝나야 주간 그리드가 그려지므로, 로드 후 스크롤
+      await notifier.loadEvents();
+      _scrollToDateWhenReady(targetDate);
     });
+  }
+
+  /// 주간 그리드가 그려진 뒤 해당 날짜로 스크롤.
+  /// 첫 진입 시에는 그리드 렌더링이 끝나지 않았을 수 있어 준비될 때까지 재시도한다.
+  ///
+  /// 재시도는 타이머로 돌린다. addPostFrameCallback은 다음 프레임이 예약되어 있을
+  /// 때만 실행되는데, 로드가 끝나고 화면이 정지하면 프레임이 더 이상 생기지 않아
+  /// 콜백이 영영 호출되지 않는다.
+  void _scrollToDateWhenReady(DateTime date, {bool animate = false}) {
+    _scrollRetryTimer?.cancel();
+    var attempts = 0;
+
+    void tryScroll() {
+      if (!mounted) return;
+
+      final isReady = _weekKeys[_weekKeyForDate(date)]?.currentContext != null &&
+          _verticalScrollController.hasClients &&
+          _horizontalScrollController.hasClients;
+
+      if (isReady) {
+        _scrollToDate(date, animate: animate);
+        return;
+      }
+
+      if (++attempts >= 30) return; // 약 1.5초까지만 대기
+      _scrollRetryTimer = Timer(const Duration(milliseconds: 50), tryScroll);
+    }
+
+    tryScroll();
+  }
+
+  /// 날짜가 속한 주의 GlobalKey 이름
+  String _weekKeyForDate(DateTime date) {
+    final month = ref.read(scheduleEventsProvider).selectedMonth;
+    final firstDayOfMonth = DateTime(month.year, month.month, 1);
+    final startWeekday = firstDayOfMonth.weekday % 7;
+    final calendarStartDate = firstDayOfMonth.subtract(Duration(days: startWeekday));
+
+    final daysFromStart = date.difference(calendarStartDate).inDays;
+    final weekIndex = (daysFromStart / 7).floor();
+    final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
+
+    return 'week_${weekStartDate.toString()}';
   }
 
   @override
   void dispose() {
+    _scrollRetryTimer?.cancel();
     _verticalScrollController.dispose();
     _horizontalScrollController.dispose();
     _weekKeys.clear();
@@ -68,7 +130,12 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
           ),
           IconButton(
             icon: const Icon(Icons.today),
-            onPressed: () => ref.read(scheduleEventsProvider.notifier).changeMonth(DateTime.now()),
+            onPressed: () {
+              final today = DateTime.now();
+              ref.read(scheduleEventsProvider.notifier).selectDate(today);
+              ref.read(scheduleEventsProvider.notifier).changeMonth(today);
+              _scrollToDateWhenReady(today);
+            },
             tooltip: '오늘',
           ),
           IconButton(
@@ -85,6 +152,8 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
             },
             tooltip: '새로고침',
           ),
+          const SizedBox(width: 8),
+          const LogoutButton(),
         ],
       ),
       body: categoriesAsync.when(
@@ -474,23 +543,15 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
     return date.year == now.year && date.month == now.month && date.day == now.day;
   }
 
-  void _scrollToDate(DateTime date) {
-    final eventsState = ref.read(scheduleEventsProvider);
-    final month = eventsState.selectedMonth;
-    final firstDayOfMonth = DateTime(month.year, month.month, 1);
-
-    final startWeekday = firstDayOfMonth.weekday % 7;
-    final calendarStartDate = firstDayOfMonth.subtract(Duration(days: startWeekday));
-
+  /// [animate]가 false면 애니메이션 없이 즉시 이동한다.
+  /// 화면 진입 시에는 가로/세로가 동시에 움직이면 산만해 보이므로 즉시 이동한다.
+  void _scrollToDate(DateTime date, {bool animate = true}) {
     // 클릭한 날짜가 어느 주에 속하는지 찾기
-    final daysFromStart = date.difference(calendarStartDate).inDays;
-    final weekIndex = (daysFromStart / 7).floor();
-    final weekStartDate = calendarStartDate.add(Duration(days: weekIndex * 7));
-    final weekKey = 'week_${weekStartDate.toString()}';
+    final weekKey = _weekKeyForDate(date);
 
     // 세로 스크롤: 해당 주로 이동
     final key = _weekKeys[weekKey];
-    if (key?.currentContext != null) {
+    if (key?.currentContext != null && _verticalScrollController.hasClients) {
       // RenderBox를 통해 실제 위치 계산
       final RenderBox? renderBox = key!.currentContext!.findRenderObject() as RenderBox?;
       if (renderBox != null) {
@@ -498,22 +559,39 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
         final scrollOffset = _verticalScrollController.offset;
         final targetOffset = scrollOffset + position.dy - 100; // AppBar 높이만큼 여유
 
-        _verticalScrollController.animateTo(
+        _moveTo(
+          _verticalScrollController,
           targetOffset.clamp(0.0, _verticalScrollController.position.maxScrollExtent),
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+          animate: animate,
         );
       }
     }
 
     // 가로 스크롤: 해당 날짜 열로 이동
+    if (!_horizontalScrollController.hasClients) return;
+
     final dayOfWeek = date.weekday % 7; // 0=일요일, 1=월요일, ..., 6=토요일
     final columnWidth = categoryColumnWidth + cellWidth; // 100 + 360 = 460
     final horizontalOffset = dayOfWeek * columnWidth;
 
-    // 화면 중앙에 오도록 조정 (선택사항)
-    _horizontalScrollController.animateTo(
-      horizontalOffset,
+    _moveTo(
+      _horizontalScrollController,
+      horizontalOffset.clamp(
+        0.0,
+        _horizontalScrollController.position.maxScrollExtent,
+      ),
+      animate: animate,
+    );
+  }
+
+  void _moveTo(ScrollController controller, double offset, {required bool animate}) {
+    if (!animate) {
+      controller.jumpTo(offset);
+      return;
+    }
+
+    controller.animateTo(
+      offset,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );

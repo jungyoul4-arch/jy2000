@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../models/class_model.dart';
 import '../../providers/class_provider.dart';
 import '../../repositories/class_repository.dart';
+import '../../widgets/logout_button.dart';
 
 // 과목 이름 맵
 const _genreNameMap = {
@@ -161,6 +162,7 @@ class ClassDetailScreen extends ConsumerWidget {
             label: const Text('삭제'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: classDetailAsync.when(

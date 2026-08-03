@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../repositories/student_repository.dart';
 import '../../repositories/staff_repository.dart';
 import '../../repositories/class_type_repository.dart';
+import '../../widgets/logout_button.dart';
 
 class MgmtDataListScreen extends ConsumerStatefulWidget {
   const MgmtDataListScreen({super.key});
@@ -76,6 +77,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
             ],
           ],
         ),
+        actions: const [LogoutButton()],
       ),
       body: Column(
         children: [

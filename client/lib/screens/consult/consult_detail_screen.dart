@@ -8,6 +8,7 @@ import '../../models/consult.dart';
 import '../../repositories/consult_repository.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/consult_provider.dart';
+import '../../widgets/logout_button.dart';
 
 // 상담 상세 Provider
 final consultDetailProvider =
@@ -81,6 +82,7 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
             ),
           ],
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: consultAsync.when(

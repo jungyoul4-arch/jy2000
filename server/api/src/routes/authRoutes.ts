@@ -9,6 +9,9 @@ router.post('/request-code', authController.requestCode);
 // POST /auth/verify-code - 인증 코드 확인 및 로그인
 router.post('/verify-code', authController.verifyCode);
 
+// POST /auth/talk-login - 정율톡 계정(전화번호+패스워드) 로그인
+router.post('/talk-login', authController.talkLogin);
+
 // POST /auth/login - ID/PW 로그인
 router.post('/login', authController.login);
 

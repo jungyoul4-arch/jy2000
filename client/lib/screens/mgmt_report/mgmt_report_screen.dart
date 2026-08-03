@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../config/routes.dart';
 import '../../models/mgmt_report.dart';
 import '../../providers/mgmt_data_provider.dart';
+import '../../widgets/logout_button.dart';
 
 class MgmtReportScreen extends ConsumerStatefulWidget {
   const MgmtReportScreen({super.key});
@@ -42,6 +43,7 @@ class _MgmtReportScreenState extends ConsumerState<MgmtReportScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('경영 보고서'),
+        actions: const [LogoutButton()],
       ),
       body: Column(
         children: [

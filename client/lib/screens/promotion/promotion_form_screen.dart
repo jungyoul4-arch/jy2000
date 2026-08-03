@@ -9,6 +9,7 @@ import '../../models/promotion.dart';
 import '../../repositories/promotion_repository.dart';
 import '../../providers/promotion_provider.dart';
 import '../../providers/calendar_provider.dart';
+import '../../widgets/logout_button.dart';
 
 class PromotionFormScreen extends ConsumerStatefulWidget {
   final DateTime? initialDate; // 달력에서 선택한 날짜 (고정)
@@ -44,6 +45,7 @@ class _PromotionFormScreenState extends ConsumerState<PromotionFormScreen> {
                 : const Text('등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: SingleChildScrollView(

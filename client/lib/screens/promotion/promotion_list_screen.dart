@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/promotion_provider.dart';
 import '../../models/promotion.dart';
+import '../../widgets/logout_button.dart';
 
 class PromotionListScreen extends ConsumerStatefulWidget {
   const PromotionListScreen({super.key});
@@ -44,6 +45,7 @@ class _PromotionListScreenState extends ConsumerState<PromotionListScreen> {
             label: const Text('설명회 등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Column(

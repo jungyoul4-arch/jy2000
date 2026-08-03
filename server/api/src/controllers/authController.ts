@@ -45,6 +45,26 @@ export class AuthController {
     }, '로그인되었습니다.');
   });
 
+  // POST /auth/talk-login - 정율톡 계정(전화번호+패스워드) 로그인
+  talkLogin = asyncHandler(async (req: Request, res: Response) => {
+    const { phone, password } = req.body;
+
+    if (!phone || !password) {
+      return res.status(400).json({
+        success: false,
+        code: 400,
+        message: '전화번호와 패스워드를 입력해주세요.'
+      });
+    }
+
+    const user = await authService.loginWithJungyoulTalk(phone, password);
+
+    return sendSuccess(res, {
+      user,
+      message: '로그인 성공'
+    }, '로그인되었습니다.');
+  });
+
   // POST /auth/login - ID/PW 로그인
   login = asyncHandler(async (req: Request, res: Response) => {
     const { loginId, password } = req.body;

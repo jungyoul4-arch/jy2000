@@ -8,6 +8,7 @@ import '../../models/class_model.dart';
 import '../../models/class_type.dart';
 import '../../providers/class_provider.dart';
 import '../../providers/class_type_provider.dart';
+import '../../widgets/logout_button.dart';
 
 // 년도 옵션 (올해, 다음해)
 List<int> get _yearOptions {
@@ -513,7 +514,10 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
   Widget build(BuildContext context) {
     if (isEditMode && !_isInitialized) {
       return Scaffold(
-        appBar: AppBar(title: const Text('반 편집')),
+        appBar: AppBar(
+          title: const Text('반 편집'),
+          actions: const [LogoutButton()],
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -543,6 +547,7 @@ class _ClassFormScreenState extends ConsumerState<ClassFormScreen> {
                 : Text(isEditMode ? '저장' : '등록'),
           ),
           const SizedBox(width: 16),
+          const LogoutButton(),
         ],
       ),
       body: Form(
