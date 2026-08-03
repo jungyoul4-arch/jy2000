@@ -47,7 +47,9 @@ CREATE TABLE IF NOT EXISTS schedule_event (
     category_id     INT NOT NULL COMMENT 'FK: schedule_category',
     event_type_id   INT NOT NULL COMMENT 'FK: schedule_event_type',
     event_date      DATE NOT NULL COMMENT '일정 날짜',
+    event_minute    TINYINT DEFAULT 0 COMMENT '일정 분 (0, 10, 20, 30, 40, 50)',
     content         TEXT COMMENT '일정 내용',
+    is_important    TINYINT(1) DEFAULT 0 COMMENT '중요 일정 여부 (0: 일반, 1: 중요)',
     student_id      INT NULL COMMENT 'FK: User (학생 연동시)',
     consult_id      INT NULL COMMENT 'FK: consult (자동 생성된 상담 기록)',
     created_by      INT NOT NULL COMMENT 'FK: User (작성자)',
@@ -127,11 +129,24 @@ SELECT
     st.event_type_name,
     st.color_code,
     se.event_date,
+    se.event_minute,
     se.content,
+    se.is_important,
     se.student_id,
     su.name AS student_name,
     su.phone AS student_phone,
+    su.grade AS student_grade,
+    CASE su.grade
+        WHEN 1 THEN '초1' WHEN 2 THEN '초2' WHEN 3 THEN '초3'
+        WHEN 4 THEN '초4' WHEN 5 THEN '초5' WHEN 6 THEN '초6'
+        WHEN 7 THEN '중1' WHEN 8 THEN '중2' WHEN 9 THEN '중3'
+        WHEN 10 THEN '고1' WHEN 11 THEN '고2' WHEN 12 THEN '고3'
+        WHEN 13 THEN 'N수생' WHEN 14 THEN '성인'
+        ELSE NULL
+    END AS grade_name,
+    sch.school_name,
     se.consult_id,
+    c.consult_date,
     se.created_by,
     cu.name AS created_by_name,
     se.updated_by,
@@ -143,5 +158,8 @@ JOIN schedule_category sc ON se.category_id = sc.category_id
 JOIN schedule_event_type st ON se.event_type_id = st.event_type_id
 JOIN User cu ON se.created_by = cu.user_id
 LEFT JOIN User su ON se.student_id = su.user_id
+LEFT JOIN student_info si ON se.student_id = si.student_id
+LEFT JOIN School sch ON si.school_id = sch.school_id
+LEFT JOIN consult c ON se.consult_id = c.consult_id
 LEFT JOIN User uu ON se.updated_by = uu.user_id
 WHERE se.deleted_at IS NULL;

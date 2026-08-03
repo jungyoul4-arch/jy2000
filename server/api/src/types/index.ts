@@ -560,11 +560,17 @@ export interface ScheduleEvent {
   event_type_name?: string;
   color_code?: string;
   event_date: string;
+  event_minute?: number;
   content?: string;
+  is_important?: boolean;
   student_id?: number;
   student_name?: string;
   student_phone?: string;
+  student_grade?: number;
+  grade_name?: string;
+  school_name?: string;
   consult_id?: number;
+  consult_date?: string;
   created_by: number;
   created_by_name?: string;
   updated_by?: number;
@@ -578,7 +584,9 @@ export interface ScheduleEventCreate {
   category_id: number;
   event_type_id: number;
   event_date: string;
+  event_minute?: number;
   content?: string;
+  is_important?: boolean;
   student_id?: number;
 }
 
@@ -587,7 +595,9 @@ export interface ScheduleEventUpdate {
   category_id?: number;
   event_type_id?: number;
   event_date?: string;
+  event_minute?: number;
   content?: string;
+  is_important?: boolean;
   student_id?: number;
 }
 

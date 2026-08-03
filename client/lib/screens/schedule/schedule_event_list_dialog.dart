@@ -77,15 +77,21 @@ class ScheduleEventListDialog extends StatelessWidget {
                   itemCount: events.length,
                   itemBuilder: (context, index) {
                     final event = events[index];
+                    // 시간대 일정은 내용 앞에 분 표시 (예: 10' 학생면담)
+                    final titleText = [event.minutePrefix, event.content ?? '']
+                        .where((s) => s.isNotEmpty)
+                        .join(' ');
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         tileColor: event.color,
                         title: Text(
-                          event.content ?? '',
+                          titleText,
                           style: TextStyle(
-                            color: event.textColor,
-                            fontWeight: FontWeight.w500,
+                            color: event.displayTextColor,
+                            fontWeight: event.isImportant
+                                ? FontWeight.bold
+                                : FontWeight.w500,
                           ),
                         ),
                         subtitle: event.eventTypeName != null

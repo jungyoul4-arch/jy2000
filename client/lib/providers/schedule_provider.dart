@@ -35,12 +35,14 @@ class ScheduleEventsState {
   final bool isLoading;
   final String? error;
   final DateTime selectedMonth;
+  final DateTime? selectedDate;
 
   ScheduleEventsState({
     this.events = const [],
     this.isLoading = false,
     this.error,
     DateTime? selectedMonth,
+    this.selectedDate,
   }) : selectedMonth = selectedMonth ?? DateTime.now();
 
   ScheduleEventsState copyWith({
@@ -48,12 +50,15 @@ class ScheduleEventsState {
     bool? isLoading,
     String? error,
     DateTime? selectedMonth,
+    DateTime? selectedDate,
+    bool clearSelectedDate = false,
   }) {
     return ScheduleEventsState(
       events: events ?? this.events,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       selectedMonth: selectedMonth ?? this.selectedMonth,
+      selectedDate: clearSelectedDate ? null : (selectedDate ?? this.selectedDate),
     );
   }
 
@@ -143,7 +148,9 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     required int categoryId,
     required int eventTypeId,
     required DateTime eventDate,
+    int eventMinute = 0,
     String? content,
+    bool isImportant = false,
     int? studentId,
   }) async {
     try {
@@ -151,7 +158,9 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
         categoryId: categoryId,
         eventTypeId: eventTypeId,
         eventDate: _formatDate(eventDate),
+        eventMinute: eventMinute,
         content: content,
+        isImportant: isImportant,
         studentId: studentId,
       );
       // 전체 목록 다시 로드 (조인된 정보를 포함하여)
@@ -169,7 +178,9 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     int? categoryId,
     int? eventTypeId,
     DateTime? eventDate,
+    int? eventMinute,
     String? content,
+    bool? isImportant,
     int? studentId,
   }) async {
     try {
@@ -178,7 +189,9 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
         categoryId: categoryId,
         eventTypeId: eventTypeId,
         eventDate: eventDate != null ? _formatDate(eventDate) : null,
+        eventMinute: eventMinute,
         content: content,
+        isImportant: isImportant,
         studentId: studentId,
       );
       // 전체 목록 다시 로드 (조인된 정보를 포함하여)
@@ -211,6 +224,15 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
   /// 새로고침
   Future<void> refresh() async {
     await loadEvents();
+  }
+
+  /// 날짜 선택
+  void selectDate(DateTime? date) {
+    if (date == null) {
+      state = state.copyWith(clearSelectedDate: true);
+    } else {
+      state = state.copyWith(selectedDate: date);
+    }
   }
 
   /// 날짜 포맷 (YYYY-MM-DD) - 로컬 날짜만 사용

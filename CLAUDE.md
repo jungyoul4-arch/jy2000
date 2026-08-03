@@ -1,5 +1,21 @@
 # JY2000 프로젝트 메모
 
+## Web 빌드 (중요!)
+
+### 빌드 명령어
+```bash
+cd C:\jy2000\client
+# 반드시 --base-href "/jy2000/" 옵션 포함!
+MSYS_NO_PATHCONV=1 flutter build web --release --base-href "/jy2000/"
+```
+
+### 출력 파일
+- **빌드 결과**: `client/build/web`
+
+### 주의사항
+- **--base-href "/jy2000/" 옵션 필수**: 서브 경로 설정을 위해 반드시 포함해야 함
+- MSYS_NO_PATHCONV=1: Git Bash에서 경로 변환 방지
+
 ## Windows 설치 프로그램 빌드 (jy.exe)
 
 ### 빌드 명령어

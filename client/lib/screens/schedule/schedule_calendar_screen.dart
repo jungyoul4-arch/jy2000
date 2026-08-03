@@ -195,15 +195,30 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
               final isToday = _isToday(date);
               final hasEvents = eventsState.eventsForDate(date).isNotEmpty;
               final weekday = date.weekday;
+              final isSelected = eventsState.selectedDate != null &&
+                  eventsState.selectedDate!.year == date.year &&
+                  eventsState.selectedDate!.month == date.month &&
+                  eventsState.selectedDate!.day == date.day;
 
               return InkWell(
-                onTap: () => _scrollToDate(date),
+                onTap: () {
+                  ref.read(scheduleEventsProvider.notifier).selectDate(date);
+                  _scrollToDate(date);
+                },
                 child: Container(
                   margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
-                    color: isToday ? Colors.orange.shade100 : null,
+                    color: isSelected
+                        ? Colors.blue.shade200
+                        : isToday
+                            ? Colors.orange.shade100
+                            : null,
                     borderRadius: BorderRadius.circular(4),
-                    border: isToday ? Border.all(color: Colors.orange, width: 2) : null,
+                    border: isSelected
+                        ? Border.all(color: Colors.blue, width: 2)
+                        : isToday
+                            ? Border.all(color: Colors.orange, width: 2)
+                            : null,
                   ),
                   child: Stack(
                     children: [
@@ -309,19 +324,23 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
       builder: (context, constraints) {
         return Column(
           children: [
-            // 가로 스크롤 영역
+            // 가로/세로 스크롤 영역
+            // 세로 스크롤바는 가로 스크롤 뷰 "바깥"에 두어야 화면 오른쪽 끝에 고정된다.
+            // (안쪽에 두면 트랙이 totalWidth 끝에 그려져 가로로 끝까지 스크롤해야만 보임)
             Expanded(
               child: Scrollbar(
-                controller: _horizontalScrollController,
+                controller: _verticalScrollController,
                 thumbVisibility: true,
-                child: SingleChildScrollView(
+                // 세로 스크롤 알림은 가로 뷰포트를 한 번 거쳐 올라오므로 depth == 1
+                notificationPredicate: (notification) => notification.depth == 1,
+                child: Scrollbar(
                   controller: _horizontalScrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: totalWidth,
-                    child: Scrollbar(
-                      controller: _verticalScrollController,
-                      thumbVisibility: true,
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: _horizontalScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: totalWidth,
                       child: SingleChildScrollView(
                         controller: _verticalScrollController,
                         scrollDirection: Axis.vertical,
@@ -373,12 +392,14 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
         date: date,
         eventTypes: eventTypes,
         existingEvent: existingEvent,
-        onSave: (eventTypeId, content, studentId) async {
+        onSave: (eventTypeId, eventMinute, content, isImportant, studentId) async {
           if (existingEvent != null) {
             final success = await ref.read(scheduleEventsProvider.notifier).updateEvent(
               eventId: existingEvent.eventId,
               eventTypeId: eventTypeId,
+              eventMinute: eventMinute,
               content: content,
+              isImportant: isImportant,
               studentId: studentId,
             );
             return success;
@@ -387,7 +408,9 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
               categoryId: category.categoryId,
               eventTypeId: eventTypeId,
               eventDate: date,
+              eventMinute: eventMinute,
               content: content,
+              isImportant: isImportant,
               studentId: studentId,
             );
             return success;
@@ -577,6 +600,10 @@ class _WeekSectionState extends State<_WeekSection> {
         children: weekDates.map((date) {
           final isCurrentMonth = date.month == widget.month.month;
           final isToday = _isToday(date);
+          final isSelected = widget.eventsState.selectedDate != null &&
+              widget.eventsState.selectedDate!.year == date.year &&
+              widget.eventsState.selectedDate!.month == date.month &&
+              widget.eventsState.selectedDate!.day == date.day;
           final weekdayNames = ['', '월', '화', '수', '목', '금', '토', '일'];
 
           return Row(
@@ -596,14 +623,18 @@ class _WeekSectionState extends State<_WeekSection> {
               Container(
                 width: cellWidth,
                 decoration: BoxDecoration(
-                  color: isToday ? Colors.orange.shade100 : null,
+                  color: isSelected
+                      ? Colors.blue.shade200
+                      : isToday
+                          ? Colors.orange.shade100
+                          : null,
                   border: Border(right: BorderSide(color: Colors.grey.shade400, width: 2)),
                 ),
                 child: Center(
                   child: Text(
                     '${date.month}/${date.day} (${weekdayNames[date.weekday]})',
                     style: TextStyle(
-                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
                       fontSize: 13,
                       color: !isCurrentMonth
                           ? Colors.grey
@@ -716,10 +747,11 @@ class _WeekSectionState extends State<_WeekSection> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      event.content ?? '',
+                      event.displayText,
                       style: TextStyle(
                         fontSize: 12,
-                        color: event.textColor,
+                        color: event.displayTextColor,
+                        fontWeight: event.displayFontWeight,
                       ),
                     ),
                   );
@@ -732,6 +764,14 @@ class _WeekSectionState extends State<_WeekSection> {
   Widget _buildPromotionCell(BuildContext context, DateTime date, bool isCurrentMonth) {
     final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final matchingPromotions = widget.promotions.where((p) => _normalizeDate(p.startDate) == dateStr).toList();
+
+    // 디버깅: 중복 체크
+    if (matchingPromotions.length > 1) {
+      print('[설명회 중복] 날짜: $dateStr, 개수: ${matchingPromotions.length}');
+      for (var p in matchingPromotions) {
+        print('  - ID: ${p.promotionId}, 이름: ${p.promotionName}, 시작일: ${p.startDate}');
+      }
+    }
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -757,6 +797,7 @@ class _WeekSectionState extends State<_WeekSection> {
               mainAxisSize: MainAxisSize.min,
               children: matchingPromotions.map((promotion) {
                 return GestureDetector(
+                  key: Key('promotion_${promotion.promotionId}'),
                   onTap: () => context.push('${AppRoutes.promotionList}/${promotion.promotionId}'),
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 4),

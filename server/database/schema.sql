@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS User (
     kind            TINYINT NOT NULL COMMENT '사용자 유형 (1=관리자, 2=학생, 3=선생님, 4=학부모, 5=상담원)',
     phone           VARCHAR(20) NOT NULL COMMENT '전화번호 (로그인 ID)',
     email           VARCHAR(100) NULL COMMENT '이메일',
+    grade           INT NULL COMMENT '학년 (1~6:초1~초6, 7~9:중1~중3, 10~12:고1~고3, 13:N수생, 14:성인)',
     department      VARCHAR(100) NULL COMMENT '부서',
     active_flag     TINYINT(1) DEFAULT 1 COMMENT '활성화 여부 (1=활성)',
     last_login_dt   DATETIME NULL COMMENT '마지막 로그인 일시',
@@ -55,6 +56,7 @@ CREATE TABLE IF NOT EXISTS User (
     PRIMARY KEY (user_id),
     UNIQUE INDEX idx_phone (phone),
     INDEX idx_kind (kind),
+    INDEX idx_grade (grade),
     INDEX idx_active_flag (active_flag)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='사용자';

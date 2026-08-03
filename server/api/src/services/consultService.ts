@@ -77,7 +77,7 @@ export class ConsultService {
         u.phone as student_phone,
         c.consult_type_code,
         ct.code_name as consult_type_name,
-        c.consult_date,
+        DATE_FORMAT(c.consult_date, '%Y-%m-%d %H:%i:%s') as consult_date,
         c.consult_duration,
         c.channel_code,
         ch.code_name as channel_name,
@@ -91,7 +91,7 @@ export class ConsultService {
         c.next_action_code,
         na.code_name as next_action_name,
         c.next_action_detail,
-        c.next_consult_date,
+        DATE_FORMAT(c.next_consult_date, '%Y-%m-%d %H:%i:%s') as next_consult_date,
         c.interest_subject,
         c.interest_program,
         c.created_at,
@@ -179,14 +179,31 @@ export class ConsultService {
   async getById(consultId: number): Promise<Consult> {
     const sql = `
       SELECT
-        c.*,
+        c.consult_id,
+        c.student_id,
         u.name as student_name,
         u.phone as student_phone,
+        c.consult_type_code,
         ct.code_name as consult_type_name,
+        DATE_FORMAT(c.consult_date, '%Y-%m-%d %H:%i:%s') as consult_date,
+        c.consult_duration,
+        c.channel_code,
         ch.code_name as channel_name,
+        c.tc_id,
+        tc.name as tc_name,
+        c.content,
+        c.student_needs,
+        c.consult_result_code,
         cr.code_name as consult_result_name,
+        c.result_detail,
+        c.next_action_code,
         na.code_name as next_action_name,
-        tc.name as tc_name
+        c.next_action_detail,
+        DATE_FORMAT(c.next_consult_date, '%Y-%m-%d %H:%i:%s') as next_consult_date,
+        c.interest_subject,
+        c.interest_program,
+        c.created_at,
+        c.updated_at
       FROM consult c
       JOIN student_info s ON c.student_id = s.student_id
       JOIN User u ON s.student_id = u.user_id

@@ -81,13 +81,17 @@ class ScheduleRepository {
     required int categoryId,
     required int eventTypeId,
     required String eventDate,
+    int eventMinute = 0,
     String? content,
+    bool isImportant = false,
     int? studentId,
   }) async {
     final data = <String, dynamic>{
       'category_id': categoryId,
       'event_type_id': eventTypeId,
       'event_date': eventDate,
+      'event_minute': eventMinute,
+      'is_important': isImportant,
     };
 
     if (content != null) data['content'] = content;
@@ -107,7 +111,9 @@ class ScheduleRepository {
     int? categoryId,
     int? eventTypeId,
     String? eventDate,
+    int? eventMinute,
     String? content,
+    bool? isImportant,
     int? studentId,
   }) async {
     final data = <String, dynamic>{};
@@ -115,7 +121,9 @@ class ScheduleRepository {
     if (categoryId != null) data['category_id'] = categoryId;
     if (eventTypeId != null) data['event_type_id'] = eventTypeId;
     if (eventDate != null) data['event_date'] = eventDate;
+    if (eventMinute != null) data['event_minute'] = eventMinute;
     if (content != null) data['content'] = content;
+    if (isImportant != null) data['is_important'] = isImportant;
     // student_id는 null을 명시적으로 보낼 수 있음
     data['student_id'] = studentId;
 

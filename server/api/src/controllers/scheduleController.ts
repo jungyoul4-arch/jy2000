@@ -73,7 +73,9 @@ export class ScheduleController {
       category_id: req.body.category_id,
       event_type_id: req.body.event_type_id,
       event_date: req.body.event_date,
+      event_minute: req.body.event_minute,
       content: req.body.content,
+      is_important: req.body.is_important,
       student_id: req.body.student_id,
     };
 
@@ -92,7 +94,9 @@ export class ScheduleController {
       category_id: req.body.category_id,
       event_type_id: req.body.event_type_id,
       event_date: req.body.event_date,
+      event_minute: req.body.event_minute,
       content: req.body.content,
+      is_important: req.body.is_important,
       student_id: req.body.student_id,
     };
 

@@ -14,7 +14,13 @@ class ScheduleEventDialog extends ConsumerStatefulWidget {
   final DateTime date;
   final List<ScheduleEventType> eventTypes;
   final ScheduleEvent? existingEvent;
-  final Future<bool> Function(int eventTypeId, String? content, int? studentId) onSave;
+  final Future<bool> Function(
+    int eventTypeId,
+    int eventMinute,
+    String? content,
+    bool isImportant,
+    int? studentId,
+  ) onSave;
   final Future<bool> Function()? onDelete;
 
   const ScheduleEventDialog({
@@ -33,9 +39,12 @@ class ScheduleEventDialog extends ConsumerStatefulWidget {
 
 class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   late int _selectedEventTypeId;
+  late int _selectedMinute;
+  bool _isImportant = false;
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _studentSearchController = TextEditingController();
   Student? _selectedStudent;
+  int? _selectedStudentId;
   List<Student> _searchResults = [];
   bool _isSearching = false;
   bool _isSaving = false;
@@ -43,13 +52,26 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   // 디바운스용 타이머
   Timer? _debounce;
 
+  // 분 선택 옵션
+  static const List<int> minuteOptions = [0, 10, 20, 30, 40, 50];
+
+  /// 분 지정 가능 여부 - 시간대(10-11, 11-12, ... 9-10) 카테고리에서만
+  bool get _isMinuteEnabled => widget.category.isTimeSlot;
+
   @override
   void initState() {
     super.initState();
     // 기존 일정이 있으면 값 설정
     if (widget.existingEvent != null) {
       _selectedEventTypeId = widget.existingEvent!.eventTypeId;
+      // 분은 시간대(TIME_SLOT) 카테고리에서만 사용
+      final existingMinute = widget.existingEvent!.eventMinute;
+      _selectedMinute = _isMinuteEnabled && minuteOptions.contains(existingMinute)
+          ? existingMinute
+          : 0;
       _contentController.text = widget.existingEvent!.content ?? '';
+      _isImportant = widget.existingEvent!.isImportant;
+      _selectedStudentId = widget.existingEvent!.studentId;
       if (widget.existingEvent!.studentId != null) {
         // 학생 정보 표시
         _studentSearchController.text = widget.existingEvent!.studentName ?? '';
@@ -59,6 +81,7 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
       _selectedEventTypeId = widget.eventTypes.isNotEmpty
           ? widget.eventTypes.first.eventTypeId
           : 1;
+      _selectedMinute = 0;
     }
   }
 
@@ -106,10 +129,23 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
           _searchResults = result.data;
           _isSearching = false;
         });
+
+        // 디버깅: 검색 결과 로그
+        print('[학생 검색] 검색어: $query, 결과 수: ${result.data.length}');
+        if (result.data.isEmpty) {
+          print('[학생 검색] 검색 결과가 없습니다.');
+        }
       }
     } catch (e) {
+      print('[학생 검색 에러] $e');
       if (mounted) {
         setState(() => _isSearching = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('학생 검색 실패: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -121,8 +157,10 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
     try {
       final success = await widget.onSave(
         _selectedEventTypeId,
+        _isMinuteEnabled ? _selectedMinute : 0,
         _contentController.text.isNotEmpty ? _contentController.text : null,
-        _selectedStudent?.studentId,
+        _isImportant,
+        _selectedStudentId,
       );
 
       if (success && mounted) {
@@ -293,6 +331,32 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
               ),
               const SizedBox(height: 16),
 
+              // 분 선택 (시간대 카테고리에서만 노출)
+              if (_isMinuteEnabled) ...[
+                Text('분 (${widget.category.categoryName}시)',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<int>(
+                  value: _selectedMinute,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  items: minuteOptions.map((minute) {
+                    return DropdownMenuItem(
+                      value: minute,
+                      child: Text('$minute분'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedMinute = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+
               // 내용 입력
               const Text('내용', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -302,6 +366,26 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                 decoration: const InputDecoration(
                   hintText: '일정 내용을 입력하세요...',
                   border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // 중요 일정 여부 (캘린더에 빨간색 볼드로 표시)
+              CheckboxListTile(
+                value: _isImportant,
+                onChanged: (value) {
+                  setState(() => _isImportant = value ?? false);
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: const Text(
+                  '중요 일정',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                ),
+                subtitle: Text(
+                  '캘린더에 빨간색 굵은 글씨로 표시됩니다.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ),
               const SizedBox(height: 16),
@@ -319,12 +403,13 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                 decoration: InputDecoration(
                   hintText: '학생 이름 또는 전화번호 검색...',
                   border: const OutlineInputBorder(),
-                  suffixIcon: _selectedStudent != null
+                  suffixIcon: _selectedStudentId != null
                       ? IconButton(
                           icon: const Icon(Icons.clear),
                           onPressed: () {
                             setState(() {
                               _selectedStudent = null;
+                              _selectedStudentId = null;
                               _studentSearchController.clear();
                               _searchResults = [];
                             });
@@ -333,9 +418,11 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                       : null,
                 ),
                 onChanged: (value) {
-                  if (_selectedStudent != null) {
+                  // 직접 입력하면 기존 연동 해제 (목록에서 다시 선택해야 연동됨)
+                  if (_selectedStudent != null || _selectedStudentId != null) {
                     setState(() {
                       _selectedStudent = null;
+                      _selectedStudentId = null;
                     });
                   }
                   _onStudentSearchChanged(value);
@@ -368,6 +455,7 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                         onTap: () {
                           setState(() {
                             _selectedStudent = student;
+                            _selectedStudentId = student.studentId;
                             _studentSearchController.text = student.studentName;
                             _searchResults = [];
                           });

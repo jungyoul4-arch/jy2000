@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'schedule_category.dart' show IntToBoolConverter;
+
 part 'schedule_event.freezed.dart';
 part 'schedule_event.g.dart';
 
@@ -18,11 +20,20 @@ class ScheduleEvent with _$ScheduleEvent {
     @JsonKey(name: 'event_type_name') String? eventTypeName,
     @JsonKey(name: 'color_code') String? colorCode,
     @JsonKey(name: 'event_date') required String eventDate,
+    @JsonKey(name: 'event_minute') @Default(0) int eventMinute,
     String? content,
+    @JsonKey(name: 'is_important')
+    @IntToBoolConverter()
+    @Default(false)
+    bool isImportant,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,
     @JsonKey(name: 'student_phone') String? studentPhone,
+    @JsonKey(name: 'student_grade') int? studentGrade,
+    @JsonKey(name: 'grade_name') String? gradeName,
+    @JsonKey(name: 'school_name') String? schoolName,
     @JsonKey(name: 'consult_id') int? consultId,
+    @JsonKey(name: 'consult_date') String? consultDate,
     @JsonKey(name: 'created_by') required int createdBy,
     @JsonKey(name: 'created_by_name') String? createdByName,
     @JsonKey(name: 'updated_by') int? updatedBy,
@@ -51,6 +62,16 @@ class ScheduleEvent with _$ScheduleEvent {
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 
+  /// 중요 일정 표시용 텍스트 색상 (중요 일정은 빨간색)
+  Color get displayTextColor => isImportant ? Colors.red : textColor;
+
+  /// 중요 일정 표시용 글자 굵기 (중요 일정은 볼드)
+  FontWeight get displayFontWeight =>
+      isImportant ? FontWeight.bold : FontWeight.normal;
+
+  /// 시간대(TIME_SLOT) 카테고리 일정 여부 - 분 지정이 가능한 카테고리
+  bool get isTimeSlot => categoryType == 'TIME_SLOT';
+
   /// 학생 연동 여부
   bool get hasStudent => studentId != null;
 
@@ -62,6 +83,42 @@ class ScheduleEvent with _$ScheduleEvent {
     if (content == null || content!.isEmpty) return '';
     return content!.length > 50 ? '${content!.substring(0, 50)}...' : content!;
   }
+
+  /// 분 접두사 (시간대 카테고리 전용, 0분도 표시): 예) "00'", "30'"
+  String get minutePrefix =>
+      isTimeSlot ? "${eventMinute.toString().padLeft(2, '0')}'" : '';
+
+  /// 캘린더 표시용 텍스트: [분]' [학생명]([학교명][학년])-[내용]
+  /// 예: 30' 김민재(중원고3)-수학테스트, 00' 상담
+  String get displayText {
+    final parts = <String>[];
+
+    // 학생명 추가
+    if (studentName != null && studentName!.isNotEmpty) {
+      var studentPart = studentName!;
+
+      // 학교명과 학년 추가
+      if (schoolName != null || gradeName != null) {
+        final schoolInfo = <String>[];
+        if (schoolName != null) schoolInfo.add(schoolName!);
+        if (gradeName != null) schoolInfo.add(gradeName!);
+        studentPart += '(${schoolInfo.join('')})';
+      }
+
+      parts.add(studentPart);
+    }
+
+    // 내용 추가
+    if (content != null && content!.isNotEmpty) {
+      parts.add(content!);
+    }
+
+    final body = parts.join('-');
+    final prefix = minutePrefix;
+
+    if (prefix.isEmpty) return body;
+    return body.isEmpty ? prefix : '$prefix $body';
+  }
 }
 
 /// 일정 생성 DTO
@@ -71,7 +128,9 @@ class ScheduleEventCreate with _$ScheduleEventCreate {
     @JsonKey(name: 'category_id') required int categoryId,
     @JsonKey(name: 'event_type_id') required int eventTypeId,
     @JsonKey(name: 'event_date') required String eventDate,
+    @JsonKey(name: 'event_minute') @Default(0) int eventMinute,
     String? content,
+    @JsonKey(name: 'is_important') @Default(false) bool isImportant,
     @JsonKey(name: 'student_id') int? studentId,
   }) = _ScheduleEventCreate;
 
@@ -86,7 +145,9 @@ class ScheduleEventUpdate with _$ScheduleEventUpdate {
     @JsonKey(name: 'category_id') int? categoryId,
     @JsonKey(name: 'event_type_id') int? eventTypeId,
     @JsonKey(name: 'event_date') String? eventDate,
+    @JsonKey(name: 'event_minute') int? eventMinute,
     String? content,
+    @JsonKey(name: 'is_important') bool? isImportant,
     @JsonKey(name: 'student_id') int? studentId,
   }) = _ScheduleEventUpdate;
 
