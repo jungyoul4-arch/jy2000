@@ -311,7 +311,7 @@ class StudentDetailScreen extends ConsumerWidget {
                       DataColumn(label: Text('유형', style: TextStyle(fontWeight: FontWeight.bold))),
                       DataColumn(label: Text('결과', style: TextStyle(fontWeight: FontWeight.bold))),
                       DataColumn(label: Text('내용', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('담당TC', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('상담자', style: TextStyle(fontWeight: FontWeight.bold))),
                     ],
                     rows: consultList.map((consult) {
                       final consultDate = DateTime.tryParse(consult.consultDate);

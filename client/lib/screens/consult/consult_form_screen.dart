@@ -10,10 +10,13 @@ import '../../models/consult.dart';
 import '../../models/class_model.dart';
 import '../../repositories/consult_repository.dart';
 import '../../repositories/class_repository.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/consult_provider.dart';
 import '../../providers/calendar_provider.dart';
+import '../../widgets/consult_time_fields.dart';
 import '../../widgets/logout_button.dart';
+import '../../widgets/tc_picker_field.dart';
 
 class ConsultFormScreen extends ConsumerStatefulWidget {
   final int? studentId;
@@ -38,9 +41,18 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
   UserSearchResult? _selectedStudent;
   String? _initialStudentName;
 
+  // 상담자 (기본값: 로그인한 사용자)
+  int? _selectedTcId;
+  String? _selectedTcName;
+
   @override
   void initState() {
     super.initState();
+    // 상담자 기본값: 로그인한 사용자
+    final user = ref.read(authProvider).user;
+    _selectedTcId = user?.userId;
+    _selectedTcName = user?.name;
+
     // studentId가 전달된 경우 학생 정보 로드
     if (widget.studentId != null) {
       _loadInitialStudent();
@@ -329,6 +341,20 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
                                   .toList(),
                             ),
                           ),
+                          const SizedBox(width: 16),
+                          // 상담자 (기본: 로그인 사용자, 클릭하여 변경)
+                          Expanded(
+                            child: TcPickerField(
+                              tcId: _selectedTcId,
+                              tcName: _selectedTcName,
+                              onChanged: (staff) {
+                                setState(() {
+                                  _selectedTcId = staff.userId;
+                                  _selectedTcName = staff.name;
+                                });
+                              },
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -351,11 +377,10 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 12),
-                                      // 시간만 선택
+                                      // 시간 선택 (10~21시, 10분 단위)
                                       Expanded(
-                                        child: FormBuilderDateTimePicker(
-                                          name: 'consult_date',
-                                          inputType: InputType.time,
+                                        flex: 2,
+                                        child: ConsultTimeFields(
                                           initialValue: DateTime(
                                             widget.initialDate!.year,
                                             widget.initialDate!.month,
@@ -363,27 +388,36 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
                                             DateTime.now().hour,
                                             DateTime.now().minute,
                                           ),
-                                          decoration: const InputDecoration(
-                                            labelText: '상담 시간 *',
-                                            prefixIcon: Icon(Icons.access_time),
-                                          ),
-                                          validator: FormBuilderValidators.required(
-                                            errorText: '시간을 선택하세요',
-                                          ),
                                         ),
                                       ),
                                     ],
                                   )
-                                : FormBuilderDateTimePicker(
-                                    name: 'consult_date',
-                                    inputType: InputType.both,
-                                    initialValue: DateTime.now(),
-                                    decoration: const InputDecoration(
-                                      labelText: '상담 일시 *',
-                                    ),
-                                    validator: FormBuilderValidators.required(
-                                      errorText: '상담 일시를 선택하세요',
-                                    ),
+                                : Row(
+                                    children: [
+                                      // 날짜 선택
+                                      Expanded(
+                                        child: FormBuilderDateTimePicker(
+                                          name: 'consult_date',
+                                          inputType: InputType.date,
+                                          initialValue: DateTime.now(),
+                                          decoration: const InputDecoration(
+                                            labelText: '상담 날짜 *',
+                                            prefixIcon: Icon(Icons.calendar_today),
+                                          ),
+                                          validator: FormBuilderValidators.required(
+                                            errorText: '상담 날짜를 선택하세요',
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      // 시간 선택 (10~21시, 10분 단위)
+                                      Expanded(
+                                        flex: 2,
+                                        child: ConsultTimeFields(
+                                          initialValue: DateTime.now(),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                           ),
                           const SizedBox(width: 16),
@@ -567,21 +601,20 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
             ? interestSubjects!.join(',')
             : null;
 
-        // 상담 일시 포맷팅 (ISO8601 형식)
-        DateTime? consultDate = values['consult_date'] as DateTime?;
-        // initialDate가 있으면 날짜 부분을 고정하고 시간만 사용
-        if (widget.initialDate != null && consultDate != null) {
-          consultDate = DateTime(
-            widget.initialDate!.year,
-            widget.initialDate!.month,
-            widget.initialDate!.day,
-            consultDate.hour,
-            consultDate.minute,
-          );
-        }
-        final consultDateStr = consultDate != null
-            ? consultDate.toIso8601String()
-            : DateTime.now().toIso8601String();
+        // 상담 일시 = 날짜 + 시/분 드롭다운 (10~21시, 10분 단위)
+        final datePart = widget.initialDate ??
+            (values['consult_date'] as DateTime?) ??
+            DateTime.now();
+        final hourPart = values['consult_hour'] as int? ?? defaultConsultHour;
+        final minutePart = values['consult_minute'] as int? ?? 0;
+
+        final consultDateStr = DateTime(
+          datePart.year,
+          datePart.month,
+          datePart.day,
+          hourPart,
+          minutePart,
+        ).toIso8601String();
 
         // 다음 상담 예정일 포맷팅 (ISO8601 형식)
         final nextConsultDate = values['next_consult_date'] as DateTime?;
@@ -606,6 +639,7 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
           consultResultCode: values['consult_result_code'] as String?,
           nextConsultDate: nextConsultDateStr,
           interestSubject: interestSubjectStr,
+          tcId: _selectedTcId,
         );
 
         final repository = ConsultRepository();

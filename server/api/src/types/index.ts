@@ -560,6 +560,7 @@ export interface ScheduleEvent {
   event_type_name?: string;
   color_code?: string;
   event_date: string;
+  event_hour?: number;
   event_minute?: number;
   content?: string;
   is_important?: boolean;
@@ -569,8 +570,12 @@ export interface ScheduleEvent {
   student_grade?: number;
   grade_name?: string;
   school_name?: string;
+  tc_id?: number;
+  tc_name?: string;
   consult_id?: number;
   consult_date?: string;
+  consult_type_code?: string;
+  consult_type_name?: string;
   created_by: number;
   created_by_name?: string;
   updated_by?: number;
@@ -584,10 +589,13 @@ export interface ScheduleEventCreate {
   category_id: number;
   event_type_id: number;
   event_date: string;
+  event_hour?: number;
   event_minute?: number;
   content?: string;
   is_important?: boolean;
   student_id?: number;
+  tc_id?: number;
+  consult_type_code?: string;
 }
 
 // 일정 수정
@@ -595,10 +603,13 @@ export interface ScheduleEventUpdate {
   category_id?: number;
   event_type_id?: number;
   event_date?: string;
+  event_hour?: number;
   event_minute?: number;
   content?: string;
   is_important?: boolean;
   student_id?: number;
+  tc_id?: number;
+  consult_type_code?: string;
 }
 
 // 일정 목록 조회 파라미터

@@ -16,6 +16,7 @@ _$ScheduleEventImpl _$$ScheduleEventImplFromJson(Map<String, dynamic> json) =>
       eventTypeName: json['event_type_name'] as String?,
       colorCode: json['color_code'] as String?,
       eventDate: json['event_date'] as String,
+      eventHour: (json['event_hour'] as num?)?.toInt(),
       eventMinute: (json['event_minute'] as num?)?.toInt() ?? 0,
       content: json['content'] as String?,
       isImportant: json['is_important'] == null
@@ -27,8 +28,12 @@ _$ScheduleEventImpl _$$ScheduleEventImplFromJson(Map<String, dynamic> json) =>
       studentGrade: (json['student_grade'] as num?)?.toInt(),
       gradeName: json['grade_name'] as String?,
       schoolName: json['school_name'] as String?,
+      tcId: (json['tc_id'] as num?)?.toInt(),
+      tcName: json['tc_name'] as String?,
       consultId: (json['consult_id'] as num?)?.toInt(),
       consultDate: json['consult_date'] as String?,
+      consultTypeCode: json['consult_type_code'] as String?,
+      consultTypeName: json['consult_type_name'] as String?,
       createdBy: (json['created_by'] as num).toInt(),
       createdByName: json['created_by_name'] as String?,
       updatedBy: (json['updated_by'] as num?)?.toInt(),
@@ -47,6 +52,7 @@ Map<String, dynamic> _$$ScheduleEventImplToJson(_$ScheduleEventImpl instance) =>
       'event_type_name': instance.eventTypeName,
       'color_code': instance.colorCode,
       'event_date': instance.eventDate,
+      'event_hour': instance.eventHour,
       'event_minute': instance.eventMinute,
       'content': instance.content,
       'is_important': const IntToBoolConverter().toJson(instance.isImportant),
@@ -56,8 +62,12 @@ Map<String, dynamic> _$$ScheduleEventImplToJson(_$ScheduleEventImpl instance) =>
       'student_grade': instance.studentGrade,
       'grade_name': instance.gradeName,
       'school_name': instance.schoolName,
+      'tc_id': instance.tcId,
+      'tc_name': instance.tcName,
       'consult_id': instance.consultId,
       'consult_date': instance.consultDate,
+      'consult_type_code': instance.consultTypeCode,
+      'consult_type_name': instance.consultTypeName,
       'created_by': instance.createdBy,
       'created_by_name': instance.createdByName,
       'updated_by': instance.updatedBy,
@@ -72,10 +82,13 @@ _$ScheduleEventCreateImpl _$$ScheduleEventCreateImplFromJson(
   categoryId: (json['category_id'] as num).toInt(),
   eventTypeId: (json['event_type_id'] as num).toInt(),
   eventDate: json['event_date'] as String,
+  eventHour: (json['event_hour'] as num?)?.toInt(),
   eventMinute: (json['event_minute'] as num?)?.toInt() ?? 0,
   content: json['content'] as String?,
   isImportant: json['is_important'] as bool? ?? false,
   studentId: (json['student_id'] as num?)?.toInt(),
+  tcId: (json['tc_id'] as num?)?.toInt(),
+  consultTypeCode: json['consult_type_code'] as String?,
 );
 
 Map<String, dynamic> _$$ScheduleEventCreateImplToJson(
@@ -84,10 +97,13 @@ Map<String, dynamic> _$$ScheduleEventCreateImplToJson(
   'category_id': instance.categoryId,
   'event_type_id': instance.eventTypeId,
   'event_date': instance.eventDate,
+  'event_hour': instance.eventHour,
   'event_minute': instance.eventMinute,
   'content': instance.content,
   'is_important': instance.isImportant,
   'student_id': instance.studentId,
+  'tc_id': instance.tcId,
+  'consult_type_code': instance.consultTypeCode,
 };
 
 _$ScheduleEventUpdateImpl _$$ScheduleEventUpdateImplFromJson(
@@ -96,10 +112,13 @@ _$ScheduleEventUpdateImpl _$$ScheduleEventUpdateImplFromJson(
   categoryId: (json['category_id'] as num?)?.toInt(),
   eventTypeId: (json['event_type_id'] as num?)?.toInt(),
   eventDate: json['event_date'] as String?,
+  eventHour: (json['event_hour'] as num?)?.toInt(),
   eventMinute: (json['event_minute'] as num?)?.toInt(),
   content: json['content'] as String?,
   isImportant: json['is_important'] as bool?,
   studentId: (json['student_id'] as num?)?.toInt(),
+  tcId: (json['tc_id'] as num?)?.toInt(),
+  consultTypeCode: json['consult_type_code'] as String?,
 );
 
 Map<String, dynamic> _$$ScheduleEventUpdateImplToJson(
@@ -108,10 +127,13 @@ Map<String, dynamic> _$$ScheduleEventUpdateImplToJson(
   'category_id': instance.categoryId,
   'event_type_id': instance.eventTypeId,
   'event_date': instance.eventDate,
+  'event_hour': instance.eventHour,
   'event_minute': instance.eventMinute,
   'content': instance.content,
   'is_important': instance.isImportant,
   'student_id': instance.studentId,
+  'tc_id': instance.tcId,
+  'consult_type_code': instance.consultTypeCode,
 };
 
 _$ScheduleEventListParamsImpl _$$ScheduleEventListParamsImplFromJson(

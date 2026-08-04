@@ -148,20 +148,26 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     required int categoryId,
     required int eventTypeId,
     required DateTime eventDate,
+    int? eventHour,
     int eventMinute = 0,
     String? content,
     bool isImportant = false,
     int? studentId,
+    int? tcId,
+    String? consultTypeCode,
   }) async {
     try {
       await _repository.createEvent(
         categoryId: categoryId,
         eventTypeId: eventTypeId,
         eventDate: _formatDate(eventDate),
+        eventHour: eventHour,
         eventMinute: eventMinute,
         content: content,
         isImportant: isImportant,
         studentId: studentId,
+        tcId: tcId,
+        consultTypeCode: consultTypeCode,
       );
       // 전체 목록 다시 로드 (조인된 정보를 포함하여)
       await loadEvents();
@@ -178,10 +184,13 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
     int? categoryId,
     int? eventTypeId,
     DateTime? eventDate,
+    int? eventHour,
     int? eventMinute,
     String? content,
     bool? isImportant,
     int? studentId,
+    int? tcId,
+    String? consultTypeCode,
   }) async {
     try {
       await _repository.updateEvent(
@@ -189,10 +198,13 @@ class ScheduleEventsNotifier extends StateNotifier<ScheduleEventsState> {
         categoryId: categoryId,
         eventTypeId: eventTypeId,
         eventDate: eventDate != null ? _formatDate(eventDate) : null,
+        eventHour: eventHour,
         eventMinute: eventMinute,
         content: content,
         isImportant: isImportant,
         studentId: studentId,
+        tcId: tcId,
+        consultTypeCode: consultTypeCode,
       );
       // 전체 목록 다시 로드 (조인된 정보를 포함하여)
       await loadEvents();

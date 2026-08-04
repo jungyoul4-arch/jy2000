@@ -3,7 +3,163 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { Consult, ConsultCreate, ConsultListQuery } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 
+// 일정 캘린더 연동 대상 채널
+// 전화(CHANNEL_PHONE) -> '전화상담' 카테고리, 방문(CHANNEL_VISIT) -> 시간대 슬롯
+const CHANNEL_PHONE = 'CHANNEL_PHONE';
+const CHANNEL_VISIT = 'CHANNEL_VISIT';
+
+// 캘린더에 표시되는 상담 시각 범위 (시간대 슬롯 10-11 ~ 9-10)
+const CALENDAR_MIN_HOUR = 10;
+const CALENDAR_MAX_HOUR = 21;
+
+// 연동 일정의 일정 유형: 1 = 상담 (노란색)
+const CONSULT_EVENT_TYPE_ID = 1;
+
+const pad2 = (value: number) => value.toString().padStart(2, '0');
+
 export class ConsultService {
+  // ============================================================
+  // 일정 캘린더 연동
+  // ============================================================
+
+  /**
+   * 상담 채널/시각에 해당하는 일정 캘린더 카테고리를 찾는다.
+   *
+   * - 전화상담: '전화상담' 카테고리 (CONSULT)
+   * - 방문상담: 상담 시각에 해당하는 시간대 슬롯 (10-11 ~ 9-10)
+   * - 그 외 채널이거나 시각이 10~21시를 벗어나면 null (캘린더에 표시하지 않음)
+   */
+  private async findCalendarCategory(
+    channelCode: string | null | undefined,
+    hour: number
+  ): Promise<{ category_id: number; category_type: string } | null> {
+    if (hour < CALENDAR_MIN_HOUR || hour > CALENDAR_MAX_HOUR) {
+      return null;
+    }
+
+    if (channelCode === CHANNEL_PHONE) {
+      const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT category_id, category_type FROM schedule_category
+         WHERE category_type = 'CONSULT' AND deleted_at IS NULL AND is_active = 1
+         ORDER BY sort_order ASC LIMIT 1`
+      );
+      return rows.length > 0 ? (rows[0] as any) : null;
+    }
+
+    if (channelCode === CHANNEL_VISIT) {
+      // 시간대 슬롯 카테고리에서 시작 시각이 일치하는 것을 찾는다 ("2-3" -> 14시)
+      const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT category_id, category_name, category_type FROM schedule_category
+         WHERE category_type = 'TIME_SLOT' AND deleted_at IS NULL AND is_active = 1
+         ORDER BY sort_order ASC`
+      );
+
+      for (const row of rows) {
+        const timeMatch = String(row.category_name).match(/^(\d+)-/);
+        if (!timeMatch) continue;
+
+        const startHour = parseInt(timeMatch[1], 10);
+        const hour24 = startHour < 10 ? startHour + 12 : startHour;
+
+        if (hour24 === hour) {
+          return { category_id: row.category_id, category_type: row.category_type };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * 상담 기록을 일정 캘린더에 반영한다 (등록/수정 공용).
+   *
+   * 이미 연동된 일정이 있으면 갱신하고, 없으면 새로 만든다.
+   * 캘린더 대상이 아닌 상담(채널 미지정, 시각 범위 밖)이면 기존 연동 일정을 삭제한다.
+   */
+  private async syncToCalendar(consultId: number, userId: number): Promise<void> {
+    const [consultRows] = await pool.query<RowDataPacket[]>(
+      `SELECT consult_id, student_id, consult_date, channel_code, tc_id, content
+       FROM consult WHERE consult_id = ? AND deleted_at IS NULL`,
+      [consultId]
+    );
+
+    const consult = consultRows[0];
+    if (!consult) return;
+
+    const consultDate: Date = consult.consult_date instanceof Date
+      ? consult.consult_date
+      : new Date(consult.consult_date);
+
+    if (Number.isNaN(consultDate.getTime())) return;
+
+    const hour = consultDate.getHours();
+    const minute = consultDate.getMinutes();
+    const eventDate = `${consultDate.getFullYear()}-${pad2(consultDate.getMonth() + 1)}-${pad2(consultDate.getDate())}`;
+
+    const category = await this.findCalendarCategory(consult.channel_code, hour);
+
+    // 기존 연동 일정 조회
+    const [eventRows] = await pool.query<RowDataPacket[]>(
+      'SELECT event_id FROM schedule_event WHERE consult_id = ? AND deleted_at IS NULL',
+      [consultId]
+    );
+    const existingEventId = eventRows[0]?.event_id as number | undefined;
+
+    // 캘린더 대상이 아니면 기존 연동 일정을 정리
+    if (!category) {
+      if (existingEventId) {
+        await pool.query(
+          'UPDATE schedule_event SET deleted_at = NOW(), updated_by = ? WHERE event_id = ?',
+          [userId, existingEventId]
+        );
+      }
+      return;
+    }
+
+    // 전화상담 카테고리는 카테고리명에 시각이 없으므로 event_hour에 저장
+    const eventHour = category.category_type === 'CONSULT' ? hour : null;
+
+    if (existingEventId) {
+      await pool.query(
+        `UPDATE schedule_event
+         SET category_id = ?, event_date = ?, event_hour = ?, event_minute = ?,
+             content = ?, student_id = ?, tc_id = ?, updated_by = ?
+         WHERE event_id = ?`,
+        [
+          category.category_id,
+          eventDate,
+          eventHour,
+          minute,
+          consult.content,
+          consult.student_id,
+          consult.tc_id,
+          userId,
+          existingEventId,
+        ]
+      );
+      return;
+    }
+
+    await pool.query(
+      `INSERT INTO schedule_event (
+         category_id, event_type_id, event_date, event_hour, event_minute,
+         content, student_id, tc_id, consult_id, created_by
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        category.category_id,
+        CONSULT_EVENT_TYPE_ID,
+        eventDate,
+        eventHour,
+        minute,
+        consult.content,
+        consult.student_id,
+        consult.tc_id,
+        consultId,
+        userId,
+      ]
+    );
+  }
+
   // 상담 목록 조회
   async getList(query: ConsultListQuery): Promise<{ data: Consult[]; total: number }> {
     const page = query.page || 1;
@@ -172,6 +328,9 @@ export class ConsultService {
       userId
     ]);
 
+    // 일정 캘린더에 반영 (전화상담 -> 전화상담 행, 방문상담 -> 시간대 슬롯)
+    await this.syncToCalendar(result.insertId, userId);
+
     return this.getById(result.insertId);
   }
 
@@ -320,7 +479,33 @@ export class ConsultService {
 
     await pool.query(sql, updateValues);
 
+    // 연동된 일정도 함께 갱신
+    await this.syncToCalendar(consultId, userId);
+
     return this.getById(consultId);
+  }
+
+  // 상담 삭제 (soft delete, 연동된 일정도 함께 삭제)
+  async delete(consultId: number, userId: number): Promise<void> {
+    const [consultCheck] = await pool.query<RowDataPacket[]>(
+      'SELECT consult_id FROM consult WHERE consult_id = ? AND deleted_at IS NULL',
+      [consultId]
+    );
+
+    if (consultCheck.length === 0) {
+      throw new AppError('Consult not found', 404);
+    }
+
+    await pool.query(
+      'UPDATE consult SET deleted_at = NOW(), updated_by = ? WHERE consult_id = ?',
+      [userId, consultId]
+    );
+
+    // 연동된 일정도 soft delete
+    await pool.query(
+      'UPDATE schedule_event SET deleted_at = NOW(), updated_by = ? WHERE consult_id = ? AND deleted_at IS NULL',
+      [userId, consultId]
+    );
   }
 }
 

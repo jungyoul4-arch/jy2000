@@ -37,4 +37,11 @@ router.put(
   consultController.update
 );
 
+// DELETE /consult/:id - 상담 삭제 (연동 일정도 함께 삭제)
+router.delete(
+  '/:id',
+  validate([validateId('id')]),
+  consultController.delete
+);
+
 export default router;

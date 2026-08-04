@@ -73,10 +73,13 @@ export class ScheduleController {
       category_id: req.body.category_id,
       event_type_id: req.body.event_type_id,
       event_date: req.body.event_date,
+      event_hour: req.body.event_hour,
       event_minute: req.body.event_minute,
       content: req.body.content,
       is_important: req.body.is_important,
       student_id: req.body.student_id,
+      tc_id: req.body.tc_id,
+      consult_type_code: req.body.consult_type_code,
     };
 
     const userId = (req as any).userId || 1;
@@ -94,10 +97,13 @@ export class ScheduleController {
       category_id: req.body.category_id,
       event_type_id: req.body.event_type_id,
       event_date: req.body.event_date,
+      event_hour: req.body.event_hour,
       event_minute: req.body.event_minute,
       content: req.body.content,
       is_important: req.body.is_important,
       student_id: req.body.student_id,
+      tc_id: req.body.tc_id,
+      consult_type_code: req.body.consult_type_code,
     };
 
     const userId = (req as any).userId || 1;

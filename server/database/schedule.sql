@@ -47,10 +47,12 @@ CREATE TABLE IF NOT EXISTS schedule_event (
     category_id     INT NOT NULL COMMENT 'FK: schedule_category',
     event_type_id   INT NOT NULL COMMENT 'FK: schedule_event_type',
     event_date      DATE NOT NULL COMMENT '일정 날짜',
+    event_hour      TINYINT NULL COMMENT '일정 시 (10~21, 시간대 슬롯이 아닌 카테고리에서 사용)',
     event_minute    TINYINT DEFAULT 0 COMMENT '일정 분 (0, 10, 20, 30, 40, 50)',
     content         TEXT COMMENT '일정 내용',
     is_important    TINYINT(1) DEFAULT 0 COMMENT '중요 일정 여부 (0: 일반, 1: 중요)',
     student_id      INT NULL COMMENT 'FK: User (학생 연동시)',
+    tc_id           INT NULL COMMENT 'FK: User (상담자)',
     consult_id      INT NULL COMMENT 'FK: consult (자동 생성된 상담 기록)',
     created_by      INT NOT NULL COMMENT 'FK: User (작성자)',
     updated_by      INT NULL COMMENT 'FK: User (수정자)',
@@ -61,6 +63,7 @@ CREATE TABLE IF NOT EXISTS schedule_event (
     FOREIGN KEY (category_id) REFERENCES schedule_category(category_id),
     FOREIGN KEY (event_type_id) REFERENCES schedule_event_type(event_type_id),
     FOREIGN KEY (student_id) REFERENCES User(user_id),
+    FOREIGN KEY (tc_id) REFERENCES User(user_id),
     FOREIGN KEY (consult_id) REFERENCES consult(consult_id),
     FOREIGN KEY (created_by) REFERENCES User(user_id),
     FOREIGN KEY (updated_by) REFERENCES User(user_id),
@@ -92,19 +95,21 @@ INSERT INTO schedule_category (category_name, category_type, sort_order) VALUES
 ('7-8', 'TIME_SLOT', 12),
 ('8-9', 'TIME_SLOT', 13),
 ('9-10', 'TIME_SLOT', 14),
+-- 전화상담 (시간대 슬롯 아래)
+('전화상담', 'CONSULT', 15),
 -- 설명회 카테고리 (특수)
-('설명회', 'PROMOTION', 15),
+('설명회', 'PROMOTION', 16),
 -- 정보성 카테고리 (계속)
-('전일부재', 'INFO', 16),
+('전일부재', 'INFO', 17),
 -- 업무/이슈 카테고리
-('시간지정', 'ISSUE', 17),
-('신입문의', 'ISSUE', 18),
-('재학생문의', 'ISSUE', 19),
-('대면상담 후 팔로우업', 'ISSUE', 20),
-('결제예정', 'ISSUE', 21),
-('조교할일', 'ISSUE', 22),
-('정산관련', 'ISSUE', 23),
-('꼭 처리 필요 건', 'ISSUE', 24);
+('시간지정', 'ISSUE', 18),
+('신입문의', 'ISSUE', 19),
+('재학생문의', 'ISSUE', 20),
+('대면상담 후 팔로우업', 'ISSUE', 21),
+('결제예정', 'ISSUE', 22),
+('조교할일', 'ISSUE', 23),
+('정산관련', 'ISSUE', 24),
+('꼭 처리 필요 건', 'ISSUE', 25);
 
 -- ============================================================
 -- 5. 초기 데이터 - 일정 유형 (색상)
@@ -129,6 +134,7 @@ SELECT
     st.event_type_name,
     st.color_code,
     se.event_date,
+    se.event_hour,
     se.event_minute,
     se.content,
     se.is_important,
@@ -145,8 +151,12 @@ SELECT
         ELSE NULL
     END AS grade_name,
     sch.school_name,
+    se.tc_id,
+    tcu.name AS tc_name,
     se.consult_id,
     c.consult_date,
+    c.consult_type_code,
+    ctc.code_name AS consult_type_name,
     se.created_by,
     cu.name AS created_by_name,
     se.updated_by,
@@ -160,6 +170,8 @@ JOIN User cu ON se.created_by = cu.user_id
 LEFT JOIN User su ON se.student_id = su.user_id
 LEFT JOIN student_info si ON se.student_id = si.student_id
 LEFT JOIN School sch ON si.school_id = sch.school_id
+LEFT JOIN User tcu ON se.tc_id = tcu.user_id
 LEFT JOIN consult c ON se.consult_id = c.consult_id
+LEFT JOIN code_master ctc ON c.consult_type_code = ctc.code_id
 LEFT JOIN User uu ON se.updated_by = uu.user_id
 WHERE se.deleted_at IS NULL;

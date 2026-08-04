@@ -8,7 +8,9 @@ import '../../models/consult.dart';
 import '../../repositories/consult_repository.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/consult_provider.dart';
+import '../../widgets/consult_time_fields.dart';
 import '../../widgets/logout_button.dart';
+import '../../widgets/tc_picker_field.dart';
 
 // 상담 상세 Provider
 final consultDetailProvider =
@@ -32,6 +34,10 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
   bool _isEditing = false;
   bool _isLoading = false;
   List<String> _prevInterestSubjects = [];
+
+  // 편집 중 변경한 상담자 (null이면 기존 값 유지)
+  int? _selectedTcId;
+  String? _selectedTcName;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +71,12 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
             TextButton(
               onPressed: () {
                 _prevInterestSubjects = [];
-                setState(() => _isEditing = false);
+                setState(() {
+                  _isEditing = false;
+                  // 변경했던 상담자 선택도 되돌린다
+                  _selectedTcId = null;
+                  _selectedTcName = null;
+                });
                 ref.invalidate(consultDetailProvider(widget.consultId));
               },
               child: const Text('취소'),
@@ -181,6 +192,23 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
                                   : _buildInfoRow(
                                       '상담 채널', consult.channelName ?? '-'),
                             ),
+                            const SizedBox(width: 16),
+                            // 상담자 (편집 시 변경 가능)
+                            Expanded(
+                              child: _isEditing
+                                  ? TcPickerField(
+                                      tcId: _selectedTcId ?? consult.tcId,
+                                      tcName: _selectedTcName ?? consult.tcName,
+                                      onChanged: (staff) {
+                                        setState(() {
+                                          _selectedTcId = staff.userId;
+                                          _selectedTcName = staff.name;
+                                        });
+                                      },
+                                    )
+                                  : _buildInfoRow(
+                                      '상담자', consult.tcName ?? '-'),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -188,17 +216,37 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
                           children: [
                             Expanded(
                               child: _isEditing
-                                  ? FormBuilderDateTimePicker(
-                                      name: 'consult_date',
-                                      inputType: InputType.both,
-                                      initialValue:
-                                          DateTime.tryParse(consult.consultDate),
-                                      decoration: const InputDecoration(
-                                        labelText: '상담 일시 *',
-                                      ),
-                                      validator: FormBuilderValidators.required(
-                                        errorText: '상담 일시를 선택하세요',
-                                      ),
+                                  ? Row(
+                                      children: [
+                                        // 날짜 선택
+                                        Expanded(
+                                          child: FormBuilderDateTimePicker(
+                                            name: 'consult_date',
+                                            inputType: InputType.date,
+                                            initialValue: DateTime.tryParse(
+                                                consult.consultDate),
+                                            decoration: const InputDecoration(
+                                              labelText: '상담 날짜 *',
+                                              prefixIcon:
+                                                  Icon(Icons.calendar_today),
+                                            ),
+                                            validator:
+                                                FormBuilderValidators.required(
+                                              errorText: '상담 날짜를 선택하세요',
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        // 시간 선택 (10~21시, 10분 단위)
+                                        Expanded(
+                                          flex: 2,
+                                          child: ConsultTimeFields(
+                                            initialValue: DateTime.tryParse(
+                                                    consult.consultDate) ??
+                                                DateTime.now(),
+                                          ),
+                                        ),
+                                      ],
                                     )
                                   : _buildInfoRow(
                                       '상담 일시', _formatDateTime(consult.consultDate)),
@@ -455,9 +503,20 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
             ? interestSubjects!.join(',')
             : null;
 
-        // 상담 일시 포맷팅 (ISO8601 형식)
-        final consultDate = values['consult_date'] as DateTime?;
-        final consultDateStr = consultDate?.toIso8601String();
+        // 상담 일시 = 날짜 + 시/분 드롭다운 (10~21시, 10분 단위)
+        final datePart = values['consult_date'] as DateTime?;
+        final hourPart = values['consult_hour'] as int? ?? defaultConsultHour;
+        final minutePart = values['consult_minute'] as int? ?? 0;
+
+        final consultDateStr = datePart == null
+            ? null
+            : DateTime(
+                datePart.year,
+                datePart.month,
+                datePart.day,
+                hourPart,
+                minutePart,
+              ).toIso8601String();
 
         // 다음 상담 예정일 포맷팅 (ISO8601 형식)
         final nextConsultDate = values['next_consult_date'] as DateTime?;
@@ -479,6 +538,7 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
           consultResultCode: values['consult_result_code'] as String?,
           nextConsultDate: nextConsultDateStr,
           interestSubject: interestSubjectStr,
+          tcId: _selectedTcId,
         );
 
         final repository = ConsultRepository();
@@ -496,7 +556,12 @@ class _ConsultDetailScreenState extends ConsumerState<ConsultDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('상담이 수정되었습니다')),
           );
-          setState(() => _isEditing = false);
+          setState(() {
+            _isEditing = false;
+            // 저장 완료 후에는 서버에서 다시 읽은 값을 표시
+            _selectedTcId = null;
+            _selectedTcName = null;
+          });
         }
       } catch (e) {
         if (mounted) {

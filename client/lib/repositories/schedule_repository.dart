@@ -81,10 +81,13 @@ class ScheduleRepository {
     required int categoryId,
     required int eventTypeId,
     required String eventDate,
+    int? eventHour,
     int eventMinute = 0,
     String? content,
     bool isImportant = false,
     int? studentId,
+    int? tcId,
+    String? consultTypeCode,
   }) async {
     final data = <String, dynamic>{
       'category_id': categoryId,
@@ -96,6 +99,9 @@ class ScheduleRepository {
 
     if (content != null) data['content'] = content;
     if (studentId != null) data['student_id'] = studentId;
+    if (tcId != null) data['tc_id'] = tcId;
+    if (eventHour != null) data['event_hour'] = eventHour;
+    if (consultTypeCode != null) data['consult_type_code'] = consultTypeCode;
 
     final response = await _apiClient.post<Map<String, dynamic>>(
       '/schedule/events',
@@ -111,19 +117,25 @@ class ScheduleRepository {
     int? categoryId,
     int? eventTypeId,
     String? eventDate,
+    int? eventHour,
     int? eventMinute,
     String? content,
     bool? isImportant,
     int? studentId,
+    int? tcId,
+    String? consultTypeCode,
   }) async {
     final data = <String, dynamic>{};
 
     if (categoryId != null) data['category_id'] = categoryId;
     if (eventTypeId != null) data['event_type_id'] = eventTypeId;
     if (eventDate != null) data['event_date'] = eventDate;
+    if (eventHour != null) data['event_hour'] = eventHour;
     if (eventMinute != null) data['event_minute'] = eventMinute;
     if (content != null) data['content'] = content;
     if (isImportant != null) data['is_important'] = isImportant;
+    if (tcId != null) data['tc_id'] = tcId;
+    if (consultTypeCode != null) data['consult_type_code'] = consultTypeCode;
     // student_id는 null을 명시적으로 보낼 수 있음
     data['student_id'] = studentId;
 

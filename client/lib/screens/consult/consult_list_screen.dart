@@ -122,7 +122,7 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
         DataColumn2(label: Text('상담유형'), size: ColumnSize.S),
         DataColumn2(label: Text('상담일시'), size: ColumnSize.M),
         DataColumn2(label: Text('채널'), size: ColumnSize.S),
-        DataColumn2(label: Text('담당TC'), size: ColumnSize.S),
+        DataColumn2(label: Text('상담자'), size: ColumnSize.S),
         DataColumn2(label: Text('결과'), size: ColumnSize.S),
         DataColumn2(label: Text('다음상담'), size: ColumnSize.M),
         DataColumn2(label: Text('내용'), size: ColumnSize.L),

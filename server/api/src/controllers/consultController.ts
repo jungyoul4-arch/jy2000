@@ -61,6 +61,16 @@ export class ConsultController {
 
     return sendSuccess(res, consult, 'Consult updated successfully');
   });
+
+  // DELETE /consult/:id
+  delete = asyncHandler(async (req: Request, res: Response) => {
+    const consultId = parseInt(req.params.id);
+    const userId = (req as any).userId || 1;
+
+    await consultService.delete(consultId, userId);
+
+    return sendSuccess(res, null, 'Consult deleted successfully');
+  });
 }
 
 export default new ConsultController();

@@ -156,6 +156,17 @@ final staffDetailProvider =
   return repository.getById(userId);
 });
 
+/// 상담자 후보 목록 (재직 중인 직원)
+///
+/// `/staff/list`는 kind IN (1,3,5,6,7)로 조회하므로 학생(2)/학부모(4)가 이미 제외된다.
+final consultantListProvider = FutureProvider<List<Staff>>((ref) async {
+  final repository = ref.read(staffRepositoryProvider);
+  final result = await repository.getList(
+    const StaffListParams(page: 1, perPage: 500, sort: 'name', order: 'asc'),
+  );
+  return result.data.where((s) => s.activeFlag == 1).toList();
+});
+
 // 직원 등록 Provider
 final createStaffProvider =
     FutureProvider.family<Staff, StaffCreate>((ref, data) async {

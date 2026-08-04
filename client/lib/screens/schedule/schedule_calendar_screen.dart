@@ -123,11 +123,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
       appBar: AppBar(
         title: Text('일정 캘린더 - ${DateFormat('yyyy년 M월').format(eventsState.selectedMonth)}'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () => ref.read(scheduleEventsProvider.notifier).previousMonth(),
-            tooltip: '이전 달',
-          ),
+          // 이전/다음 달 이동은 좌측 미니 캘린더의 년월 표시 좌우로 옮겼다
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {
@@ -138,12 +134,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
             },
             tooltip: '오늘',
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: () => ref.read(scheduleEventsProvider.notifier).nextMonth(),
-            tooltip: '다음 달',
-          ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
@@ -214,11 +205,35 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
 
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            DateFormat('yyyy년 M월').format(month),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        // 년월 표시 + 이전/다음 달 이동
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: () =>
+                    ref.read(scheduleEventsProvider.notifier).previousMonth(),
+                tooltip: '이전 달',
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              ),
+              Text(
+                DateFormat('yyyy년 M월').format(month),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: () =>
+                    ref.read(scheduleEventsProvider.notifier).nextMonth(),
+                tooltip: '다음 달',
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              ),
+            ],
           ),
         ),
         const Divider(height: 1),
@@ -461,15 +476,19 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
         date: date,
         eventTypes: eventTypes,
         existingEvent: existingEvent,
-        onSave: (eventTypeId, eventMinute, content, isImportant, studentId) async {
+        onSave: (eventTypeId, eventHour, eventMinute, content, isImportant,
+            studentId, tcId, consultTypeCode) async {
           if (existingEvent != null) {
             final success = await ref.read(scheduleEventsProvider.notifier).updateEvent(
               eventId: existingEvent.eventId,
               eventTypeId: eventTypeId,
+              eventHour: eventHour,
               eventMinute: eventMinute,
               content: content,
               isImportant: isImportant,
               studentId: studentId,
+              tcId: tcId,
+              consultTypeCode: consultTypeCode,
             );
             return success;
           } else {
@@ -477,10 +496,13 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
               categoryId: category.categoryId,
               eventTypeId: eventTypeId,
               eventDate: date,
+              eventHour: eventHour,
               eventMinute: eventMinute,
               content: content,
               isImportant: isImportant,
               studentId: studentId,
+              tcId: tcId,
+              consultTypeCode: consultTypeCode,
             );
             return success;
           }
@@ -951,6 +973,9 @@ class _WeekSectionState extends State<_WeekSection> {
         return Colors.white;
       case 'PROMOTION':
         return Colors.pink.shade100;
+      case 'CONSULT':
+        // 전화상담 - 하늘색
+        return Colors.lightBlue.shade100;
       case 'ISSUE':
         return Colors.pink.shade50;
       default:

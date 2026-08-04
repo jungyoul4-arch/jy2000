@@ -46,4 +46,7 @@ class ScheduleCategory with _$ScheduleCategory {
 
   /// 설명회 카테고리인지 확인
   bool get isPromotion => categoryType == 'PROMOTION';
+
+  /// 상담 카테고리(전화상담)인지 확인
+  bool get isConsult => categoryType == 'CONSULT';
 }

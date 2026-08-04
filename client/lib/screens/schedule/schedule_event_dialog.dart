@@ -7,7 +7,11 @@ import '../../models/schedule_category.dart';
 import '../../models/schedule_event.dart';
 import '../../models/schedule_event_type.dart';
 import '../../models/student.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/code_provider.dart';
 import '../../repositories/student_repository.dart';
+import '../../widgets/consult_time_fields.dart';
+import '../../widgets/tc_picker_field.dart';
 
 class ScheduleEventDialog extends ConsumerStatefulWidget {
   final ScheduleCategory category;
@@ -16,10 +20,13 @@ class ScheduleEventDialog extends ConsumerStatefulWidget {
   final ScheduleEvent? existingEvent;
   final Future<bool> Function(
     int eventTypeId,
+    int? eventHour,
     int eventMinute,
     String? content,
     bool isImportant,
     int? studentId,
+    int? tcId,
+    String? consultTypeCode,
   ) onSave;
   final Future<bool> Function()? onDelete;
 
@@ -40,7 +47,12 @@ class ScheduleEventDialog extends ConsumerStatefulWidget {
 class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   late int _selectedEventTypeId;
   late int _selectedMinute;
+  int _selectedHour = defaultConsultHour;
+  String? _selectedConsultTypeCode;
   bool _isImportant = false;
+  // 상담자 (기본값: 로그인한 사용자)
+  int? _selectedTcId;
+  String? _selectedTcName;
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _studentSearchController = TextEditingController();
   Student? _selectedStudent;
@@ -55,8 +67,20 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   // 분 선택 옵션
   static const List<int> minuteOptions = [0, 10, 20, 30, 40, 50];
 
-  /// 분 지정 가능 여부 - 시간대(10-11, 11-12, ... 9-10) 카테고리에서만
-  bool get _isMinuteEnabled => widget.category.isTimeSlot;
+  /// 분 지정 가능 여부 - 시간대 슬롯 또는 전화상담 카테고리
+  bool get _isMinuteEnabled =>
+      widget.category.isTimeSlot || widget.category.isConsult;
+
+  /// 시(hour) 지정 필요 여부 - 카테고리명에 시각이 없는 전화상담 카테고리
+  bool get _isHourEnabled => widget.category.isConsult;
+
+  /// 선택한 일정 유형이 '상담'인지 여부 (상담 유형을 추가로 입력받는다)
+  bool get _isConsultEventType {
+    final type = widget.eventTypes
+        .where((t) => t.eventTypeId == _selectedEventTypeId)
+        .firstOrNull;
+    return type?.eventTypeName == '상담';
+  }
 
   @override
   void initState() {
@@ -69,9 +93,16 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
       _selectedMinute = _isMinuteEnabled && minuteOptions.contains(existingMinute)
           ? existingMinute
           : 0;
+      final existingHour = widget.existingEvent!.eventHour;
+      _selectedHour = existingHour != null && consultHourOptions.contains(existingHour)
+          ? existingHour
+          : defaultConsultHour;
+      _selectedConsultTypeCode = widget.existingEvent!.consultTypeCode;
       _contentController.text = widget.existingEvent!.content ?? '';
       _isImportant = widget.existingEvent!.isImportant;
       _selectedStudentId = widget.existingEvent!.studentId;
+      _selectedTcId = widget.existingEvent!.tcId;
+      _selectedTcName = widget.existingEvent!.tcName;
       if (widget.existingEvent!.studentId != null) {
         // 학생 정보 표시
         _studentSearchController.text = widget.existingEvent!.studentName ?? '';
@@ -82,6 +113,13 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
           ? widget.eventTypes.first.eventTypeId
           : 1;
       _selectedMinute = 0;
+    }
+
+    // 상담자 기본값: 로그인한 사용자
+    if (_selectedTcId == null) {
+      final user = ref.read(authProvider).user;
+      _selectedTcId = user?.userId;
+      _selectedTcName = user?.name;
     }
   }
 
@@ -157,10 +195,13 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
     try {
       final success = await widget.onSave(
         _selectedEventTypeId,
+        _isHourEnabled ? _selectedHour : null,
         _isMinuteEnabled ? _selectedMinute : 0,
         _contentController.text.isNotEmpty ? _contentController.text : null,
         _isImportant,
         _selectedStudentId,
+        _selectedTcId,
+        _isConsultEventType ? _selectedConsultTypeCode : null,
       );
 
       if (success && mounted) {
@@ -331,28 +372,117 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
               ),
               const SizedBox(height: 16),
 
-              // 분 선택 (시간대 카테고리에서만 노출)
-              if (_isMinuteEnabled) ...[
-                Text('분 (${widget.category.categoryName}시)',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              // 상담 유형 (일정 유형이 '상담'일 때만)
+              if (_isConsultEventType) ...[
+                const Text('상담 유형', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<int>(
-                  value: _selectedMinute,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  items: minuteOptions.map((minute) {
-                    return DropdownMenuItem(
-                      value: minute,
-                      child: Text('$minute분'),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedMinute = value);
+                Builder(
+                  builder: (context) {
+                    final consultTypes = ref.watch(consultTypeCodesProvider);
+                    // 코드가 아직 로드되지 않았으면 안내만 표시
+                    if (consultTypes.isEmpty) {
+                      return Text(
+                        '상담 유형 코드를 불러오는 중입니다...',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      );
                     }
+
+                    final validValue = consultTypes
+                            .any((c) => c.codeId == _selectedConsultTypeCode)
+                        ? _selectedConsultTypeCode
+                        : null;
+
+                    return DropdownButtonFormField<String>(
+                      value: validValue,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: '상담 유형을 선택하세요',
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      items: consultTypes
+                          .map((code) => DropdownMenuItem(
+                                value: code.codeId,
+                                child: Text(code.codeName),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() => _selectedConsultTypeCode = value);
+                      },
+                    );
                   },
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // 상담자 선택 (기본: 로그인 사용자, 클릭하여 변경)
+              TcPickerField(
+                tcId: _selectedTcId,
+                tcName: _selectedTcName,
+                onChanged: (staff) {
+                  setState(() {
+                    _selectedTcId = staff.userId;
+                    _selectedTcName = staff.name;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // 시각 선택 (시간대 슬롯: 분만 / 전화상담: 시 + 분)
+              if (_isMinuteEnabled) ...[
+                Text(
+                  _isHourEnabled ? '시각' : '분 (${widget.category.categoryName}시)',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (_isHourEnabled) ...[
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedHour,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          items: consultHourOptions.map((hour) {
+                            return DropdownMenuItem(
+                              value: hour,
+                              child: Text('$hour시'),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => _selectedHour = value);
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: DropdownButtonFormField<int>(
+                        value: _selectedMinute,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        items: minuteOptions.map((minute) {
+                          return DropdownMenuItem(
+                            value: minute,
+                            child: Text('$minute분'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedMinute = value);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
               ],

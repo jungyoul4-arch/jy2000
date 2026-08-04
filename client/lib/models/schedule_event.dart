@@ -20,6 +20,7 @@ class ScheduleEvent with _$ScheduleEvent {
     @JsonKey(name: 'event_type_name') String? eventTypeName,
     @JsonKey(name: 'color_code') String? colorCode,
     @JsonKey(name: 'event_date') required String eventDate,
+    @JsonKey(name: 'event_hour') int? eventHour,
     @JsonKey(name: 'event_minute') @Default(0) int eventMinute,
     String? content,
     @JsonKey(name: 'is_important')
@@ -32,8 +33,12 @@ class ScheduleEvent with _$ScheduleEvent {
     @JsonKey(name: 'student_grade') int? studentGrade,
     @JsonKey(name: 'grade_name') String? gradeName,
     @JsonKey(name: 'school_name') String? schoolName,
+    @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'tc_name') String? tcName,
     @JsonKey(name: 'consult_id') int? consultId,
     @JsonKey(name: 'consult_date') String? consultDate,
+    @JsonKey(name: 'consult_type_code') String? consultTypeCode,
+    @JsonKey(name: 'consult_type_name') String? consultTypeName,
     @JsonKey(name: 'created_by') required int createdBy,
     @JsonKey(name: 'created_by_name') String? createdByName,
     @JsonKey(name: 'updated_by') int? updatedBy,
@@ -72,6 +77,9 @@ class ScheduleEvent with _$ScheduleEvent {
   /// 시간대(TIME_SLOT) 카테고리 일정 여부 - 분 지정이 가능한 카테고리
   bool get isTimeSlot => categoryType == 'TIME_SLOT';
 
+  /// 상담(전화상담) 카테고리 일정 여부 - 시:분을 직접 갖는 카테고리
+  bool get isConsultCategory => categoryType == 'CONSULT';
+
   /// 학생 연동 여부
   bool get hasStudent => studentId != null;
 
@@ -84,9 +92,18 @@ class ScheduleEvent with _$ScheduleEvent {
     return content!.length > 50 ? '${content!.substring(0, 50)}...' : content!;
   }
 
-  /// 분 접두사 (시간대 카테고리 전용, 0분도 표시): 예) "00'", "30'"
-  String get minutePrefix =>
-      isTimeSlot ? "${eventMinute.toString().padLeft(2, '0')}'" : '';
+  /// 시각 접두사
+  ///
+  /// - 시간대 슬롯: 분만 표시 (0분도 표시) 예) `00'`, `30'`
+  /// - 전화상담: 시:분 표시 예) `14:30`
+  String get minutePrefix {
+    if (isConsultCategory) {
+      if (eventHour == null) return '';
+      return '${eventHour.toString().padLeft(2, '0')}:${eventMinute.toString().padLeft(2, '0')}';
+    }
+
+    return isTimeSlot ? "${eventMinute.toString().padLeft(2, '0')}'" : '';
+  }
 
   /// 캘린더 표시용 텍스트: [분]' [학생명]([학교명][학년])-[내용]
   /// 예: 30' 김민재(중원고3)-수학테스트, 00' 상담
@@ -128,10 +145,13 @@ class ScheduleEventCreate with _$ScheduleEventCreate {
     @JsonKey(name: 'category_id') required int categoryId,
     @JsonKey(name: 'event_type_id') required int eventTypeId,
     @JsonKey(name: 'event_date') required String eventDate,
+    @JsonKey(name: 'event_hour') int? eventHour,
     @JsonKey(name: 'event_minute') @Default(0) int eventMinute,
     String? content,
     @JsonKey(name: 'is_important') @Default(false) bool isImportant,
     @JsonKey(name: 'student_id') int? studentId,
+    @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'consult_type_code') String? consultTypeCode,
   }) = _ScheduleEventCreate;
 
   factory ScheduleEventCreate.fromJson(Map<String, dynamic> json) =>
@@ -145,10 +165,13 @@ class ScheduleEventUpdate with _$ScheduleEventUpdate {
     @JsonKey(name: 'category_id') int? categoryId,
     @JsonKey(name: 'event_type_id') int? eventTypeId,
     @JsonKey(name: 'event_date') String? eventDate,
+    @JsonKey(name: 'event_hour') int? eventHour,
     @JsonKey(name: 'event_minute') int? eventMinute,
     String? content,
     @JsonKey(name: 'is_important') bool? isImportant,
     @JsonKey(name: 'student_id') int? studentId,
+    @JsonKey(name: 'tc_id') int? tcId,
+    @JsonKey(name: 'consult_type_code') String? consultTypeCode,
   }) = _ScheduleEventUpdate;
 
   factory ScheduleEventUpdate.fromJson(Map<String, dynamic> json) =>
