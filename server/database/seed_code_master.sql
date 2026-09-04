@@ -71,7 +71,7 @@ INSERT INTO code_master (code_id, code_group, code_value, code_name, parent_code
 -- 6. 상담 유형 (CONSULT_TYPE)
 -- ============================================================
 INSERT INTO code_master (code_id, code_group, code_value, code_name, sort_order) VALUES
-('CONSULT_TYPE_INITIAL', 'CONSULT_TYPE', 'INITIAL', '초기상담', 1),
+('CONSULT_TYPE_INITIAL', 'CONSULT_TYPE', 'INITIAL', '신규생 문의', 1),
 ('CONSULT_TYPE_FOLLOWUP', 'CONSULT_TYPE', 'FOLLOWUP', '재상담', 2),
 ('CONSULT_TYPE_LEVEL', 'CONSULT_TYPE', 'LEVEL', '레벨테스트', 3),
 ('CONSULT_TYPE_REGISTER', 'CONSULT_TYPE', 'REGISTER', '등록상담', 4),
@@ -125,6 +125,20 @@ INSERT INTO code_master (code_id, code_group, code_value, code_name, sort_order)
 ('SOURCE_WALK_IN', 'SOURCE', 'WALK_IN', '방문', 8),
 ('SOURCE_PREV_STUDENT', 'SOURCE', 'PREV_STUDENT', '기존학생', 9),
 ('SOURCE_OTHER', 'SOURCE', 'OTHER', '기타', 99);
+
+-- ============================================================
+-- 10-1. 문의경로 (INQUIRY_SOURCE)
+--   신규생 문의 작성 화면에서 사용. 문의 건별 경로이며
+--   학생 단위 유입경로(SOURCE)와는 별개의 그룹이다.
+-- ============================================================
+INSERT INTO code_master (code_id, code_group, code_value, code_name, sort_order) VALUES
+('INQUIRY_PHONE', 'INQUIRY_SOURCE', 'PHONE', '전화', 1),
+('INQUIRY_HOMEPAGE', 'INQUIRY_SOURCE', 'HOMEPAGE', '홈페이지', 2),
+('INQUIRY_VISIT', 'INQUIRY_SOURCE', 'VISIT', '방문', 3),
+('INQUIRY_CHANNEL', 'INQUIRY_SOURCE', 'CHANNEL', '채널', 4),
+('INQUIRY_NAVER', 'INQUIRY_SOURCE', 'NAVER', '네이버', 5),
+('INQUIRY_PROMOTION', 'INQUIRY_SOURCE', 'PROMOTION', '설명회 후', 6),
+('INQUIRY_OTHER', 'INQUIRY_SOURCE', 'OTHER', '기타', 99);
 
 -- ============================================================
 -- 11. 보호자 관계 (RELATION)

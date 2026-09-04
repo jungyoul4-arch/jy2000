@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import consultService from '../services/consultService';
 import { asyncHandler } from '../middlewares/errorHandler';
 import { sendSuccess, sendCreated, sendPaginated } from '../utils/responseHelper';
-import { ConsultCreate, ConsultListQuery } from '../types';
+import { ConsultCreate, ConsultListQuery, NewInquiryCreate } from '../types';
 
 export class ConsultController {
   // GET /consult/list
@@ -41,6 +41,44 @@ export class ConsultController {
     const consult = await consultService.create(data, userId);
 
     return sendCreated(res, consult, 'Consult created successfully');
+  });
+
+  // GET /consult/inquiry-students - 신규생 문의 학생 타입어헤드 (active_flag 무관)
+  lookupInquiryStudents = asyncHandler(async (req: Request, res: Response) => {
+    const search = (req.query.search as string) || '';
+
+    if (search.trim().length === 0) {
+      return sendSuccess(res, [], 'Inquiry student lookup retrieved successfully');
+    }
+
+    const students = await consultService.lookupInquiryStudents(search.trim());
+
+    return sendSuccess(res, students, 'Inquiry student lookup retrieved successfully');
+  });
+
+  // POST /consult/new-inquiry - 신규생 문의 등록 (신규 학생/학부모 자동 생성)
+  createNewInquiry = asyncHandler(async (req: Request, res: Response) => {
+    const data: NewInquiryCreate = {
+      consult_date: req.body.consult_date,
+      student_id: req.body.student_id,
+      student_name: req.body.student_name,
+      gender_code: req.body.gender_code,
+      school_id: req.body.school_id,
+      school_name: req.body.school_name,
+      grade: req.body.grade,
+      inquiry_source_code: req.body.inquiry_source_code,
+      subject_code: req.body.subject_code,
+      interest_subject: req.body.interest_subject,
+      student_phone: req.body.student_phone,
+      guardian_phone: req.body.guardian_phone,
+      selector_name: req.body.selector_name,
+      content: req.body.content,
+    };
+
+    const userId = (req as any).userId || 1;
+    const result = await consultService.createNewInquiry(data, userId);
+
+    return sendCreated(res, result, 'New inquiry created successfully');
   });
 
   // GET /consult/:id

@@ -11,6 +11,7 @@ import '../screens/student/student_form_screen.dart';
 import '../screens/consult/consult_list_screen.dart';
 import '../screens/consult/consult_form_screen.dart';
 import '../screens/consult/consult_detail_screen.dart';
+import '../screens/consult/new_inquiry_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/promotion/promotion_list_screen.dart';
 import '../screens/promotion/promotion_form_screen.dart';
@@ -38,6 +39,7 @@ class AppRoutes {
   static const String consultList = '/consults';
   static const String consultCreate = '/consults/create';
   static const String consultDetail = '/consults/:id';
+  static const String newInquiry = '/new-inquiry';
   static const String promotionList = '/promotions';
   static const String promotionCreate = '/promotions/create';
   static const String promotionDetail = '/promotions/:id';
@@ -129,6 +131,13 @@ final routerProvider = Provider<GoRouter>((ref) {
               final id = int.parse(state.pathParameters['id']!);
               return StudentDetailScreen(studentId: id);
             },
+          ),
+
+          // 신규생 문의 (상담 관리와 분리된 독립 메뉴)
+          GoRoute(
+            path: AppRoutes.newInquiry,
+            name: 'newInquiry',
+            builder: (context, state) => const NewInquiryScreen(),
           ),
 
           // 상담 관리

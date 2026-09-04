@@ -1,6 +1,7 @@
 import '../core/api/api_client.dart';
 import '../core/api/api_response.dart';
 import '../models/consult.dart';
+import '../models/new_inquiry.dart';
 
 class ConsultRepository {
   final ApiClient _apiClient = ApiClient.instance;
@@ -77,5 +78,29 @@ class ConsultRepository {
     );
 
     return Consult.fromJson(response['data']);
+  }
+
+  // 신규생 문의 - 학생 타입어헤드 (kind=2, active_flag 무관)
+  Future<List<InquiryStudentLookup>> lookupInquiryStudents(String search) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/consult/inquiry-students',
+      queryParameters: {'search': search},
+    );
+
+    final List<dynamic> dataList = response['data'] ?? [];
+    return dataList.map((e) => InquiryStudentLookup.fromJson(e)).toList();
+  }
+
+  // 신규생 문의 등록 (신규 학생/학부모 자동 생성)
+  Future<NewInquiryResult> createNewInquiry(NewInquiryCreate data) async {
+    // null 값 제거
+    final jsonData = data.toJson()..removeWhere((key, value) => value == null);
+
+    final response = await _apiClient.post<Map<String, dynamic>>(
+      '/consult/new-inquiry',
+      data: jsonData,
+    );
+
+    return NewInquiryResult.fromJson(response['data']);
   }
 }

@@ -85,6 +85,7 @@ class ScheduleRepository {
     int eventMinute = 0,
     String? content,
     bool isImportant = false,
+    String eventStatus = ScheduleEventStatus.normal,
     int? studentId,
     int? tcId,
     String? consultTypeCode,
@@ -95,6 +96,7 @@ class ScheduleRepository {
       'event_date': eventDate,
       'event_minute': eventMinute,
       'is_important': isImportant,
+      'event_status': eventStatus,
     };
 
     if (content != null) data['content'] = content;
@@ -121,6 +123,7 @@ class ScheduleRepository {
     int? eventMinute,
     String? content,
     bool? isImportant,
+    String? eventStatus,
     int? studentId,
     int? tcId,
     String? consultTypeCode,
@@ -134,6 +137,7 @@ class ScheduleRepository {
     if (eventMinute != null) data['event_minute'] = eventMinute;
     if (content != null) data['content'] = content;
     if (isImportant != null) data['is_important'] = isImportant;
+    if (eventStatus != null) data['event_status'] = eventStatus;
     if (tcId != null) data['tc_id'] = tcId;
     if (consultTypeCode != null) data['consult_type_code'] = consultTypeCode;
     // student_id는 null을 명시적으로 보낼 수 있음

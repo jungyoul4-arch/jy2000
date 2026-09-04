@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:intl/intl.dart';
 
+import '../../config/routes.dart';
 import '../../providers/consult_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/consult.dart';
@@ -67,8 +68,15 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
             ),
             const SizedBox(width: 8),
           ],
+          // 신규생 문의(초기상담)는 건수가 많아 전용 화면으로 분리
           FilledButton.icon(
-            onPressed: () => context.go('/consults/create'),
+            onPressed: () => context.go(AppRoutes.newInquiry),
+            icon: const Icon(Icons.person_search),
+            label: const Text('신규생 문의'),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.icon(
+            onPressed: () => context.go(AppRoutes.consultCreate),
             icon: const Icon(Icons.add),
             label: const Text('상담 등록'),
           ),

@@ -256,7 +256,6 @@ export class StudentService {
         s.class_type_code,
         ct.code_name as class_type_name,
         s.subject_code,
-        subj.code_name as subject_name,
         s.source_code,
         src.code_name as source_name,
         s.tc_id,
@@ -278,7 +277,6 @@ export class StudentService {
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
       LEFT JOIN code_master ct ON s.class_type_code = ct.code_id
-      LEFT JOIN code_master subj ON s.subject_code = subj.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
       LEFT JOIN User tc ON s.tc_id = tc.user_id
       LEFT JOIN ParentPhone pp ON pp.student_id = s.student_id AND pp.seq = 1
@@ -332,7 +330,6 @@ export class StudentService {
         s.class_type_code,
         ct.code_name as class_type_name,
         s.subject_code,
-        subj.code_name as subject_name,
         s.source_code,
         src.code_name as source_name,
         s.source_detail,
@@ -355,7 +352,6 @@ export class StudentService {
       LEFT JOIN code_master st ON s.status_code = st.code_id
       LEFT JOIN code_master sub ON s.sub_status_code = sub.code_id
       LEFT JOIN code_master ct ON s.class_type_code = ct.code_id
-      LEFT JOIN code_master subj ON s.subject_code = subj.code_id
       LEFT JOIN code_master src ON s.source_code = src.code_id
       LEFT JOIN User tc ON s.tc_id = tc.user_id
       WHERE s.student_id = ? AND s.deleted_at IS NULL

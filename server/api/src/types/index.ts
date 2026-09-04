@@ -50,8 +50,9 @@ export interface Student {
   sub_status_code?: string;
   class_type_code?: string; // 반 유형: CLASS_COMP(종합반), CLASS_SINGLE(단과반), CLASS_SPECIAL(특강), CLASS_ETC(기타)
   class_type_name?: string;
-  subject_code?: string; // 과목
-  subject_name?: string;
+  // 문의 과목 비트마스크 (1=국어, 2=수학, 4=영어, 8=과학, 16=사회, 32=기타).
+  // code_master 코드가 아니므로 조인하지 않는다. 표시명은 클라이언트가 비트를 풀어 생성.
+  subject_code?: number;
   source_code?: string;
   source_detail?: string;
   tc_id?: number;
@@ -71,7 +72,7 @@ export interface StudentListQuery extends ListQueryParams {
   status_code?: string;
   grade?: number;
   class_type_code?: string;
-  subject_code?: string;
+  subject_code?: number; // 비트마스크. (subject_code & ?) > 0 으로 필터
   source_code?: string;
   tc_id?: number;
   school_id?: number;
@@ -114,7 +115,7 @@ export interface StudentUpdate {
   school_name?: string;
   grade?: number;
   class_type_code?: string;
-  subject_code?: string;
+  subject_code?: number; // 비트마스크
   source_code?: string;
   enroll_start_date?: string;
   enroll_end_date?: string;
@@ -136,7 +137,7 @@ export interface StudentCreate {
   school_name?: string;
   grade?: number;
   class_type_code?: string;
-  subject_code?: string;
+  subject_code?: number; // 비트마스크
   status_code?: string;
   source_code?: string;
   source_detail?: string;
@@ -157,7 +158,9 @@ export interface Consult {
   consult_date: string;
   consult_duration?: number;
   channel_code?: string;
+  inquiry_source_code?: string;
   tc_id?: number;
+  selector_name?: string;
   content?: string;
   student_needs?: string;
   consult_result_code?: string;
@@ -175,7 +178,9 @@ export interface ConsultCreate {
   consult_date: string;
   consult_duration?: number;
   channel_code?: string;
+  inquiry_source_code?: string;
   tc_id?: number;
+  selector_name?: string;
   content?: string;
   student_needs?: string;
   consult_result_code?: string;
@@ -194,6 +199,56 @@ export interface ConsultListQuery extends ListQueryParams {
   consult_result_code?: string;
   from_date?: string;
   to_date?: string;
+}
+
+// ============================================================
+// 신규생 문의 (초기상담) — 상담 유형 CONSULT_TYPE_INITIAL 전용 처리
+// ============================================================
+
+// 신규생 문의 상담 유형 코드
+export const NEW_INQUIRY_CONSULT_TYPE_CODE = 'CONSULT_TYPE_INITIAL';
+
+// 신규생 문의 등록 요청.
+// student_id가 없으면 User(kind=2, active_flag=0) + student_info를 새로 만든다.
+export interface NewInquiryCreate {
+  consult_date: string; // 문의 날짜 (YYYY-MM-DD)
+  student_id?: number; // 기존 학생을 고른 경우
+  student_name: string;
+  gender_code?: string;
+  school_id?: number;
+  school_name?: string; // school_id가 없을 때 직접 입력한 학교명
+  grade?: number;
+  inquiry_source_code?: string;
+  subject_code?: number; // 문의 과목 비트마스크 (논술 포함)
+  interest_subject?: string; // 문의 과목 표시명 콤마 문자열
+  student_phone?: string;
+  guardian_phone?: string;
+  selector_name?: string;
+  content?: string;
+}
+
+// 신규생 문의 등록 결과
+export interface NewInquiryResult {
+  consult_id: number;
+  student_id: number;
+  student_name: string;
+  is_new_student: boolean; // 학생을 새로 만들었는지
+  guardian_created: boolean; // 학부모를 새로 만들었는지
+}
+
+// 신규생 문의 화면의 학생 타입어헤드 결과.
+// kind=2인 학생을 active_flag 상관없이 찾고, 화면 자동 채움에 필요한 값을 함께 반환한다.
+export interface InquiryStudentLookup {
+  student_id: number;
+  student_name: string;
+  phone?: string;
+  active_flag: number; // 1이면 현재 재원중
+  grade?: number;
+  gender_code?: string;
+  school_id?: number;
+  school_name?: string;
+  subject_code?: number;
+  guardian_phone?: string;
 }
 
 // Promotion Types
@@ -532,6 +587,15 @@ export interface RegionReport {
 // Schedule Calendar Types (일정 캘린더)
 // ============================================================
 
+// 일정 상태 (NORMAL: 예정, COMPLETED: 완료, CANCELLED: 취소)
+export type ScheduleEventStatus = 'NORMAL' | 'COMPLETED' | 'CANCELLED';
+
+export const SCHEDULE_EVENT_STATUSES: ScheduleEventStatus[] = [
+  'NORMAL',
+  'COMPLETED',
+  'CANCELLED',
+];
+
 // 일정 카테고리
 export interface ScheduleCategory {
   category_id: number;
@@ -564,6 +628,7 @@ export interface ScheduleEvent {
   event_minute?: number;
   content?: string;
   is_important?: boolean;
+  event_status?: ScheduleEventStatus;
   student_id?: number;
   student_name?: string;
   student_phone?: string;
@@ -593,6 +658,7 @@ export interface ScheduleEventCreate {
   event_minute?: number;
   content?: string;
   is_important?: boolean;
+  event_status?: ScheduleEventStatus;
   student_id?: number;
   tc_id?: number;
   consult_type_code?: string;
@@ -607,6 +673,7 @@ export interface ScheduleEventUpdate {
   event_minute?: number;
   content?: string;
   is_important?: boolean;
+  event_status?: ScheduleEventStatus;
   student_id?: number;
   tc_id?: number;
   consult_type_code?: string;

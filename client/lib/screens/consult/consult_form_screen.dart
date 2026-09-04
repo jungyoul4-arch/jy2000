@@ -151,7 +151,8 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final consultTypeCodes = ref.watch(consultTypeCodesProvider);
+    // 신규생 문의는 전용 화면에서만 등록하므로 여기서는 제외한다
+    final consultTypeCodes = ref.watch(generalConsultTypeCodesProvider);
     final channelCodes = ref.watch(channelCodesProvider);
     final consultResultCodes = ref.watch(consultResultCodesProvider);
 

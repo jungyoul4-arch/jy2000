@@ -45,6 +45,8 @@ mixin _$ScheduleEvent {
   @JsonKey(name: 'is_important')
   @IntToBoolConverter()
   bool get isImportant => throw _privateConstructorUsedError;
+  @JsonKey(name: 'event_status')
+  String get eventStatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'student_id')
   int? get studentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'student_name')
@@ -112,6 +114,7 @@ abstract class $ScheduleEventCopyWith<$Res> {
     @JsonKey(name: 'event_minute') int eventMinute,
     String? content,
     @JsonKey(name: 'is_important') @IntToBoolConverter() bool isImportant,
+    @JsonKey(name: 'event_status') String eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,
     @JsonKey(name: 'student_phone') String? studentPhone,
@@ -160,6 +163,7 @@ class _$ScheduleEventCopyWithImpl<$Res, $Val extends ScheduleEvent>
     Object? eventMinute = null,
     Object? content = freezed,
     Object? isImportant = null,
+    Object? eventStatus = null,
     Object? studentId = freezed,
     Object? studentName = freezed,
     Object? studentPhone = freezed,
@@ -229,6 +233,10 @@ class _$ScheduleEventCopyWithImpl<$Res, $Val extends ScheduleEvent>
                 ? _value.isImportant
                 : isImportant // ignore: cast_nullable_to_non_nullable
                       as bool,
+            eventStatus: null == eventStatus
+                ? _value.eventStatus
+                : eventStatus // ignore: cast_nullable_to_non_nullable
+                      as String,
             studentId: freezed == studentId
                 ? _value.studentId
                 : studentId // ignore: cast_nullable_to_non_nullable
@@ -329,6 +337,7 @@ abstract class _$$ScheduleEventImplCopyWith<$Res>
     @JsonKey(name: 'event_minute') int eventMinute,
     String? content,
     @JsonKey(name: 'is_important') @IntToBoolConverter() bool isImportant,
+    @JsonKey(name: 'event_status') String eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,
     @JsonKey(name: 'student_phone') String? studentPhone,
@@ -376,6 +385,7 @@ class __$$ScheduleEventImplCopyWithImpl<$Res>
     Object? eventMinute = null,
     Object? content = freezed,
     Object? isImportant = null,
+    Object? eventStatus = null,
     Object? studentId = freezed,
     Object? studentName = freezed,
     Object? studentPhone = freezed,
@@ -445,6 +455,10 @@ class __$$ScheduleEventImplCopyWithImpl<$Res>
             ? _value.isImportant
             : isImportant // ignore: cast_nullable_to_non_nullable
                   as bool,
+        eventStatus: null == eventStatus
+            ? _value.eventStatus
+            : eventStatus // ignore: cast_nullable_to_non_nullable
+                  as String,
         studentId: freezed == studentId
             ? _value.studentId
             : studentId // ignore: cast_nullable_to_non_nullable
@@ -540,6 +554,8 @@ class _$ScheduleEventImpl extends _ScheduleEvent {
     @JsonKey(name: 'is_important')
     @IntToBoolConverter()
     this.isImportant = false,
+    @JsonKey(name: 'event_status')
+    this.eventStatus = ScheduleEventStatus.normal,
     @JsonKey(name: 'student_id') this.studentId,
     @JsonKey(name: 'student_name') this.studentName,
     @JsonKey(name: 'student_phone') this.studentPhone,
@@ -600,6 +616,9 @@ class _$ScheduleEventImpl extends _ScheduleEvent {
   @IntToBoolConverter()
   final bool isImportant;
   @override
+  @JsonKey(name: 'event_status')
+  final String eventStatus;
+  @override
   @JsonKey(name: 'student_id')
   final int? studentId;
   @override
@@ -656,7 +675,7 @@ class _$ScheduleEventImpl extends _ScheduleEvent {
 
   @override
   String toString() {
-    return 'ScheduleEvent(eventId: $eventId, categoryId: $categoryId, categoryName: $categoryName, categoryType: $categoryType, eventTypeId: $eventTypeId, eventTypeName: $eventTypeName, colorCode: $colorCode, eventDate: $eventDate, eventHour: $eventHour, eventMinute: $eventMinute, content: $content, isImportant: $isImportant, studentId: $studentId, studentName: $studentName, studentPhone: $studentPhone, studentGrade: $studentGrade, gradeName: $gradeName, schoolName: $schoolName, tcId: $tcId, tcName: $tcName, consultId: $consultId, consultDate: $consultDate, consultTypeCode: $consultTypeCode, consultTypeName: $consultTypeName, createdBy: $createdBy, createdByName: $createdByName, updatedBy: $updatedBy, updatedByName: $updatedByName, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ScheduleEvent(eventId: $eventId, categoryId: $categoryId, categoryName: $categoryName, categoryType: $categoryType, eventTypeId: $eventTypeId, eventTypeName: $eventTypeName, colorCode: $colorCode, eventDate: $eventDate, eventHour: $eventHour, eventMinute: $eventMinute, content: $content, isImportant: $isImportant, eventStatus: $eventStatus, studentId: $studentId, studentName: $studentName, studentPhone: $studentPhone, studentGrade: $studentGrade, gradeName: $gradeName, schoolName: $schoolName, tcId: $tcId, tcName: $tcName, consultId: $consultId, consultDate: $consultDate, consultTypeCode: $consultTypeCode, consultTypeName: $consultTypeName, createdBy: $createdBy, createdByName: $createdByName, updatedBy: $updatedBy, updatedByName: $updatedByName, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -686,6 +705,8 @@ class _$ScheduleEventImpl extends _ScheduleEvent {
             (identical(other.content, content) || other.content == content) &&
             (identical(other.isImportant, isImportant) ||
                 other.isImportant == isImportant) &&
+            (identical(other.eventStatus, eventStatus) ||
+                other.eventStatus == eventStatus) &&
             (identical(other.studentId, studentId) ||
                 other.studentId == studentId) &&
             (identical(other.studentName, studentName) ||
@@ -738,6 +759,7 @@ class _$ScheduleEventImpl extends _ScheduleEvent {
     eventMinute,
     content,
     isImportant,
+    eventStatus,
     studentId,
     studentName,
     studentPhone,
@@ -786,6 +808,7 @@ abstract class _ScheduleEvent extends ScheduleEvent {
     @JsonKey(name: 'event_minute') final int eventMinute,
     final String? content,
     @JsonKey(name: 'is_important') @IntToBoolConverter() final bool isImportant,
+    @JsonKey(name: 'event_status') final String eventStatus,
     @JsonKey(name: 'student_id') final int? studentId,
     @JsonKey(name: 'student_name') final String? studentName,
     @JsonKey(name: 'student_phone') final String? studentPhone,
@@ -846,6 +869,9 @@ abstract class _ScheduleEvent extends ScheduleEvent {
   @JsonKey(name: 'is_important')
   @IntToBoolConverter()
   bool get isImportant;
+  @override
+  @JsonKey(name: 'event_status')
+  String get eventStatus;
   @override
   @JsonKey(name: 'student_id')
   int? get studentId;
@@ -928,6 +954,8 @@ mixin _$ScheduleEventCreate {
   String? get content => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_important')
   bool get isImportant => throw _privateConstructorUsedError;
+  @JsonKey(name: 'event_status')
+  String get eventStatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'student_id')
   int? get studentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
@@ -960,6 +988,7 @@ abstract class $ScheduleEventCreateCopyWith<$Res> {
     @JsonKey(name: 'event_minute') int eventMinute,
     String? content,
     @JsonKey(name: 'is_important') bool isImportant,
+    @JsonKey(name: 'event_status') String eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'consult_type_code') String? consultTypeCode,
@@ -988,6 +1017,7 @@ class _$ScheduleEventCreateCopyWithImpl<$Res, $Val extends ScheduleEventCreate>
     Object? eventMinute = null,
     Object? content = freezed,
     Object? isImportant = null,
+    Object? eventStatus = null,
     Object? studentId = freezed,
     Object? tcId = freezed,
     Object? consultTypeCode = freezed,
@@ -1022,6 +1052,10 @@ class _$ScheduleEventCreateCopyWithImpl<$Res, $Val extends ScheduleEventCreate>
                 ? _value.isImportant
                 : isImportant // ignore: cast_nullable_to_non_nullable
                       as bool,
+            eventStatus: null == eventStatus
+                ? _value.eventStatus
+                : eventStatus // ignore: cast_nullable_to_non_nullable
+                      as String,
             studentId: freezed == studentId
                 ? _value.studentId
                 : studentId // ignore: cast_nullable_to_non_nullable
@@ -1057,6 +1091,7 @@ abstract class _$$ScheduleEventCreateImplCopyWith<$Res>
     @JsonKey(name: 'event_minute') int eventMinute,
     String? content,
     @JsonKey(name: 'is_important') bool isImportant,
+    @JsonKey(name: 'event_status') String eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'consult_type_code') String? consultTypeCode,
@@ -1084,6 +1119,7 @@ class __$$ScheduleEventCreateImplCopyWithImpl<$Res>
     Object? eventMinute = null,
     Object? content = freezed,
     Object? isImportant = null,
+    Object? eventStatus = null,
     Object? studentId = freezed,
     Object? tcId = freezed,
     Object? consultTypeCode = freezed,
@@ -1118,6 +1154,10 @@ class __$$ScheduleEventCreateImplCopyWithImpl<$Res>
             ? _value.isImportant
             : isImportant // ignore: cast_nullable_to_non_nullable
                   as bool,
+        eventStatus: null == eventStatus
+            ? _value.eventStatus
+            : eventStatus // ignore: cast_nullable_to_non_nullable
+                  as String,
         studentId: freezed == studentId
             ? _value.studentId
             : studentId // ignore: cast_nullable_to_non_nullable
@@ -1146,6 +1186,8 @@ class _$ScheduleEventCreateImpl implements _ScheduleEventCreate {
     @JsonKey(name: 'event_minute') this.eventMinute = 0,
     this.content,
     @JsonKey(name: 'is_important') this.isImportant = false,
+    @JsonKey(name: 'event_status')
+    this.eventStatus = ScheduleEventStatus.normal,
     @JsonKey(name: 'student_id') this.studentId,
     @JsonKey(name: 'tc_id') this.tcId,
     @JsonKey(name: 'consult_type_code') this.consultTypeCode,
@@ -1175,6 +1217,9 @@ class _$ScheduleEventCreateImpl implements _ScheduleEventCreate {
   @JsonKey(name: 'is_important')
   final bool isImportant;
   @override
+  @JsonKey(name: 'event_status')
+  final String eventStatus;
+  @override
   @JsonKey(name: 'student_id')
   final int? studentId;
   @override
@@ -1186,7 +1231,7 @@ class _$ScheduleEventCreateImpl implements _ScheduleEventCreate {
 
   @override
   String toString() {
-    return 'ScheduleEventCreate(categoryId: $categoryId, eventTypeId: $eventTypeId, eventDate: $eventDate, eventHour: $eventHour, eventMinute: $eventMinute, content: $content, isImportant: $isImportant, studentId: $studentId, tcId: $tcId, consultTypeCode: $consultTypeCode)';
+    return 'ScheduleEventCreate(categoryId: $categoryId, eventTypeId: $eventTypeId, eventDate: $eventDate, eventHour: $eventHour, eventMinute: $eventMinute, content: $content, isImportant: $isImportant, eventStatus: $eventStatus, studentId: $studentId, tcId: $tcId, consultTypeCode: $consultTypeCode)';
   }
 
   @override
@@ -1207,6 +1252,8 @@ class _$ScheduleEventCreateImpl implements _ScheduleEventCreate {
             (identical(other.content, content) || other.content == content) &&
             (identical(other.isImportant, isImportant) ||
                 other.isImportant == isImportant) &&
+            (identical(other.eventStatus, eventStatus) ||
+                other.eventStatus == eventStatus) &&
             (identical(other.studentId, studentId) ||
                 other.studentId == studentId) &&
             (identical(other.tcId, tcId) || other.tcId == tcId) &&
@@ -1225,6 +1272,7 @@ class _$ScheduleEventCreateImpl implements _ScheduleEventCreate {
     eventMinute,
     content,
     isImportant,
+    eventStatus,
     studentId,
     tcId,
     consultTypeCode,
@@ -1256,6 +1304,7 @@ abstract class _ScheduleEventCreate implements ScheduleEventCreate {
     @JsonKey(name: 'event_minute') final int eventMinute,
     final String? content,
     @JsonKey(name: 'is_important') final bool isImportant,
+    @JsonKey(name: 'event_status') final String eventStatus,
     @JsonKey(name: 'student_id') final int? studentId,
     @JsonKey(name: 'tc_id') final int? tcId,
     @JsonKey(name: 'consult_type_code') final String? consultTypeCode,
@@ -1284,6 +1333,9 @@ abstract class _ScheduleEventCreate implements ScheduleEventCreate {
   @override
   @JsonKey(name: 'is_important')
   bool get isImportant;
+  @override
+  @JsonKey(name: 'event_status')
+  String get eventStatus;
   @override
   @JsonKey(name: 'student_id')
   int? get studentId;
@@ -1321,6 +1373,8 @@ mixin _$ScheduleEventUpdate {
   String? get content => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_important')
   bool? get isImportant => throw _privateConstructorUsedError;
+  @JsonKey(name: 'event_status')
+  String? get eventStatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'student_id')
   int? get studentId => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
@@ -1353,6 +1407,7 @@ abstract class $ScheduleEventUpdateCopyWith<$Res> {
     @JsonKey(name: 'event_minute') int? eventMinute,
     String? content,
     @JsonKey(name: 'is_important') bool? isImportant,
+    @JsonKey(name: 'event_status') String? eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'consult_type_code') String? consultTypeCode,
@@ -1381,6 +1436,7 @@ class _$ScheduleEventUpdateCopyWithImpl<$Res, $Val extends ScheduleEventUpdate>
     Object? eventMinute = freezed,
     Object? content = freezed,
     Object? isImportant = freezed,
+    Object? eventStatus = freezed,
     Object? studentId = freezed,
     Object? tcId = freezed,
     Object? consultTypeCode = freezed,
@@ -1415,6 +1471,10 @@ class _$ScheduleEventUpdateCopyWithImpl<$Res, $Val extends ScheduleEventUpdate>
                 ? _value.isImportant
                 : isImportant // ignore: cast_nullable_to_non_nullable
                       as bool?,
+            eventStatus: freezed == eventStatus
+                ? _value.eventStatus
+                : eventStatus // ignore: cast_nullable_to_non_nullable
+                      as String?,
             studentId: freezed == studentId
                 ? _value.studentId
                 : studentId // ignore: cast_nullable_to_non_nullable
@@ -1450,6 +1510,7 @@ abstract class _$$ScheduleEventUpdateImplCopyWith<$Res>
     @JsonKey(name: 'event_minute') int? eventMinute,
     String? content,
     @JsonKey(name: 'is_important') bool? isImportant,
+    @JsonKey(name: 'event_status') String? eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'consult_type_code') String? consultTypeCode,
@@ -1477,6 +1538,7 @@ class __$$ScheduleEventUpdateImplCopyWithImpl<$Res>
     Object? eventMinute = freezed,
     Object? content = freezed,
     Object? isImportant = freezed,
+    Object? eventStatus = freezed,
     Object? studentId = freezed,
     Object? tcId = freezed,
     Object? consultTypeCode = freezed,
@@ -1511,6 +1573,10 @@ class __$$ScheduleEventUpdateImplCopyWithImpl<$Res>
             ? _value.isImportant
             : isImportant // ignore: cast_nullable_to_non_nullable
                   as bool?,
+        eventStatus: freezed == eventStatus
+            ? _value.eventStatus
+            : eventStatus // ignore: cast_nullable_to_non_nullable
+                  as String?,
         studentId: freezed == studentId
             ? _value.studentId
             : studentId // ignore: cast_nullable_to_non_nullable
@@ -1539,6 +1605,7 @@ class _$ScheduleEventUpdateImpl implements _ScheduleEventUpdate {
     @JsonKey(name: 'event_minute') this.eventMinute,
     this.content,
     @JsonKey(name: 'is_important') this.isImportant,
+    @JsonKey(name: 'event_status') this.eventStatus,
     @JsonKey(name: 'student_id') this.studentId,
     @JsonKey(name: 'tc_id') this.tcId,
     @JsonKey(name: 'consult_type_code') this.consultTypeCode,
@@ -1568,6 +1635,9 @@ class _$ScheduleEventUpdateImpl implements _ScheduleEventUpdate {
   @JsonKey(name: 'is_important')
   final bool? isImportant;
   @override
+  @JsonKey(name: 'event_status')
+  final String? eventStatus;
+  @override
   @JsonKey(name: 'student_id')
   final int? studentId;
   @override
@@ -1579,7 +1649,7 @@ class _$ScheduleEventUpdateImpl implements _ScheduleEventUpdate {
 
   @override
   String toString() {
-    return 'ScheduleEventUpdate(categoryId: $categoryId, eventTypeId: $eventTypeId, eventDate: $eventDate, eventHour: $eventHour, eventMinute: $eventMinute, content: $content, isImportant: $isImportant, studentId: $studentId, tcId: $tcId, consultTypeCode: $consultTypeCode)';
+    return 'ScheduleEventUpdate(categoryId: $categoryId, eventTypeId: $eventTypeId, eventDate: $eventDate, eventHour: $eventHour, eventMinute: $eventMinute, content: $content, isImportant: $isImportant, eventStatus: $eventStatus, studentId: $studentId, tcId: $tcId, consultTypeCode: $consultTypeCode)';
   }
 
   @override
@@ -1600,6 +1670,8 @@ class _$ScheduleEventUpdateImpl implements _ScheduleEventUpdate {
             (identical(other.content, content) || other.content == content) &&
             (identical(other.isImportant, isImportant) ||
                 other.isImportant == isImportant) &&
+            (identical(other.eventStatus, eventStatus) ||
+                other.eventStatus == eventStatus) &&
             (identical(other.studentId, studentId) ||
                 other.studentId == studentId) &&
             (identical(other.tcId, tcId) || other.tcId == tcId) &&
@@ -1618,6 +1690,7 @@ class _$ScheduleEventUpdateImpl implements _ScheduleEventUpdate {
     eventMinute,
     content,
     isImportant,
+    eventStatus,
     studentId,
     tcId,
     consultTypeCode,
@@ -1649,6 +1722,7 @@ abstract class _ScheduleEventUpdate implements ScheduleEventUpdate {
     @JsonKey(name: 'event_minute') final int? eventMinute,
     final String? content,
     @JsonKey(name: 'is_important') final bool? isImportant,
+    @JsonKey(name: 'event_status') final String? eventStatus,
     @JsonKey(name: 'student_id') final int? studentId,
     @JsonKey(name: 'tc_id') final int? tcId,
     @JsonKey(name: 'consult_type_code') final String? consultTypeCode,
@@ -1677,6 +1751,9 @@ abstract class _ScheduleEventUpdate implements ScheduleEventUpdate {
   @override
   @JsonKey(name: 'is_important')
   bool? get isImportant;
+  @override
+  @JsonKey(name: 'event_status')
+  String? get eventStatus;
   @override
   @JsonKey(name: 'student_id')
   int? get studentId;

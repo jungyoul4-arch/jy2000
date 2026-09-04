@@ -44,6 +44,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         path: AppRoutes.studentList,
       ),
       _NavItem(
+        // 채워진 아이콘 고정: person_search(0xe49c)는 이전 배포본 폰트에도 있는
+        // 글리프라 아이콘 폰트가 캐시에 남아 있어도 정상 표시된다.
+        icon: Icons.person_search,
+        selectedIcon: Icons.person_search,
+        label: '신규생 문의',
+        path: AppRoutes.newInquiry,
+      ),
+      _NavItem(
         icon: Icons.chat_outlined,
         selectedIcon: Icons.chat,
         label: '상담 관리',

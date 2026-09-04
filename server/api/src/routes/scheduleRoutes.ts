@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { body, query } from 'express-validator';
 import scheduleController from '../controllers/scheduleController';
 import { validate } from '../middlewares/validate';
+import { SCHEDULE_EVENT_STATUSES } from '../types';
 import { validateId } from '../validators';
 
 const router = Router();
@@ -55,6 +56,10 @@ const validateEventCreate = [
     .optional({ nullable: true })
     .isInt({ min: 1 })
     .withMessage('student_id must be a positive integer'),
+  body('event_status')
+    .optional({ nullable: true })
+    .isIn(SCHEDULE_EVENT_STATUSES)
+    .withMessage(`event_status must be one of ${SCHEDULE_EVENT_STATUSES.join(', ')}`),
 ];
 
 // 일정 수정 검증
@@ -79,6 +84,10 @@ const validateEventUpdate = [
     .optional({ nullable: true })
     .isInt({ min: 1 })
     .withMessage('student_id must be a positive integer'),
+  body('event_status')
+    .optional({ nullable: true })
+    .isIn(SCHEDULE_EVENT_STATUSES)
+    .withMessage(`event_status must be one of ${SCHEDULE_EVENT_STATUSES.join(', ')}`),
 ];
 
 // GET /schedule/events - 일정 목록 조회

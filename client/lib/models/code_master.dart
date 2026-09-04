@@ -31,6 +31,7 @@ class CodeGroup {
   static const String consultResult = 'CONSULT_RESULT';
   static const String nextAction = 'NEXT_ACTION';
   static const String source = 'SOURCE';
+  static const String inquirySource = 'INQUIRY_SOURCE';
   static const String relation = 'RELATION';
   static const String tcType = 'TC_TYPE';
   static const String branch = 'BRANCH';

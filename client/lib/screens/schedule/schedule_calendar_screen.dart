@@ -477,7 +477,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
         eventTypes: eventTypes,
         existingEvent: existingEvent,
         onSave: (eventTypeId, eventHour, eventMinute, content, isImportant,
-            studentId, tcId, consultTypeCode) async {
+            eventStatus, studentId, tcId, consultTypeCode) async {
           if (existingEvent != null) {
             final success = await ref.read(scheduleEventsProvider.notifier).updateEvent(
               eventId: existingEvent.eventId,
@@ -486,6 +486,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
               eventMinute: eventMinute,
               content: content,
               isImportant: isImportant,
+              eventStatus: eventStatus,
               studentId: studentId,
               tcId: tcId,
               consultTypeCode: consultTypeCode,
@@ -500,6 +501,7 @@ class _ScheduleCalendarScreenState extends ConsumerState<ScheduleCalendarScreen>
               eventMinute: eventMinute,
               content: content,
               isImportant: isImportant,
+              eventStatus: eventStatus,
               studentId: studentId,
               tcId: tcId,
               consultTypeCode: consultTypeCode,
@@ -852,6 +854,8 @@ class _WeekSectionState extends State<_WeekSection> {
                         fontSize: 12,
                         color: event.displayTextColor,
                         fontWeight: event.displayFontWeight,
+                        decoration: event.displayDecoration,
+                        decorationColor: event.displayTextColor,
                       ),
                     ),
                   );

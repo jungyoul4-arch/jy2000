@@ -22,6 +22,8 @@ _$ScheduleEventImpl _$$ScheduleEventImplFromJson(Map<String, dynamic> json) =>
       isImportant: json['is_important'] == null
           ? false
           : const IntToBoolConverter().fromJson(json['is_important']),
+      eventStatus:
+          json['event_status'] as String? ?? ScheduleEventStatus.normal,
       studentId: (json['student_id'] as num?)?.toInt(),
       studentName: json['student_name'] as String?,
       studentPhone: json['student_phone'] as String?,
@@ -56,6 +58,7 @@ Map<String, dynamic> _$$ScheduleEventImplToJson(_$ScheduleEventImpl instance) =>
       'event_minute': instance.eventMinute,
       'content': instance.content,
       'is_important': const IntToBoolConverter().toJson(instance.isImportant),
+      'event_status': instance.eventStatus,
       'student_id': instance.studentId,
       'student_name': instance.studentName,
       'student_phone': instance.studentPhone,
@@ -86,6 +89,7 @@ _$ScheduleEventCreateImpl _$$ScheduleEventCreateImplFromJson(
   eventMinute: (json['event_minute'] as num?)?.toInt() ?? 0,
   content: json['content'] as String?,
   isImportant: json['is_important'] as bool? ?? false,
+  eventStatus: json['event_status'] as String? ?? ScheduleEventStatus.normal,
   studentId: (json['student_id'] as num?)?.toInt(),
   tcId: (json['tc_id'] as num?)?.toInt(),
   consultTypeCode: json['consult_type_code'] as String?,
@@ -101,6 +105,7 @@ Map<String, dynamic> _$$ScheduleEventCreateImplToJson(
   'event_minute': instance.eventMinute,
   'content': instance.content,
   'is_important': instance.isImportant,
+  'event_status': instance.eventStatus,
   'student_id': instance.studentId,
   'tc_id': instance.tcId,
   'consult_type_code': instance.consultTypeCode,
@@ -116,6 +121,7 @@ _$ScheduleEventUpdateImpl _$$ScheduleEventUpdateImplFromJson(
   eventMinute: (json['event_minute'] as num?)?.toInt(),
   content: json['content'] as String?,
   isImportant: json['is_important'] as bool?,
+  eventStatus: json['event_status'] as String?,
   studentId: (json['student_id'] as num?)?.toInt(),
   tcId: (json['tc_id'] as num?)?.toInt(),
   consultTypeCode: json['consult_type_code'] as String?,
@@ -131,6 +137,7 @@ Map<String, dynamic> _$$ScheduleEventUpdateImplToJson(
   'event_minute': instance.eventMinute,
   'content': instance.content,
   'is_important': instance.isImportant,
+  'event_status': instance.eventStatus,
   'student_id': instance.studentId,
   'tc_id': instance.tcId,
   'consult_type_code': instance.consultTypeCode,

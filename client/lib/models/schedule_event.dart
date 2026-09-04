@@ -6,6 +6,33 @@ import 'schedule_category.dart' show IntToBoolConverter;
 part 'schedule_event.freezed.dart';
 part 'schedule_event.g.dart';
 
+/// 일정 상태 코드
+class ScheduleEventStatus {
+  /// 예정 (기본)
+  static const String normal = 'NORMAL';
+
+  /// 완료 - 캘린더에 취소선으로 표시
+  static const String completed = 'COMPLETED';
+
+  /// 취소 - 캘린더에 빨간색으로 표시
+  static const String cancelled = 'CANCELLED';
+
+  /// 선택 UI 표시 순서
+  static const List<String> all = [normal, completed, cancelled];
+
+  /// 상태 표시명
+  static String labelOf(String status) {
+    switch (status) {
+      case completed:
+        return '완료';
+      case cancelled:
+        return '취소';
+      default:
+        return '예정';
+    }
+  }
+}
+
 /// 일정 이벤트 모델
 @freezed
 class ScheduleEvent with _$ScheduleEvent {
@@ -27,6 +54,9 @@ class ScheduleEvent with _$ScheduleEvent {
     @IntToBoolConverter()
     @Default(false)
     bool isImportant,
+    @JsonKey(name: 'event_status')
+    @Default(ScheduleEventStatus.normal)
+    String eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'student_name') String? studentName,
     @JsonKey(name: 'student_phone') String? studentPhone,
@@ -67,12 +97,32 @@ class ScheduleEvent with _$ScheduleEvent {
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 
-  /// 중요 일정 표시용 텍스트 색상 (중요 일정은 빨간색)
-  Color get displayTextColor => isImportant ? Colors.red : textColor;
+  /// 완료된 일정 여부
+  bool get isCompleted => eventStatus == ScheduleEventStatus.completed;
+
+  /// 취소된 일정 여부
+  bool get isCancelled => eventStatus == ScheduleEventStatus.cancelled;
+
+  /// 상태 표시명 (예정 / 완료 / 취소)
+  String get statusLabel => ScheduleEventStatus.labelOf(eventStatus);
+
+  /// 표시용 텍스트 색상
+  ///
+  /// 취소된 일정은 빨간색, 중요 일정은 주황색, 그 외는 배경색에 맞춘 기본색.
+  /// 상태(취소)가 중요도보다 우선한다.
+  Color get displayTextColor {
+    if (isCancelled) return Colors.red;
+    if (isImportant) return Colors.orange.shade800;
+    return textColor;
+  }
 
   /// 중요 일정 표시용 글자 굵기 (중요 일정은 볼드)
   FontWeight get displayFontWeight =>
       isImportant ? FontWeight.bold : FontWeight.normal;
+
+  /// 완료된 일정은 취소선 표시
+  TextDecoration? get displayDecoration =>
+      isCompleted ? TextDecoration.lineThrough : null;
 
   /// 시간대(TIME_SLOT) 카테고리 일정 여부 - 분 지정이 가능한 카테고리
   bool get isTimeSlot => categoryType == 'TIME_SLOT';
@@ -149,6 +199,9 @@ class ScheduleEventCreate with _$ScheduleEventCreate {
     @JsonKey(name: 'event_minute') @Default(0) int eventMinute,
     String? content,
     @JsonKey(name: 'is_important') @Default(false) bool isImportant,
+    @JsonKey(name: 'event_status')
+    @Default(ScheduleEventStatus.normal)
+    String eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'consult_type_code') String? consultTypeCode,
@@ -169,6 +222,7 @@ class ScheduleEventUpdate with _$ScheduleEventUpdate {
     @JsonKey(name: 'event_minute') int? eventMinute,
     String? content,
     @JsonKey(name: 'is_important') bool? isImportant,
+    @JsonKey(name: 'event_status') String? eventStatus,
     @JsonKey(name: 'student_id') int? studentId,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'consult_type_code') String? consultTypeCode,

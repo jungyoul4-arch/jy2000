@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/schedule_category.dart';
 import '../../models/schedule_event.dart';
 import '../../models/schedule_event_type.dart';
+import '../../models/new_inquiry.dart';
 import '../../models/student.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/code_provider.dart';
@@ -24,6 +25,7 @@ class ScheduleEventDialog extends ConsumerStatefulWidget {
     int eventMinute,
     String? content,
     bool isImportant,
+    String eventStatus,
     int? studentId,
     int? tcId,
     String? consultTypeCode,
@@ -48,8 +50,10 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
   late int _selectedEventTypeId;
   late int _selectedMinute;
   int _selectedHour = defaultConsultHour;
-  String? _selectedConsultTypeCode;
+  // 상담 유형 기본값: 재상담 (신규생 문의는 전용 화면에서만 등록)
+  String? _selectedConsultTypeCode = defaultConsultTypeCode;
   bool _isImportant = false;
+  String _eventStatus = ScheduleEventStatus.normal;
   // 상담자 (기본값: 로그인한 사용자)
   int? _selectedTcId;
   String? _selectedTcName;
@@ -97,9 +101,13 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
       _selectedHour = existingHour != null && consultHourOptions.contains(existingHour)
           ? existingHour
           : defaultConsultHour;
-      _selectedConsultTypeCode = widget.existingEvent!.consultTypeCode;
+      _selectedConsultTypeCode =
+          widget.existingEvent!.consultTypeCode ?? defaultConsultTypeCode;
       _contentController.text = widget.existingEvent!.content ?? '';
       _isImportant = widget.existingEvent!.isImportant;
+      _eventStatus = ScheduleEventStatus.all.contains(widget.existingEvent!.eventStatus)
+          ? widget.existingEvent!.eventStatus
+          : ScheduleEventStatus.normal;
       _selectedStudentId = widget.existingEvent!.studentId;
       _selectedTcId = widget.existingEvent!.tcId;
       _selectedTcName = widget.existingEvent!.tcName;
@@ -199,6 +207,7 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
         _isMinuteEnabled ? _selectedMinute : 0,
         _contentController.text.isNotEmpty ? _contentController.text : null,
         _isImportant,
+        _eventStatus,
         _selectedStudentId,
         _selectedTcId,
         _isConsultEventType ? _selectedConsultTypeCode : null,
@@ -378,7 +387,8 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                 const SizedBox(height: 8),
                 Builder(
                   builder: (context) {
-                    final consultTypes = ref.watch(consultTypeCodesProvider);
+                    // 신규생 문의는 전용 화면에서만 등록하므로 캘린더에서는 제외
+                    final consultTypes = ref.watch(generalConsultTypeCodesProvider);
                     // 코드가 아직 로드되지 않았으면 안내만 표시
                     if (consultTypes.isEmpty) {
                       return Text(
@@ -500,7 +510,7 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
               ),
               const SizedBox(height: 8),
 
-              // 중요 일정 여부 (캘린더에 빨간색 볼드로 표시)
+              // 중요 일정 여부 (캘린더에 주황색 볼드로 표시)
               CheckboxListTile(
                 value: _isImportant,
                 onChanged: (value) {
@@ -509,14 +519,41 @@ class _ScheduleEventDialogState extends ConsumerState<ScheduleEventDialog> {
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
                 dense: true,
-                title: const Text(
+                title: Text(
                   '중요 일정',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange.shade800,
+                  ),
                 ),
                 subtitle: Text(
-                  '캘린더에 빨간색 굵은 글씨로 표시됩니다.',
+                  '캘린더에 주황색 굵은 글씨로 표시됩니다.',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              // 일정 상태 (완료: 취소선 / 취소: 빨간색)
+              const Text('상태', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: ScheduleEventStatus.all.map((status) {
+                  return ChoiceChip(
+                    label: Text(ScheduleEventStatus.labelOf(status)),
+                    selected: _eventStatus == status,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() => _eventStatus = status);
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '완료된 일정은 취소선, 취소된 일정은 빨간색으로 표시됩니다.',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 16),
 

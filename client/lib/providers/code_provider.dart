@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/code_master.dart';
+import '../models/new_inquiry.dart';
 import '../repositories/code_repository.dart';
 
 // Repository Provider
@@ -103,9 +104,28 @@ final gradeCodesProvider = Provider<List<CodeMaster>>((ref) {
   return ref.watch(codeCacheProvider).getGroup(CodeGroup.grade);
 });
 
+// 편의 Provider - 성별 코드
+final genderCodesProvider = Provider<List<CodeMaster>>((ref) {
+  return ref.watch(codeCacheProvider).getGroup(CodeGroup.gender);
+});
+
 // 편의 Provider - 상담 유형 코드
 final consultTypeCodesProvider = Provider<List<CodeMaster>>((ref) {
   return ref.watch(codeCacheProvider).getGroup(CodeGroup.consultType);
+});
+
+// 편의 Provider - 일반 상담 등록에서 선택 가능한 상담 유형 코드
+// 신규생 문의는 전용 화면(NewInquiryScreen)에서만 등록하므로 제외한다.
+final generalConsultTypeCodesProvider = Provider<List<CodeMaster>>((ref) {
+  return ref
+      .watch(consultTypeCodesProvider)
+      .where((code) => code.codeId != newInquiryConsultTypeCode)
+      .toList();
+});
+
+// 편의 Provider - 문의경로 코드 (신규생 문의 전용)
+final inquirySourceCodesProvider = Provider<List<CodeMaster>>((ref) {
+  return ref.watch(codeCacheProvider).getGroup(CodeGroup.inquirySource);
 });
 
 // 편의 Provider - 채널 코드

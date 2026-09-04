@@ -1,10 +1,12 @@
 import { Router } from 'express';
+import { query } from 'express-validator';
 import consultController from '../controllers/consultController';
 import { validate } from '../middlewares/validate';
 import {
   validateId,
   validateConsultCreate,
-  validateConsultListQuery
+  validateConsultListQuery,
+  validateNewInquiryCreate
 } from '../validators';
 
 const router = Router();
@@ -21,6 +23,25 @@ router.post(
   '/',
   validate(validateConsultCreate),
   consultController.create
+);
+
+// GET /consult/inquiry-students - 신규생 문의 학생 타입어헤드 (/:id 보다 먼저 정의)
+router.get(
+  '/inquiry-students',
+  validate([
+    query('search')
+      .optional()
+      .isString()
+      .withMessage('search must be a string'),
+  ]),
+  consultController.lookupInquiryStudents
+);
+
+// POST /consult/new-inquiry - 신규생 문의 등록
+router.post(
+  '/new-inquiry',
+  validate(validateNewInquiryCreate),
+  consultController.createNewInquiry
 );
 
 // GET /consult/:id - 상담 상세 조회

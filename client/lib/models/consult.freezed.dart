@@ -41,10 +41,16 @@ mixin _$Consult {
   String? get channelCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'channel_name')
   String? get channelName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'inquiry_source_code')
+  String? get inquirySourceCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'inquiry_source_name')
+  String? get inquirySourceName => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_id')
   int? get tcId => throw _privateConstructorUsedError;
   @JsonKey(name: 'tc_name')
   String? get tcName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'selector_name')
+  String? get selectorName => throw _privateConstructorUsedError;
   String? get content => throw _privateConstructorUsedError;
   @JsonKey(name: 'student_needs')
   String? get studentNeeds => throw _privateConstructorUsedError;
@@ -96,8 +102,11 @@ abstract class $ConsultCopyWith<$Res> {
     @JsonKey(name: 'consult_duration') int? consultDuration,
     @JsonKey(name: 'channel_code') String? channelCode,
     @JsonKey(name: 'channel_name') String? channelName,
+    @JsonKey(name: 'inquiry_source_code') String? inquirySourceCode,
+    @JsonKey(name: 'inquiry_source_name') String? inquirySourceName,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'tc_name') String? tcName,
+    @JsonKey(name: 'selector_name') String? selectorName,
     String? content,
     @JsonKey(name: 'student_needs') String? studentNeeds,
     @JsonKey(name: 'consult_result_code') String? consultResultCode,
@@ -139,8 +148,11 @@ class _$ConsultCopyWithImpl<$Res, $Val extends Consult>
     Object? consultDuration = freezed,
     Object? channelCode = freezed,
     Object? channelName = freezed,
+    Object? inquirySourceCode = freezed,
+    Object? inquirySourceName = freezed,
     Object? tcId = freezed,
     Object? tcName = freezed,
+    Object? selectorName = freezed,
     Object? content = freezed,
     Object? studentNeeds = freezed,
     Object? consultResultCode = freezed,
@@ -197,6 +209,14 @@ class _$ConsultCopyWithImpl<$Res, $Val extends Consult>
                 ? _value.channelName
                 : channelName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            inquirySourceCode: freezed == inquirySourceCode
+                ? _value.inquirySourceCode
+                : inquirySourceCode // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            inquirySourceName: freezed == inquirySourceName
+                ? _value.inquirySourceName
+                : inquirySourceName // ignore: cast_nullable_to_non_nullable
+                      as String?,
             tcId: freezed == tcId
                 ? _value.tcId
                 : tcId // ignore: cast_nullable_to_non_nullable
@@ -204,6 +224,10 @@ class _$ConsultCopyWithImpl<$Res, $Val extends Consult>
             tcName: freezed == tcName
                 ? _value.tcName
                 : tcName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            selectorName: freezed == selectorName
+                ? _value.selectorName
+                : selectorName // ignore: cast_nullable_to_non_nullable
                       as String?,
             content: freezed == content
                 ? _value.content
@@ -282,8 +306,11 @@ abstract class _$$ConsultImplCopyWith<$Res> implements $ConsultCopyWith<$Res> {
     @JsonKey(name: 'consult_duration') int? consultDuration,
     @JsonKey(name: 'channel_code') String? channelCode,
     @JsonKey(name: 'channel_name') String? channelName,
+    @JsonKey(name: 'inquiry_source_code') String? inquirySourceCode,
+    @JsonKey(name: 'inquiry_source_name') String? inquirySourceName,
     @JsonKey(name: 'tc_id') int? tcId,
     @JsonKey(name: 'tc_name') String? tcName,
+    @JsonKey(name: 'selector_name') String? selectorName,
     String? content,
     @JsonKey(name: 'student_needs') String? studentNeeds,
     @JsonKey(name: 'consult_result_code') String? consultResultCode,
@@ -324,8 +351,11 @@ class __$$ConsultImplCopyWithImpl<$Res>
     Object? consultDuration = freezed,
     Object? channelCode = freezed,
     Object? channelName = freezed,
+    Object? inquirySourceCode = freezed,
+    Object? inquirySourceName = freezed,
     Object? tcId = freezed,
     Object? tcName = freezed,
+    Object? selectorName = freezed,
     Object? content = freezed,
     Object? studentNeeds = freezed,
     Object? consultResultCode = freezed,
@@ -382,6 +412,14 @@ class __$$ConsultImplCopyWithImpl<$Res>
             ? _value.channelName
             : channelName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        inquirySourceCode: freezed == inquirySourceCode
+            ? _value.inquirySourceCode
+            : inquirySourceCode // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        inquirySourceName: freezed == inquirySourceName
+            ? _value.inquirySourceName
+            : inquirySourceName // ignore: cast_nullable_to_non_nullable
+                  as String?,
         tcId: freezed == tcId
             ? _value.tcId
             : tcId // ignore: cast_nullable_to_non_nullable
@@ -389,6 +427,10 @@ class __$$ConsultImplCopyWithImpl<$Res>
         tcName: freezed == tcName
             ? _value.tcName
             : tcName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        selectorName: freezed == selectorName
+            ? _value.selectorName
+            : selectorName // ignore: cast_nullable_to_non_nullable
                   as String?,
         content: freezed == content
             ? _value.content
@@ -461,8 +503,11 @@ class _$ConsultImpl implements _Consult {
     @JsonKey(name: 'consult_duration') this.consultDuration,
     @JsonKey(name: 'channel_code') this.channelCode,
     @JsonKey(name: 'channel_name') this.channelName,
+    @JsonKey(name: 'inquiry_source_code') this.inquirySourceCode,
+    @JsonKey(name: 'inquiry_source_name') this.inquirySourceName,
     @JsonKey(name: 'tc_id') this.tcId,
     @JsonKey(name: 'tc_name') this.tcName,
+    @JsonKey(name: 'selector_name') this.selectorName,
     this.content,
     @JsonKey(name: 'student_needs') this.studentNeeds,
     @JsonKey(name: 'consult_result_code') this.consultResultCode,
@@ -512,11 +557,20 @@ class _$ConsultImpl implements _Consult {
   @JsonKey(name: 'channel_name')
   final String? channelName;
   @override
+  @JsonKey(name: 'inquiry_source_code')
+  final String? inquirySourceCode;
+  @override
+  @JsonKey(name: 'inquiry_source_name')
+  final String? inquirySourceName;
+  @override
   @JsonKey(name: 'tc_id')
   final int? tcId;
   @override
   @JsonKey(name: 'tc_name')
   final String? tcName;
+  @override
+  @JsonKey(name: 'selector_name')
+  final String? selectorName;
   @override
   final String? content;
   @override
@@ -558,7 +612,7 @@ class _$ConsultImpl implements _Consult {
 
   @override
   String toString() {
-    return 'Consult(consultId: $consultId, studentId: $studentId, studentName: $studentName, studentPhone: $studentPhone, consultTypeCode: $consultTypeCode, consultTypeName: $consultTypeName, consultDate: $consultDate, consultDuration: $consultDuration, channelCode: $channelCode, channelName: $channelName, tcId: $tcId, tcName: $tcName, content: $content, studentNeeds: $studentNeeds, consultResultCode: $consultResultCode, consultResultName: $consultResultName, resultDetail: $resultDetail, nextActionCode: $nextActionCode, nextActionName: $nextActionName, nextActionDetail: $nextActionDetail, nextConsultDate: $nextConsultDate, interestSubject: $interestSubject, interestProgram: $interestProgram, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Consult(consultId: $consultId, studentId: $studentId, studentName: $studentName, studentPhone: $studentPhone, consultTypeCode: $consultTypeCode, consultTypeName: $consultTypeName, consultDate: $consultDate, consultDuration: $consultDuration, channelCode: $channelCode, channelName: $channelName, inquirySourceCode: $inquirySourceCode, inquirySourceName: $inquirySourceName, tcId: $tcId, tcName: $tcName, selectorName: $selectorName, content: $content, studentNeeds: $studentNeeds, consultResultCode: $consultResultCode, consultResultName: $consultResultName, resultDetail: $resultDetail, nextActionCode: $nextActionCode, nextActionName: $nextActionName, nextActionDetail: $nextActionDetail, nextConsultDate: $nextConsultDate, interestSubject: $interestSubject, interestProgram: $interestProgram, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -586,8 +640,14 @@ class _$ConsultImpl implements _Consult {
                 other.channelCode == channelCode) &&
             (identical(other.channelName, channelName) ||
                 other.channelName == channelName) &&
+            (identical(other.inquirySourceCode, inquirySourceCode) ||
+                other.inquirySourceCode == inquirySourceCode) &&
+            (identical(other.inquirySourceName, inquirySourceName) ||
+                other.inquirySourceName == inquirySourceName) &&
             (identical(other.tcId, tcId) || other.tcId == tcId) &&
             (identical(other.tcName, tcName) || other.tcName == tcName) &&
+            (identical(other.selectorName, selectorName) ||
+                other.selectorName == selectorName) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.studentNeeds, studentNeeds) ||
                 other.studentNeeds == studentNeeds) &&
@@ -629,8 +689,11 @@ class _$ConsultImpl implements _Consult {
     consultDuration,
     channelCode,
     channelName,
+    inquirySourceCode,
+    inquirySourceName,
     tcId,
     tcName,
+    selectorName,
     content,
     studentNeeds,
     consultResultCode,
@@ -672,8 +735,11 @@ abstract class _Consult implements Consult {
     @JsonKey(name: 'consult_duration') final int? consultDuration,
     @JsonKey(name: 'channel_code') final String? channelCode,
     @JsonKey(name: 'channel_name') final String? channelName,
+    @JsonKey(name: 'inquiry_source_code') final String? inquirySourceCode,
+    @JsonKey(name: 'inquiry_source_name') final String? inquirySourceName,
     @JsonKey(name: 'tc_id') final int? tcId,
     @JsonKey(name: 'tc_name') final String? tcName,
+    @JsonKey(name: 'selector_name') final String? selectorName,
     final String? content,
     @JsonKey(name: 'student_needs') final String? studentNeeds,
     @JsonKey(name: 'consult_result_code') final String? consultResultCode,
@@ -722,11 +788,20 @@ abstract class _Consult implements Consult {
   @JsonKey(name: 'channel_name')
   String? get channelName;
   @override
+  @JsonKey(name: 'inquiry_source_code')
+  String? get inquirySourceCode;
+  @override
+  @JsonKey(name: 'inquiry_source_name')
+  String? get inquirySourceName;
+  @override
   @JsonKey(name: 'tc_id')
   int? get tcId;
   @override
   @JsonKey(name: 'tc_name')
   String? get tcName;
+  @override
+  @JsonKey(name: 'selector_name')
+  String? get selectorName;
   @override
   String? get content;
   @override

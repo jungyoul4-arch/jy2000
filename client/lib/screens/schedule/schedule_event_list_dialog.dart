@@ -81,6 +81,11 @@ class ScheduleEventListDialog extends StatelessWidget {
                     final titleText = [event.minutePrefix, event.content ?? '']
                         .where((s) => s.isNotEmpty)
                         .join(' ');
+                    // 예정이 아닌 일정은 유형 뒤에 상태 표시 (예: 상담 · 완료)
+                    final subtitleText = [
+                      event.eventTypeName ?? '',
+                      if (event.isCompleted || event.isCancelled) event.statusLabel,
+                    ].where((s) => s.isNotEmpty).join(' · ');
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
@@ -92,13 +97,15 @@ class ScheduleEventListDialog extends StatelessWidget {
                             fontWeight: event.isImportant
                                 ? FontWeight.bold
                                 : FontWeight.w500,
+                            decoration: event.displayDecoration,
+                            decorationColor: event.displayTextColor,
                           ),
                         ),
-                        subtitle: event.eventTypeName != null
+                        subtitle: subtitleText.isNotEmpty
                             ? Text(
-                                event.eventTypeName!,
+                                subtitleText,
                                 style: TextStyle(
-                                  color: event.textColor?.withOpacity(0.8),
+                                  color: event.textColor.withOpacity(0.8),
                                   fontSize: 12,
                                 ),
                               )

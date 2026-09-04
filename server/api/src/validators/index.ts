@@ -305,7 +305,86 @@ export const validateConsultCreate: ValidationChain[] = [
     .optional()
     .isString()
     .trim()
-    .isLength({ max: 200 })
+    .isLength({ max: 200 }),
+  body('inquiry_source_code')
+    .optional()
+    .isString()
+    .trim(),
+  body('selector_name')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 50 })
+];
+
+// 신규생 문의 등록.
+// student_id가 없으면 학생을 새로 만들기 때문에 student_name이 필수다.
+export const validateNewInquiryCreate: ValidationChain[] = [
+  body('consult_date')
+    .isISO8601()
+    .withMessage('consult_date must be a valid date'),
+  body('student_name')
+    .isString()
+    .trim()
+    .notEmpty()
+    .isLength({ max: 50 })
+    .withMessage('student_name is required'),
+  body('student_id')
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage('student_id must be a positive integer'),
+  body('gender_code')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('school_id')
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage('school_id must be a positive integer'),
+  body('school_name')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 100 }),
+  body('grade')
+    .optional({ nullable: true })
+    .isInt({ min: 1, max: 14 })
+    .withMessage('grade must be between 1 and 14'),
+  body('inquiry_source_code')
+    .optional({ nullable: true })
+    .isString()
+    .trim(),
+  body('subject_code')
+    .optional({ nullable: true })
+    .isInt({ min: 0 })
+    .withMessage('subject_code must be a non-negative integer bitmask'),
+  body('interest_subject')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 200 }),
+  // User.phone은 NOT NULL UNIQUE(로그인 ID)라 학생 연락처는 필수다
+  body('student_phone')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('student_phone is required')
+    .isLength({ max: 20 }),
+  body('guardian_phone')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 20 }),
+  body('selector_name')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 50 }),
+  body('content')
+    .optional({ nullable: true })
+    .isString()
+    .trim()
+    .isLength({ max: 5000 })
 ];
 
 export const validateConsultListQuery: ValidationChain[] = [

@@ -8,6 +8,8 @@ import {
   ScheduleEventCreate,
   ScheduleEventUpdate,
   ScheduleEventListQuery,
+  ScheduleEventStatus,
+  SCHEDULE_EVENT_STATUSES,
 } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 
@@ -15,7 +17,8 @@ import { AppError } from '../middlewares/errorHandler';
 const TC_BLOCKED_KINDS = [2, 4];
 
 // 상담 유형 미지정 시 기본값 (code_master: CONSULT_TYPE 그룹)
-const DEFAULT_CONSULT_TYPE_CODE = 'CONSULT_TYPE_INITIAL';
+// 신규생 문의(CONSULT_TYPE_INITIAL)는 전용 화면에서만 등록하므로 캘린더 기본값에서 제외한다.
+const DEFAULT_CONSULT_TYPE_CODE = 'CONSULT_TYPE_FOLLOWUP';
 
 // 시각(시/분)을 사용하는 카테고리 유형
 // TIME_SLOT: 카테고리명(10-11 등)에서 시를 유도, CONSULT(전화상담): event_hour에 직접 저장
@@ -48,6 +51,14 @@ function resolveEventHour(
 }
 
 const pad2 = (value: number) => value.toString().padStart(2, '0');
+
+/**
+ * 일정 상태 정규화. 미지정/허용되지 않은 값은 'NORMAL'(예정)로 처리한다.
+ */
+function normalizeEventStatus(status?: ScheduleEventStatus | null): ScheduleEventStatus {
+  if (status && SCHEDULE_EVENT_STATUSES.includes(status)) return status;
+  return 'NORMAL';
+}
 
 /**
  * DB에서 읽은 DATE 값(Date 객체 또는 문자열)을 'YYYY-MM-DD' 문자열로 정규화
@@ -205,6 +216,7 @@ export class ScheduleService {
         event_minute,
         content,
         is_important,
+        event_status,
         student_id,
         student_name,
         student_phone,
@@ -251,6 +263,7 @@ export class ScheduleService {
         event_minute,
         content,
         is_important,
+        event_status,
         student_id,
         student_name,
         student_phone,
@@ -321,7 +334,7 @@ export class ScheduleService {
           consultDateTime = `${data.event_date} ${pad2(resolvedHour)}:${pad2(eventMinute)}:00`;
         }
 
-        // 상담 유형: 일정 등록 화면에서 선택한 값 (미지정 시 초기상담)
+        // 상담 유형: 일정 등록 화면에서 선택한 값 (미지정 시 재상담)
         const consultTypeCode = data.consult_type_code || DEFAULT_CONSULT_TYPE_CODE;
 
         // 상담 채널: 전화상담 카테고리는 전화, 시간대 슬롯은 방문
@@ -348,8 +361,8 @@ export class ScheduleService {
       const eventSql = `
         INSERT INTO schedule_event (
           category_id, event_type_id, event_date, event_hour, event_minute, content, is_important,
-          student_id, tc_id, consult_id, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          event_status, student_id, tc_id, consult_id, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const [eventResult] = await connection.query<ResultSetHeader>(eventSql, [
         data.category_id,
@@ -359,6 +372,7 @@ export class ScheduleService {
         eventMinute,
         data.content,
         data.is_important ? 1 : 0,
+        normalizeEventStatus(data.event_status),
         data.student_id || null,
         tcId,
         consultId,
@@ -455,6 +469,10 @@ export class ScheduleService {
       if (data.is_important !== undefined) {
         updateFields.push('is_important = ?');
         updateValues.push(data.is_important ? 1 : 0);
+      }
+      if (data.event_status !== undefined) {
+        updateFields.push('event_status = ?');
+        updateValues.push(normalizeEventStatus(data.event_status));
       }
       if (data.student_id !== undefined) {
         updateFields.push('student_id = ?');
