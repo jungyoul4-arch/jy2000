@@ -83,6 +83,9 @@ class AppTheme {
         borderSide: const BorderSide(color: errorColor),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      // 힌트는 기본값이 진해서 실제로 입력한 값처럼 보인다.
+      // 본문 글자(black87)보다 확실히 흐리게 둬 빈 칸임을 알 수 있게 한다.
+      hintStyle: TextStyle(color: Colors.grey.shade500),
     ),
 
     // Button
