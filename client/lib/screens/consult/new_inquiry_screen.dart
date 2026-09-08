@@ -14,6 +14,7 @@ import '../../providers/code_provider.dart';
 import '../../providers/consult_provider.dart';
 import '../../repositories/consult_repository.dart';
 import '../../repositories/school_repository.dart';
+import '../../utils/formatters.dart';
 import '../../widgets/logout_button.dart';
 
 /// 신규생 문의 작성 화면
@@ -305,13 +306,18 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
   ///
   /// ```
   /// [신규 문의] 8/18
-  /// 이름: 홍길동
+  /// 이름: 홍길동 (신정고 고1)
   /// 문의경로: -
   /// 과목: -
-  /// 연락처: -
+  /// 학생 연락처: 010-1111-2222
+  /// 학부모 연락처: 010-3333-4444
+  /// 내용: -
   ///
   /// 접수자: 김가영
   /// ```
+  ///
+  /// DB에는 '-' 없이 숫자만 저장되므로(서버 cleanPhone), 출력할 때
+  /// formatPhone으로 '-'를 다시 넣어 준다.
   String _buildMessengerText(String studentName) {
     final sourceName = ref
         .read(inquirySourceCodesProvider)
@@ -319,18 +325,26 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
         .map((code) => code.codeName)
         .firstOrNull;
 
-    // 연락처는 학부모 우선, 없으면 학생
-    final phone = _emptyToNull(_guardianPhoneController.text) ??
-        _emptyToNull(_studentPhoneController.text);
-
     final receiver = ref.read(authProvider).user?.name ?? '';
+
+    // 이름 옆 괄호: '(학교명 학년)' — 둘 중 하나만 있으면 있는 것만 넣고,
+    // 둘 다 없으면 괄호 자체를 빼서 '이름: 홍길동'으로 둔다.
+    final schoolAndGrade = [
+      _emptyToNull(_schoolController.text),
+      InquiryGrade.labelOf(_grade),
+    ].whereType<String>().join(' ');
+    final nameLine = schoolAndGrade.isEmpty
+        ? '이름: $studentName'
+        : '이름: $studentName ($schoolAndGrade)';
 
     return [
       '[신규 문의] ${_inquiryDate.month}/${_inquiryDate.day}',
-      '이름: $studentName',
+      nameLine,
       '문의경로: ${sourceName ?? '-'}',
       '과목: ${InquirySubject.labelOf(_subjectMask) ?? '-'}',
-      '연락처: ${phone ?? '-'}',
+      '학생 연락처: ${formatPhone(_studentPhoneController.text)}',
+      '학부모 연락처: ${formatPhone(_guardianPhoneController.text)}',
+      '내용: ${_emptyToNull(_contentController.text) ?? '-'}',
       '',
       '접수자: $receiver',
     ].join('\n');
