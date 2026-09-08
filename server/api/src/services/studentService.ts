@@ -3,10 +3,12 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { Student, StudentDetail, StudentListQuery, StudentStateChange, StudentUpdate, StudentCreate, ParentInfo } from '../types';
 import { AppError } from '../middlewares/errorHandler';
 
-// 전화번호에서 '-' 제거
+// 전화번호에서 '-'와 공백 제거.
+// 공백을 남기면 '010 1111 2222'와 '01011112222'가 다른 번호로 취급돼
+// User.phone UNIQUE 중복 검사가 빗나간다.
 const cleanPhone = (phone: string | undefined | null): string | null => {
   if (!phone) return null;
-  return phone.replace(/-/g, '');
+  return phone.replace(/[\s-]/g, '');
 };
 
 export class StudentService {
