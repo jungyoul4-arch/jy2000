@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/new_inquiry.dart';
 import '../../models/school.dart';
@@ -61,13 +60,8 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
   final _selectorController = TextEditingController();
   final _contentController = TextEditingController();
 
-  // 선정자 입력 이력 — 최근에 저장한 값부터 앞에 온다.
-  // 매번 이름을 다시 타이핑하지 않도록 ▼ 버튼으로 골라 넣는다.
-  static const String _selectorHistoryKey = 'new_inquiry_selector_history';
-  static const int _selectorHistoryMax = 10;
-  List<String> _selectorHistory = [];
-
-  // 타이핑 중 이력에서 걸러낸 후보 (▼ 버튼과 별개로 동작)
+  // 타이핑 중 선정자 목록에서 걸러낸 후보 (▼ 버튼과 별개로 동작).
+  // 목록 자체는 selectorNamesProvider가 서버에서 가져온다.
   List<String> _selectorSuggestions = [];
 
   // 메신저 복사 텍스트 (저장 후 생성, 직접 수정 가능)
@@ -75,12 +69,6 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
   bool _hasMessengerText = false;
 
   bool _isSaving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSelectorHistory();
-  }
 
   @override
   void dispose() {
@@ -264,10 +252,9 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
       // 메신저 텍스트 생성 (학생 이름을 지우기 전에 만든다)
       final messengerText = _buildMessengerText(studentName);
 
-      // 다음 문의부터 ▼로 골라 쓸 수 있도록 선정자 이름을 기억해 둔다
-      unawaited(_rememberSelector(data.selectorName));
-
       // 목록/캘린더 새로고침
+      // 방금 적은 선정자 이름이 consult에 들어갔으므로 목록도 다시 받는다
+      ref.invalidate(selectorNamesProvider);
       ref.read(consultListProvider.notifier).refresh();
       ref.invalidate(studentConsultListProvider(result.studentId));
       ref.invalidate(monthlyEventsProvider);
@@ -381,46 +368,14 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
   }
 
   // ============================================================
-  // 선정자 입력 이력
+  // 선정자 목록 (직원 공용 — consult에 쌓인 값을 서버에서 가져온다)
   // ============================================================
 
-  Future<void> _loadSelectorHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList(_selectorHistoryKey) ?? [];
-    if (mounted) setState(() => _selectorHistory = saved);
-  }
+  /// 서버에서 받은 선정자 목록. 아직 못 받았으면 빈 목록.
+  List<String> get _selectorNames =>
+      ref.read(selectorNamesProvider).valueOrNull ?? [];
 
-  /// 저장에 성공한 선정자 이름을 맨 앞에 넣는다 (중복 제거, 최근 10건 유지)
-  Future<void> _rememberSelector(String? name) async {
-    final value = name?.trim();
-    if (value == null || value.isEmpty) return;
-
-    final updated = [
-      value,
-      ..._selectorHistory.where((e) => e != value),
-    ].take(_selectorHistoryMax).toList();
-
-    if (mounted) setState(() => _selectorHistory = updated);
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_selectorHistoryKey, updated);
-  }
-
-  Future<void> _removeSelectorHistory(String name) async {
-    final updated = _selectorHistory.where((e) => e != name).toList();
-    if (mounted) {
-      setState(() {
-        _selectorHistory = updated;
-        _selectorSuggestions =
-            _selectorSuggestions.where((e) => e != name).toList();
-      });
-    }
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_selectorHistoryKey, updated);
-  }
-
-  /// 입력한 글자가 들어간 이력을 후보로 내린다.
+  /// 입력한 글자가 들어간 이름을 후보로 내린다.
   /// 이미 똑같이 다 친 값은 고를 게 없으므로 제외한다.
   void _onSelectorChanged(String query) {
     final keyword = query.trim();
@@ -428,7 +383,7 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
     setState(() {
       _selectorSuggestions = keyword.isEmpty
           ? []
-          : _selectorHistory
+          : _selectorNames
               .where((name) => name.contains(keyword) && name != keyword)
               .toList();
     });
@@ -554,6 +509,7 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
                     TextField(
                       controller: _guardianPhoneController,
                       keyboardType: TextInputType.phone,
+                      inputFormatters: phoneInputFormatters,
                       decoration: const InputDecoration(
                         hintText: '010-0000-0000',
                         border: OutlineInputBorder(),
@@ -569,6 +525,7 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
                     TextField(
                       controller: _studentPhoneController,
                       keyboardType: TextInputType.phone,
+                      inputFormatters: phoneInputFormatters,
                       decoration: const InputDecoration(
                         hintText: '010-0000-0000',
                         border: OutlineInputBorder(),
@@ -938,12 +895,27 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
 
   /// 선정자 입력란
   ///
-  /// 자유 입력이지만 실제로는 같은 이름이 반복되므로 저장에 성공한 이름을
-  /// 기기에 쌓아 둔다. 고르는 방법은 두 가지다.
-  ///   - 타입어헤드: 글자를 치면 그 글자가 든 이력이 아래에 뜬다
-  ///   - ▼ 버튼    : 아무것도 치지 않아도 전체 이력을 펼친다
+  /// 자유 입력이지만 실제로는 같은 이름이 반복된다. 지금까지 consult에
+  /// 쓰인 이름을 서버에서 받아 보여 주므로 어느 PC에서 열어도 같은 목록이다.
+  ///   - 타입어헤드: 글자를 치면 그 글자가 든 이름이 아래에 뜬다
+  ///   - ▼ 버튼    : 아무것도 치지 않아도 전체 목록을 펼친다
   Widget _buildSelectorField() {
-    final hasHistory = _selectorHistory.isNotEmpty;
+    final namesAsync = ref.watch(selectorNamesProvider);
+    final names = namesAsync.valueOrNull ?? [];
+    final hasNames = names.isNotEmpty;
+
+    // 목록을 못 받아도 이름은 직접 칠 수 있어야 하므로 입력란은 그대로 두고
+    // ▼ 버튼만 비활성으로 둔다.
+    final String dropdownTooltip;
+    if (namesAsync.isLoading) {
+      dropdownTooltip = '선정자 목록을 불러오는 중입니다';
+    } else if (namesAsync.hasError) {
+      dropdownTooltip = '선정자 목록을 불러오지 못했습니다';
+    } else if (!hasNames) {
+      dropdownTooltip = '등록된 선정자가 없습니다';
+    } else {
+      dropdownTooltip = '이전에 쓴 선정자에서 선택';
+    }
 
     return _labeled(
       '선정자',
@@ -958,33 +930,19 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
               border: const OutlineInputBorder(),
               isDense: true,
               suffixIcon: PopupMenuButton<String>(
-                enabled: hasHistory,
-                tooltip: hasHistory ? '이전 입력에서 선택' : '저장된 선정자가 없습니다',
+                enabled: hasNames,
+                tooltip: dropdownTooltip,
                 icon: Icon(
                   Icons.arrow_drop_down,
-                  color: hasHistory ? null : Theme.of(context).disabledColor,
+                  color: hasNames ? null : Theme.of(context).disabledColor,
                 ),
                 // ▼로 고를 때는 타이핑 후보 목록을 닫는다
                 onSelected: _selectSelector,
-                itemBuilder: (context) => _selectorHistory
+                itemBuilder: (context) => names
                     .map(
                       (name) => PopupMenuItem<String>(
                         value: name,
-                        child: Row(
-                          children: [
-                            Expanded(child: Text(name)),
-                            // 잘못 저장된 이름을 지울 수 있게 한다
-                            IconButton(
-                              icon: const Icon(Icons.close, size: 16),
-                              tooltip: '목록에서 삭제',
-                              visualDensity: VisualDensity.compact,
-                              onPressed: () {
-                                Navigator.pop(context);
-                                _removeSelectorHistory(name);
-                              },
-                            ),
-                          ],
-                        ),
+                        child: Text(name),
                       ),
                     )
                     .toList(),

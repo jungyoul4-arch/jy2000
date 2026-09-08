@@ -37,6 +37,12 @@ router.get(
   consultController.lookupInquiryStudents
 );
 
+// GET /consult/selector-names - 선정자 이름 목록 (/:id 보다 먼저 정의)
+router.get(
+  '/selector-names',
+  consultController.getSelectorNames
+);
+
 // POST /consult/new-inquiry - 신규생 문의 등록
 router.post(
   '/new-inquiry',

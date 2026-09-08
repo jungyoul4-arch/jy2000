@@ -10,6 +10,7 @@ import {
   NEW_INQUIRY_CONSULT_TYPE_CODE,
 } from '../types';
 import { AppError } from '../middlewares/errorHandler';
+import { cleanPhone } from '../utils/phone';
 
 // 일정 캘린더 연동 대상 채널
 // 전화(CHANNEL_PHONE) -> '전화상담' 카테고리, 방문(CHANNEL_VISIT) -> 시간대 슬롯
@@ -24,15 +25,6 @@ const CALENDAR_MAX_HOUR = 21;
 const CONSULT_EVENT_TYPE_ID = 1;
 
 const pad2 = (value: number) => value.toString().padStart(2, '0');
-
-// 전화번호에서 '-'와 공백 제거.
-// 공백을 남기면 '010 1111 2222'와 '01011112222'가 다른 번호로 취급돼
-// User.phone UNIQUE 중복 검사가 빗나간다.
-const cleanPhone = (phone: string | undefined | null): string | null => {
-  if (!phone) return null;
-  const cleaned = phone.replace(/[\s-]/g, '');
-  return cleaned.length > 0 ? cleaned : null;
-};
 
 export class ConsultService {
   // ============================================================
@@ -584,6 +576,29 @@ export class ConsultService {
 
     const [rows] = await pool.query<RowDataPacket[]>(sql, [searchTerm, searchTerm]);
     return rows as InquiryStudentLookup[];
+  }
+
+  /**
+   * 지금까지 쓰인 선정자 이름 목록.
+   *
+   * 별도 테이블을 두지 않고 consult에 이미 쌓인 값을 그대로 꺼낸다.
+   * 마지막으로 쓴 날짜가 최근인 순서라 자주 쓰는 이름이 위로 온다.
+   * 기기마다 따로 저장하지 않으므로 직원끼리 같은 목록을 본다.
+   */
+  async getSelectorNames(): Promise<string[]> {
+    const sql = `
+      SELECT selector_name, MAX(consult_date) AS last_used
+      FROM consult
+      WHERE deleted_at IS NULL
+        AND selector_name IS NOT NULL
+        AND TRIM(selector_name) <> ''
+      GROUP BY selector_name
+      ORDER BY last_used DESC, selector_name ASC
+      LIMIT 50
+    `;
+
+    const [rows] = await pool.query<RowDataPacket[]>(sql);
+    return rows.map((row) => row.selector_name as string);
   }
 
   /**

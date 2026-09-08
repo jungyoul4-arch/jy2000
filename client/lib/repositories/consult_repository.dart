@@ -91,6 +91,16 @@ class ConsultRepository {
     return dataList.map((e) => InquiryStudentLookup.fromJson(e)).toList();
   }
 
+  // 신규생 문의 - 지금까지 쓰인 선정자 이름 (직원 공용, consult 테이블에서 추출)
+  Future<List<String>> getSelectorNames() async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/consult/selector-names',
+    );
+
+    final List<dynamic> dataList = response['data'] ?? [];
+    return dataList.map((e) => e.toString()).toList();
+  }
+
   // 신규생 문의 등록 (신규 학생/학부모 자동 생성)
   Future<NewInquiryResult> createNewInquiry(NewInquiryCreate data) async {
     // null 값 제거

@@ -10,6 +10,7 @@ import '../../models/student.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/school_provider.dart';
 import '../../providers/student_provider.dart';
+import '../../utils/formatters.dart';
 import '../../widgets/logout_button.dart';
 
 // 학년 정보 클래스
@@ -178,6 +179,8 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                             labelText: '전화번호 *',
                             hintText: '010-0000-0000',
                           ),
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: phoneInputFormatters,
                           validator: FormBuilderValidators.required(
                             errorText: '전화번호를 입력하세요',
                           ),
@@ -251,6 +254,8 @@ class _StudentFormScreenState extends ConsumerState<StudentFormScreen> {
                           decoration: const InputDecoration(
                             labelText: '보호자 연락처',
                           ),
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: phoneInputFormatters,
                         ),
                       ),
                       const SizedBox(width: 16),

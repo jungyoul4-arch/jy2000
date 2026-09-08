@@ -1015,6 +1015,8 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
                             child: TextFormField(
                               controller: _phoneController,
                               decoration: const InputDecoration(labelText: '전화번호 *'),
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: phoneInputFormatters,
                               validator: (v) => v?.isEmpty == true ? '전화번호를 입력하세요' : null,
                             ),
                           ),
@@ -1066,6 +1068,8 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
                             child: TextFormField(
                               controller: _parent1PhoneController,
                               decoration: const InputDecoration(labelText: '보호자1 전화번호'),
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: phoneInputFormatters,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -1094,6 +1098,8 @@ class _StudentEditDialogState extends ConsumerState<_StudentEditDialog> {
                             child: TextFormField(
                               controller: _parent2PhoneController,
                               decoration: const InputDecoration(labelText: '보호자2 전화번호'),
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: phoneInputFormatters,
                             ),
                           ),
                           const SizedBox(width: 16),

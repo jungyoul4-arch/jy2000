@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../repositories/tc_repository.dart';
+import '../../utils/formatters.dart';
 
 class TcRegisterDialog extends StatefulWidget {
   const TcRegisterDialog({super.key});
@@ -90,9 +90,7 @@ class _TcRegisterDialogState extends State<TcRegisterDialog> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
-                ],
+                inputFormatters: phoneInputFormatters,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return '전화번호를 입력해주세요';

@@ -1,3 +1,14 @@
+import 'package:flutter/services.dart';
+
+/// 전화번호 입력란 공통 포맷터 — 숫자와 '-'만 받는다.
+///
+/// 공백이 섞여 들어가면 서버에서 지워 주더라도 화면에 보이는 값과
+/// 저장되는 값이 달라지고, 붙여넣기로 들어온 공백은 눈에 띄지 않는다.
+/// 아예 입력되지 않게 막는다.
+final List<TextInputFormatter> phoneInputFormatters = [
+  FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
+];
+
 /// 전화번호 포맷팅 (01011112222 -> 010-1111-2222)
 String formatPhone(String? phone) {
   if (phone == null || phone.isEmpty) return '-';

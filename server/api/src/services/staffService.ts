@@ -1,6 +1,7 @@
 import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { AppError } from '../middlewares/errorHandler';
+import { cleanPhone } from '../utils/phone';
 
 export interface Staff {
   user_id: number;
@@ -29,14 +30,6 @@ export interface StaffCreate {
   kind: number;
   email?: string;
 }
-
-// 전화번호에서 '-'와 공백 제거.
-// 공백을 남기면 '010 1111 2222'와 '01011112222'가 다른 번호로 취급돼
-// User.phone UNIQUE 중복 검사가 빗나간다.
-const cleanPhone = (phone: string | undefined | null): string | null => {
-  if (!phone) return null;
-  return phone.replace(/[\s-]/g, '');
-};
 
 // kind 값을 역할명으로 변환
 const getKindName = (kind: number): string => {

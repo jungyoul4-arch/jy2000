@@ -56,6 +56,13 @@ export class ConsultController {
     return sendSuccess(res, students, 'Inquiry student lookup retrieved successfully');
   });
 
+  // GET /consult/selector-names - 선정자 이름 목록 (직원 공용)
+  getSelectorNames = asyncHandler(async (_req: Request, res: Response) => {
+    const names = await consultService.getSelectorNames();
+
+    return sendSuccess(res, names, 'Selector names retrieved successfully');
+  });
+
   // POST /consult/new-inquiry - 신규생 문의 등록 (신규 학생/학부모 자동 생성)
   createNewInquiry = asyncHandler(async (req: Request, res: Response) => {
     const data: NewInquiryCreate = {

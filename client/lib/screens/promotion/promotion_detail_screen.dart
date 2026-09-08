@@ -10,6 +10,7 @@ import '../../models/school.dart';
 import '../../repositories/promotion_repository.dart';
 import '../../providers/promotion_provider.dart';
 import '../../providers/school_provider.dart';
+import '../../utils/formatters.dart';
 import '../../widgets/logout_button.dart';
 
 // 프로모션 상세 조회 Provider
@@ -883,6 +884,7 @@ class _AttendeeRegistrationDialogState extends ConsumerState<_AttendeeRegistrati
             ),
             validator: FormBuilderValidators.required(errorText: '전화번호를 입력하세요'),
             keyboardType: TextInputType.phone,
+            inputFormatters: phoneInputFormatters,
           ),
           const SizedBox(height: 12),
           // 학교 Autocomplete

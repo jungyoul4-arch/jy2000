@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/staff.dart';
 import '../../repositories/staff_repository.dart';
+import '../../utils/formatters.dart';
 
 class StaffFormDialog extends ConsumerStatefulWidget {
   final Staff? staff; // null이면 등록, 있으면 수정
@@ -122,6 +123,7 @@ class _StaffFormDialogState extends ConsumerState<StaffFormDialog> {
                   hintText: '01012345678',
                 ),
                 keyboardType: TextInputType.phone,
+                inputFormatters: phoneInputFormatters,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return '전화번호를 입력해주세요';

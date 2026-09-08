@@ -112,6 +112,15 @@ final createConsultProvider =
   return repository.create(data);
 });
 
+// 선정자 이름 목록 Provider (직원 공용)
+//
+// consult에 쌓인 값을 서버에서 꺼내 오므로 어느 PC에서 열어도 같은 목록이다.
+// 문의를 저장한 뒤 invalidate하면 방금 적은 이름이 목록에 들어온다.
+final selectorNamesProvider = FutureProvider<List<String>>((ref) async {
+  final repository = ref.read(consultRepositoryProvider);
+  return repository.getSelectorNames();
+});
+
 // 학생별 상담 내역 Provider
 final studentConsultListProvider =
     FutureProvider.family<List<Consult>, int>((ref, studentId) async {
