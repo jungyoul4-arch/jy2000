@@ -24,6 +24,7 @@ import '../screens/class/class_form_screen.dart';
 import '../screens/staff/staff_list_screen.dart';
 import '../screens/class_type/class_type_list_screen.dart';
 import '../screens/mgmt_data/mgmt_data_list_screen.dart';
+import '../screens/enroll_dashboard/enroll_dashboard_screen.dart';
 import '../screens/mgmt_report/mgmt_report_screen.dart';
 import '../screens/mgmt_report/region_report_screen.dart';
 import '../screens/schedule/schedule_calendar_screen.dart';
@@ -51,6 +52,7 @@ class AppRoutes {
   static const String classCreate = '/classes/create';
   static const String classEdit = '/classes/:id/edit';
   static const String mgmtDataList = '/mgmt-data';
+  static const String enrollDashboard = '/enroll-dashboard';
   static const String mgmtReport = '/mgmt-report';
   static const String mgmtReportRegion = '/mgmt-report/region';
   static const String scheduleCalendar = '/schedule';
@@ -252,6 +254,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.mgmtDataList,
             name: 'mgmtDataList',
             builder: (context, state) => const MgmtDataListScreen(),
+          ),
+
+          // 재원생 경영 대시보드
+          GoRoute(
+            path: AppRoutes.enrollDashboard,
+            name: 'enrollDashboard',
+            builder: (context, state) => const EnrollDashboardScreen(),
           ),
 
           // 경영 보고서

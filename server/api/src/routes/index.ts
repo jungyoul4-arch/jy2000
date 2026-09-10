@@ -13,6 +13,7 @@ import staffRoutes from './staffRoutes';
 import classTypeRoutes from './classTypeRoutes';
 import mgmtDataRoutes from './mgmtDataRoutes';
 import scheduleRoutes from './scheduleRoutes';
+import enrollDashboardRoutes from './enrollDashboardRoutes';
 
 const router = Router();
 
@@ -31,5 +32,6 @@ router.use('/staff', staffRoutes);
 router.use('/class-type', classTypeRoutes);
 router.use('/mgmt-data', mgmtDataRoutes);
 router.use('/schedule', scheduleRoutes);
+router.use('/enroll-dashboard', enrollDashboardRoutes);
 
 export default router;
