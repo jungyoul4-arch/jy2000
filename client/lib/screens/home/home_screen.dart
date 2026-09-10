@@ -93,12 +93,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         label: '경영 데이터',
         path: AppRoutes.mgmtDataList,
       ),
-      _NavItem(
-        icon: Icons.insights_outlined,
-        selectedIcon: Icons.insights,
-        label: '재원생 대시보드',
-        path: AppRoutes.enrollDashboard,
-      ),
       // 경영 보고서 - 관리자(kind=1)에게만 표시
       if (isAdmin)
         _NavItem(

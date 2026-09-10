@@ -12,7 +12,6 @@ import '../screens/consult/consult_list_screen.dart';
 import '../screens/consult/consult_form_screen.dart';
 import '../screens/consult/consult_detail_screen.dart';
 import '../screens/consult/new_inquiry_screen.dart';
-import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/promotion/promotion_list_screen.dart';
 import '../screens/promotion/promotion_form_screen.dart';
 import '../screens/promotion/promotion_detail_screen.dart';
@@ -52,7 +51,6 @@ class AppRoutes {
   static const String classCreate = '/classes/create';
   static const String classEdit = '/classes/:id/edit';
   static const String mgmtDataList = '/mgmt-data';
-  static const String enrollDashboard = '/enroll-dashboard';
   static const String mgmtReport = '/mgmt-report';
   static const String mgmtReportRegion = '/mgmt-report/region';
   static const String scheduleCalendar = '/schedule';
@@ -87,16 +85,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => HomeScreen(child: child),
         routes: [
-          // 대시보드
+          // 대시보드 — 재원생 경영 대시보드가 첫 화면이다
           GoRoute(
             path: AppRoutes.home,
             name: 'home',
-            builder: (context, state) => const DashboardScreen(),
+            builder: (context, state) => const EnrollDashboardScreen(),
           ),
           GoRoute(
             path: AppRoutes.dashboard,
             name: 'dashboard',
-            builder: (context, state) => const DashboardScreen(),
+            builder: (context, state) => const EnrollDashboardScreen(),
           ),
 
           // 직원 관리 (관리자만)
@@ -254,13 +252,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.mgmtDataList,
             name: 'mgmtDataList',
             builder: (context, state) => const MgmtDataListScreen(),
-          ),
-
-          // 재원생 경영 대시보드
-          GoRoute(
-            path: AppRoutes.enrollDashboard,
-            name: 'enrollDashboard',
-            builder: (context, state) => const EnrollDashboardScreen(),
           ),
 
           // 경영 보고서
