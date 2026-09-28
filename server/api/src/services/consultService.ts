@@ -636,7 +636,20 @@ export class ConsultService {
         si.status_code,
         COALESCE(sch.school_name, '') AS school_name,
         COUNT(c.consult_id) AS consult_count,
-        MAX(c.consult_date) AS last_consult_date
+        MAX(c.consult_date) AS last_consult_date,
+        -- 마지막 상담의 내용과 유형. MAX(consult_date)는 날짜만 주고 그
+        -- 행의 내용은 못 주므로 따로 꺼낸다. 목록에서 '이 학생과 뭘
+        -- 얘기했더라'가 보여야 학생을 고를 수 있다.
+        -- content는 TEXT라 길이를 잘라 내려보낸다(목록은 두 줄만 쓴다).
+        (SELECT LEFT(c2.content, 200) FROM consult c2
+         WHERE c2.student_id = u.user_id AND c2.deleted_at IS NULL
+         ORDER BY c2.consult_date DESC, c2.consult_id DESC
+         LIMIT 1) AS last_consult_content,
+        (SELECT cm.code_name FROM consult c2
+         LEFT JOIN code_master cm ON cm.code_id = c2.consult_type_code
+         WHERE c2.student_id = u.user_id AND c2.deleted_at IS NULL
+         ORDER BY c2.consult_date DESC, c2.consult_id DESC
+         LIMIT 1) AS last_consult_type_name
       FROM User u
       LEFT JOIN consult c ON c.student_id = u.user_id AND c.deleted_at IS NULL
       LEFT JOIN student_info si ON si.student_id = u.user_id AND si.deleted_at IS NULL

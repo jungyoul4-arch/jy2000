@@ -96,7 +96,7 @@ class _StudentConsultBrowserState extends ConsumerState<StudentConsultBrowser> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(width: 340, child: list),
+        SizedBox(width: 380, child: list),
         const VerticalDivider(width: 1, thickness: 1),
         Expanded(
           child: _selected == null
@@ -243,8 +243,13 @@ class _StudentList extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: ListView.builder(
+                    child: ListView.separated(
                       itemCount: students.length,
+                      separatorBuilder: (_, _) => Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: Colors.grey.shade200,
+                      ),
                       itemBuilder: (context, i) => _StudentTile(
                         student: students[i],
                         selected: students[i].studentId == selected?.studentId,
@@ -277,49 +282,94 @@ class _StudentTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = student.statusLabel;
 
-    return ListTile(
-      dense: true,
-      selected: selected,
-      selectedTileColor: AppTheme.primaryColor.withValues(alpha: 0.08),
+    // 최근 상담 내용은 줄바꿈이 섞여 있어 그대로 두면 높이가 들쑥날쑥해진다.
+    // 한 줄로 펴서 두 줄까지만 보여 준다.
+    final preview = student.lastConsultContent?.replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    return InkWell(
       onTap: onTap,
-      title: Row(
-        children: [
-          Flexible(
-            child: Text(
-              student.studentName,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-          if (status != null) ...[
-            const SizedBox(width: 6),
-            _Badge(
-              text: status,
-              color: student.isEnrolled ? AppTheme.successColor : Colors.grey.shade600,
-            ),
-          ],
-        ],
-      ),
-      subtitle: Text(
-        student.subtitle.isEmpty ? '-' : student.subtitle,
-        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-      ),
-      trailing: student.hasConsult
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
+      child: Container(
+        color: selected ? AppTheme.primaryColor.withValues(alpha: 0.08) : null,
+        padding: const EdgeInsets.fromLTRB(14, 9, 12, 9),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text('${student.consultCount}건', style: const TextStyle(fontSize: 12)),
-                Text(
-                  _shortDate(student.lastConsultDate),
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                Flexible(
+                  child: Text(
+                    student.studentName,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ),
+                if (status != null) ...[
+                  const SizedBox(width: 6),
+                  _Badge(
+                    text: status,
+                    color: student.isEnrolled ? AppTheme.successColor : Colors.grey.shade600,
+                  ),
+                ],
+                const Spacer(),
+                if (student.hasConsult) ...[
+                  Text(
+                    '${student.consultCount}건',
+                    style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    _shortDate(student.lastConsultDate),
+                    style: TextStyle(fontSize: 11.5, color: Colors.grey.shade500),
+                  ),
+                ] else
+                  Text(
+                    '상담 없음',
+                    style: TextStyle(fontSize: 11.5, color: Colors.grey.shade400),
+                  ),
               ],
-            )
-          : Text(
-              '상담 없음',
-              style: TextStyle(fontSize: 11.5, color: Colors.grey.shade400),
             ),
+            if (student.subtitle.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Text(
+                  student.subtitle,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+              ),
+            if (preview != null && preview.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (student.lastConsultTypeName != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: _Badge(
+                          text: student.lastConsultTypeName!,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                    Expanded(
+                      child: Text(
+                        preview,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.35,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -49,6 +49,11 @@ class ConsultStudent {
   /// 상담이 한 건도 없으면 null. 화면에서 '상담 없음'으로 표시한다.
   final String? lastConsultDate;
 
+  /// 마지막 상담의 내용과 유형. 목록에서 학생을 고를 때 '뭘 얘기했더라'가
+  /// 바로 보이도록 서버가 200자까지 잘라서 내려 준다.
+  final String? lastConsultContent;
+  final String? lastConsultTypeName;
+
   const ConsultStudent({
     required this.studentId,
     required this.studentName,
@@ -59,6 +64,8 @@ class ConsultStudent {
     this.schoolName,
     required this.consultCount,
     this.lastConsultDate,
+    this.lastConsultContent,
+    this.lastConsultTypeName,
   });
 
   bool get hasConsult => consultCount > 0;
@@ -111,6 +118,8 @@ class ConsultStudent {
       schoolName: asString(json['school_name']),
       consultCount: asInt(json['consult_count']),
       lastConsultDate: asString(json['last_consult_date']),
+      lastConsultContent: asString(json['last_consult_content']),
+      lastConsultTypeName: asString(json['last_consult_type_name']),
     );
   }
 }
