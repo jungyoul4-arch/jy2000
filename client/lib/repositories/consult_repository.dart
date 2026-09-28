@@ -1,6 +1,7 @@
 import '../core/api/api_client.dart';
 import '../core/api/api_response.dart';
 import '../models/consult.dart';
+import '../models/consult_student.dart';
 import '../models/new_inquiry.dart';
 
 class ConsultRepository {
@@ -89,6 +90,36 @@ class ConsultRepository {
 
     final List<dynamic> dataList = response['data'] ?? [];
     return dataList.map((e) => InquiryStudentLookup.fromJson(e)).toList();
+  }
+
+  // 상담 화면의 학생 목록 (신규생 문의 / 상담 관리 공용)
+  //
+  // 상담이 없는 학생도 내려온다. 첫 상담을 붙이려면 목록에 있어야 한다.
+  Future<List<ConsultStudent>> getConsultStudents({
+    required ConsultStudentScope scope,
+    ConsultStudentSort sort = ConsultStudentSort.recent,
+    String? search,
+    bool hasConsultOnly = false,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'scope': scope.value,
+      'sort': sort.value,
+    };
+    if (search != null && search.trim().isNotEmpty) {
+      queryParams['search'] = search.trim();
+    }
+    if (hasConsultOnly) queryParams['hasConsultOnly'] = 'true';
+
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/consult/students',
+      queryParameters: queryParams,
+    );
+
+    final List<dynamic> dataList = response['data'] ?? [];
+    return dataList
+        .whereType<Map>()
+        .map((e) => ConsultStudent.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
   }
 
   // 신규생 문의 - 지금까지 쓰인 선정자 이름 (직원 공용, consult 테이블에서 추출)

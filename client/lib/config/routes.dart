@@ -11,6 +11,7 @@ import '../screens/student/student_form_screen.dart';
 import '../screens/consult/consult_list_screen.dart';
 import '../screens/consult/consult_form_screen.dart';
 import '../screens/consult/consult_detail_screen.dart';
+import '../screens/consult/new_inquiry_list_screen.dart';
 import '../screens/consult/new_inquiry_screen.dart';
 import '../screens/promotion/promotion_list_screen.dart';
 import '../screens/promotion/promotion_form_screen.dart';
@@ -40,6 +41,7 @@ class AppRoutes {
   static const String consultCreate = '/consults/create';
   static const String consultDetail = '/consults/:id';
   static const String newInquiry = '/new-inquiry';
+  static const String newInquiryCreate = '/new-inquiry/create';
   static const String promotionList = '/promotions';
   static const String promotionCreate = '/promotions/create';
   static const String promotionDetail = '/promotions/:id';
@@ -133,11 +135,23 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
 
-          // 신규생 문의 (상담 관리와 분리된 독립 메뉴)
+          // 신규생 문의 — 목록이 먼저 뜨고, 입력 폼은 /create로 들어간다
           GoRoute(
             path: AppRoutes.newInquiry,
             name: 'newInquiry',
-            builder: (context, state) => const NewInquiryScreen(),
+            builder: (context, state) => const NewInquiryListScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.newInquiryCreate,
+            name: 'newInquiryCreate',
+            builder: (context, state) {
+              // 목록에서 학생을 고르고 들어오면 그 학생에게 덧붙인다.
+              final idStr = state.uri.queryParameters['studentId'];
+              return NewInquiryScreen(
+                initialStudentId: idStr != null ? int.tryParse(idStr) : null,
+                initialStudentName: state.uri.queryParameters['studentName'],
+              );
+            },
           ),
 
           // 상담 관리

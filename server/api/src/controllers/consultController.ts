@@ -56,6 +56,21 @@ export class ConsultController {
     return sendSuccess(res, students, 'Inquiry student lookup retrieved successfully');
   });
 
+  // GET /consult/students?scope=new|existing&sort=recent|name
+  // 상담이 달린 학생 목록. 신규생 문의와 상담 관리가 대상만 바꿔 같이 쓴다.
+  getConsultStudents = asyncHandler(async (req: Request, res: Response) => {
+    const scope = req.query.scope === 'existing' ? 'existing' : 'new';
+
+    const students = await consultService.getConsultStudents(scope, {
+      sort: req.query.sort === 'name' ? 'name' : 'recent',
+      search: (req.query.search as string) ?? null,
+      hasConsultOnly: req.query.hasConsultOnly === 'true',
+      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
+    });
+
+    return sendSuccess(res, students, 'Consult students retrieved successfully');
+  });
+
   // GET /consult/selector-names - 선정자 이름 목록 (직원 공용)
   getSelectorNames = asyncHandler(async (_req: Request, res: Response) => {
     const names = await consultService.getSelectorNames();

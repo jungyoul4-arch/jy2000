@@ -21,7 +21,16 @@ import '../../widgets/logout_button.dart';
 /// consult 테이블에 상담 유형 '신규생 문의'(CONSULT_TYPE_INITIAL)로 기록한다.
 /// 기존 학생이 아니면 저장 시 User(kind=2, active_flag=0)와 학부모를 함께 만든다.
 class NewInquiryScreen extends ConsumerStatefulWidget {
-  const NewInquiryScreen({super.key});
+  /// 목록에서 학생을 고른 뒤 들어오면 그 학생에게 문의를 덧붙인다.
+  /// 비워 두면 새 학생부터 등록하는 평소 흐름이다.
+  final int? initialStudentId;
+  final String? initialStudentName;
+
+  const NewInquiryScreen({
+    super.key,
+    this.initialStudentId,
+    this.initialStudentName,
+  });
 
   @override
   ConsumerState<NewInquiryScreen> createState() => _NewInquiryScreenState();
@@ -69,6 +78,20 @@ class _NewInquiryScreenState extends ConsumerState<NewInquiryScreen> {
   bool _hasMessengerText = false;
 
   bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 목록에서 넘어온 학생을 미리 채운다. studentId가 있으면 타입어헤드로
+    // 고른 것과 같은 상태가 되어 새 학생을 또 만들지 않는다.
+    final id = widget.initialStudentId;
+    final name = widget.initialStudentName;
+    if (id != null && name != null && name.isNotEmpty) {
+      _selectedStudentId = id;
+      _studentNameController.text = name;
+    }
+  }
 
   @override
   void dispose() {

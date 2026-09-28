@@ -568,7 +568,6 @@ export class ConsultService {
       LEFT JOIN School sch ON s.school_id = sch.school_id
       LEFT JOIN ParentPhone pp ON pp.student_id = u.user_id AND pp.seq = 1
       WHERE u.kind = 2
-        AND u.deleted_at IS NULL
         AND (u.name LIKE ? OR u.phone LIKE ?)
       ORDER BY u.active_flag DESC, u.name ASC
       LIMIT 30
@@ -576,6 +575,83 @@ export class ConsultService {
 
     const [rows] = await pool.query<RowDataPacket[]>(sql, [searchTerm, searchTerm]);
     return rows as InquiryStudentLookup[];
+  }
+
+  /**
+   * 상담이 달린 학생 목록.
+   *
+   * 신규생 문의와 상담 관리가 같은 구조를 쓴다 — 학생을 고르면 그 학생의
+   * 상담 목록이 뜨고, 거기서 고르면 상세로 간다. 두 화면은 대상만 다르다.
+   *
+   * 신규생 : 아직 학원생이 되지 않은 학생. active_flag=0이면서 퇴원이 아닌 쪽.
+   * 기존생 : 재원(active_flag=1) 또는 퇴원(STATUS_WITHDRAW).
+   *
+   * active_flag=0에 신규생과 퇴원생이 함께 들어가므로 플래그만으로는
+   * 가를 수 없다. 퇴원은 전원 status_code가 STATUS_WITHDRAW라
+   * (실측 700/700) 이걸 기준으로 삼는다.
+   */
+  async getConsultStudents(
+    scope: 'new' | 'existing',
+    options: {
+      sort?: 'recent' | 'name';
+      search?: string | null;
+      /** true면 상담이 한 건이라도 있는 학생만. 기본은 전원. */
+      hasConsultOnly?: boolean;
+      limit?: number;
+    } = {}
+  ): Promise<RowDataPacket[]> {
+    const sort = options.sort ?? 'recent';
+    const isWithdrawn = "COALESCE(si.status_code, '') = 'STATUS_WITHDRAW'";
+    const scopeCondition =
+      scope === 'new'
+        ? `u.active_flag = 0 AND NOT ${isWithdrawn}`
+        : `(u.active_flag = 1 OR ${isWithdrawn})`;
+
+    const conditions = ['u.kind = 2', scopeCondition];
+    const params: unknown[] = [];
+
+    if (options.search && options.search.trim()) {
+      // 이름·전화·학교로 찾는다. 기존생은 1,100명이 넘어 검색이 없으면 못 쓴다.
+      conditions.push('(u.name LIKE ? OR u.phone LIKE ? OR sch.school_name LIKE ?)');
+      const term = `%${options.search.trim()}%`;
+      params.push(term, term, term);
+    }
+
+    // 상담이 없는 학생도 보여 줘야 첫 상담을 붙일 수 있다. LEFT JOIN으로 두고
+    // 화면에서 '상담 없음'으로 표시한다. 최근순에서는 NULL이 뒤로 밀린다.
+    const having = options.hasConsultOnly ? 'HAVING consult_count > 0' : '';
+
+    const orderBy =
+      sort === 'name'
+        ? 'u.name ASC, last_consult_date DESC'
+        : 'last_consult_date IS NULL ASC, last_consult_date DESC, u.name ASC';
+
+    const sql = `
+      SELECT
+        u.user_id AS student_id,
+        u.name AS student_name,
+        u.phone,
+        u.grade,
+        u.active_flag,
+        si.status_code,
+        COALESCE(sch.school_name, '') AS school_name,
+        COUNT(c.consult_id) AS consult_count,
+        MAX(c.consult_date) AS last_consult_date
+      FROM User u
+      LEFT JOIN consult c ON c.student_id = u.user_id AND c.deleted_at IS NULL
+      LEFT JOIN student_info si ON si.student_id = u.user_id AND si.deleted_at IS NULL
+      LEFT JOIN School sch ON sch.school_id = si.school_id
+      WHERE ${conditions.join(' AND ')}
+      GROUP BY u.user_id
+      ${having}
+      ORDER BY ${orderBy}
+      LIMIT ?
+    `;
+
+    params.push(options.limit ?? 500);
+
+    const [rows] = await pool.query<RowDataPacket[]>(sql, params);
+    return rows;
   }
 
   /**

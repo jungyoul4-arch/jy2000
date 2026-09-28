@@ -37,6 +37,19 @@ router.get(
   consultController.lookupInquiryStudents
 );
 
+// GET /consult/students - 상담이 달린 학생 목록 (/:id 보다 먼저 정의)
+router.get(
+  '/students',
+  validate([
+    query('scope').optional().isIn(['new', 'existing']),
+    query('sort').optional().isIn(['recent', 'name']),
+    query('search').optional().isString().trim().isLength({ max: 50 }),
+    query('hasConsultOnly').optional().isBoolean(),
+    query('limit').optional().isInt({ min: 1, max: 2000 }),
+  ]),
+  consultController.getConsultStudents
+);
+
 // GET /consult/selector-names - 선정자 이름 목록 (/:id 보다 먼저 정의)
 router.get(
   '/selector-names',

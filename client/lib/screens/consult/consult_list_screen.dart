@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:data_table_2/data_table_2.dart';
-import 'package:intl/intl.dart';
 
 import '../../config/routes.dart';
-import '../../providers/consult_provider.dart';
+import '../../models/consult_student.dart';
 import '../../providers/auth_provider.dart';
-import '../../models/consult.dart';
-import 'tc_register_dialog.dart';
+import '../../providers/consult_provider.dart';
 import '../../widgets/logout_button.dart';
+import 'student_consult_browser.dart';
+import 'tc_register_dialog.dart';
 
+/// 상담 관리
+///
+/// 신규생을 뺀 학생(재원 또는 퇴원)을 먼저 보여 주고, 고르면 그 학생의
+/// 상담 내역이 뜬다. 신규생은 전용 화면(신규생 문의)에서 다룬다.
+///
+/// 상담 등록은 학생을 고른 뒤 그 학생의 목록 위에서 한다. 전역 버튼으로
+/// 두면 폼에서 학생을 다시 골라야 해 같은 일을 두 번 하게 된다.
 class ConsultListScreen extends ConsumerStatefulWidget {
   const ConsultListScreen({super.key});
 
@@ -19,14 +25,6 @@ class ConsultListScreen extends ConsumerStatefulWidget {
 }
 
 class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(consultListProvider.notifier).fetchList(refresh: true);
-    });
-  }
-
   Future<void> _showTcRegisterDialog() async {
     final result = await showDialog(
       context: context,
@@ -43,9 +41,21 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
     }
   }
 
+  Future<void> _addConsult(ConsultStudent student) async {
+    final uri = Uri(
+      path: AppRoutes.consultCreate,
+      queryParameters: {'studentId': '${student.studentId}'},
+    );
+
+    await context.push(uri.toString());
+    if (!mounted) return;
+
+    ref.invalidate(consultStudentsProvider);
+    ref.invalidate(studentConsultListProvider(student.studentId));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final consultState = ref.watch(consultListProvider);
     final authState = ref.watch(authProvider);
     final isAdmin = authState.user?.kind == 1 || authState.user?.isAdmin == true;
 
@@ -55,9 +65,8 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.read(consultListProvider.notifier).refresh();
-            },
+            tooltip: '새로고침',
+            onPressed: () => ref.invalidate(consultStudentsProvider),
           ),
           const SizedBox(width: 8),
           if (isAdmin) ...[
@@ -68,110 +77,14 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
             ),
             const SizedBox(width: 8),
           ],
-          // 신규생 문의(초기상담)는 건수가 많아 전용 화면으로 분리
-          FilledButton.icon(
-            onPressed: () => context.go(AppRoutes.newInquiry),
-            icon: const Icon(Icons.person_search),
-            label: const Text('신규생 문의'),
-          ),
-          const SizedBox(width: 8),
-          FilledButton.icon(
-            onPressed: () => context.go(AppRoutes.consultCreate),
-            icon: const Icon(Icons.add),
-            label: const Text('상담 등록'),
-          ),
-          const SizedBox(width: 16),
           const LogoutButton(),
         ],
       ),
-      body: Column(
-        children: [
-          // 필터 영역
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: Row(
-              children: [
-                // 결과 수
-                if (consultState.meta != null)
-                  Text(
-                    '총 ${consultState.meta!.total}건',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          // 테이블
-          Expanded(
-            child: consultState.isLoading && consultState.consults.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : consultState.error != null
-                    ? Center(child: Text('오류: ${consultState.error}'))
-                    : consultState.consults.isEmpty
-                        ? const Center(child: Text('데이터가 없습니다'))
-                        : _buildDataTable(consultState.consults),
-          ),
-        ],
+      body: StudentConsultBrowser(
+        scope: ConsultStudentScope.existing,
+        addConsultLabel: '상담 등록',
+        onAddConsult: _addConsult,
       ),
     );
-  }
-
-  Widget _buildDataTable(List<Consult> consults) {
-    return DataTable2(
-      columnSpacing: 12,
-      horizontalMargin: 16,
-      minWidth: 1200,
-      columns: const [
-        DataColumn2(label: Text('No.'), fixedWidth: 60),
-        DataColumn2(label: Text('학생'), size: ColumnSize.S),
-        DataColumn2(label: Text('상담유형'), size: ColumnSize.S),
-        DataColumn2(label: Text('상담일시'), size: ColumnSize.M),
-        DataColumn2(label: Text('채널'), size: ColumnSize.S),
-        DataColumn2(label: Text('상담자'), size: ColumnSize.S),
-        DataColumn2(label: Text('결과'), size: ColumnSize.S),
-        DataColumn2(label: Text('다음상담'), size: ColumnSize.M),
-        DataColumn2(label: Text('내용'), size: ColumnSize.L),
-      ],
-      rows: consults.asMap().entries.map((entry) {
-        final index = entry.key;
-        final consult = entry.value;
-        return DataRow2(
-          onTap: () => context.push('/consults/${consult.consultId}'),
-          cells: [
-            DataCell(Text('${index + 1}')),
-            DataCell(Text(consult.studentName ?? '-')),
-            DataCell(Text(consult.consultTypeName ?? '-')),
-            DataCell(Text(_formatDate(consult.consultDate))),
-            DataCell(Text(consult.channelName ?? '-')),
-            DataCell(Text(consult.tcName ?? '-')),
-            DataCell(Text(consult.consultResultName ?? '-')),
-            DataCell(Text(
-              consult.nextConsultDate != null
-                  ? _formatDate(consult.nextConsultDate!)
-                  : '-',
-            )),
-            DataCell(
-              Text(
-                consult.content ?? '-',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        );
-      }).toList(),
-    );
-  }
-
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return DateFormat('MM/dd HH:mm').format(date);
-    } catch (e) {
-      return dateStr;
-    }
   }
 }
