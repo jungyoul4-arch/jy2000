@@ -135,11 +135,12 @@ FOR EACH ROW
 BEGIN
     IF NEW.kind = 2 AND OLD.active_flag != NEW.active_flag THEN
         IF NEW.active_flag = 1 THEN
-            -- 활성화: 재원으로 변경
+            -- 활성화: 재원으로 변경 (이미 등록/재원이면 건드리지 않음)
             UPDATE student_info
             SET status_code = 'STATUS_ENROLLED',
                 enroll_date = COALESCE(enroll_date, CURDATE())
-            WHERE student_id = NEW.user_id;
+            WHERE student_id = NEW.user_id
+              AND status_code NOT IN ('STATUS_ENROLLED', 'STATUS_REGISTER');
         ELSE
             -- 비활성화: 퇴원으로 변경
             UPDATE student_info

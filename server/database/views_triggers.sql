@@ -334,9 +334,11 @@ DELIMITER ;
 
 -- ============================================================
 -- 트리거 5: User.active_flag 변경 시 student_info.status_code 동기화
--- 방향: User → student_info (User.active_flag가 마스터)
--- active_flag 1 → STATUS_ENROLLED (재원)
+-- 방향: User → student_info (외부에서 active_flag만 바꾸는 경로용)
+-- active_flag 1 → STATUS_ENROLLED (재원, 이미 등록/재원이면 건드리지 않음)
 -- active_flag 0 → STATUS_WITHDRAW (퇴원, 기존 재원인 경우만)
+-- ※ API가 상태를 바꿀 때는 student_info를 먼저 쓰고 User를 나중에 맞춘다.
+--   이미 플래그와 맞는 상태는 건드리지 않아야 '등록'/'이탈'이 보존된다.
 -- ============================================================
 DELIMITER //
 
@@ -346,11 +348,12 @@ FOR EACH ROW
 BEGIN
     IF NEW.kind = 2 AND OLD.active_flag != NEW.active_flag THEN
         IF NEW.active_flag = 1 THEN
-            -- 활성화: 재원으로 변경
+            -- 활성화: 재원으로 변경 (이미 등록/재원이면 건드리지 않음)
             UPDATE student_info
             SET status_code = 'STATUS_ENROLLED',
                 enroll_date = COALESCE(enroll_date, CURDATE())
-            WHERE student_id = NEW.user_id;
+            WHERE student_id = NEW.user_id
+              AND status_code NOT IN ('STATUS_ENROLLED', 'STATUS_REGISTER');
         ELSE
             -- 비활성화: 퇴원으로 변경 (기존 재원인 경우만)
             UPDATE student_info

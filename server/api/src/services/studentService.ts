@@ -4,6 +4,18 @@ import { Student, StudentDetail, StudentListQuery, StudentStateChange, StudentUp
 import { AppError } from '../middlewares/errorHandler';
 import { cleanPhone } from '../utils/phone';
 
+// 학생 상태와 User.active_flag 매핑
+const ACTIVE_USER_STATUS_CODES = ['STATUS_REGISTER', 'STATUS_ENROLLED'];   // 등록/재원 -> 1
+const INACTIVE_USER_STATUS_CODES = ['STATUS_WITHDRAW', 'STATUS_LOST'];     // 퇴원/이탈 -> 0
+
+// 둘 중 어디에도 없는 상태(잠재/접촉/상담예약/상담완료/보류)는 기존 값을 그대로 둔다
+function activeFlagForStatus(statusCode?: string | null): number | null {
+  if (!statusCode) return null;
+  if (ACTIVE_USER_STATUS_CODES.includes(statusCode)) return 1;
+  if (INACTIVE_USER_STATUS_CODES.includes(statusCode)) return 0;
+  return null;
+}
+
 export class StudentService {
   // 학생 신규 등록
   async create(data: StudentCreate, userId: number): Promise<StudentDetail> {
@@ -13,7 +25,8 @@ export class StudentService {
       await connection.beginTransaction();
 
       // 1. User 테이블에 학생 추가 (kind=2, active_flag=0)
-      // 트리거가 자동으로 student_info 생성
+      // 트리거가 자동으로 student_info를 '잠재'로 생성
+      // 등록/재원으로 바로 만드는 경우의 active_flag는 상태를 반영한 뒤 아래 3번에서 올린다
       const userColumns = ['name', 'kind', 'phone', 'user_pw_hash', 'active_flag', 'reg_dt'];
       const userValues = [data.student_name, 2, cleanPhone(data.phone), '', 0];
       const userPlaceholders = ['?', '?', '?', '?', '?', 'NOW()'];
@@ -98,7 +111,17 @@ export class StudentService {
         );
       }
 
-      // 3. 보호자 정보 추가
+      // 3. 등록/재원으로 바로 만든 경우 User를 활성(active_flag=1)으로 올린다
+      // changeState와 같은 순서(student_info 먼저, User 나중)를 지켜야
+      // trg_user_active_flag_change가 '등록'을 '재원'으로 덮어쓰지 않는다
+      if (activeFlagForStatus(data.status_code) === 1) {
+        await connection.query(
+          `UPDATE User SET active_flag = 1, updated_at = NOW() WHERE user_id = ? AND kind = 2`,
+          [studentId]
+        );
+      }
+
+      // 4. 보호자 정보 추가
       if (data.guardian_phone) {
         const guardianPhoneClean = cleanPhone(data.guardian_phone);
 
@@ -641,6 +664,22 @@ export class StudentService {
         userId,
         data.student_id
       ]);
+
+      // 등록/재원이면 User를 활성(1), 퇴원/이탈이면 비활성(0)으로 맞춘다.
+      // 반드시 student_info를 갱신한 "뒤에" 실행할 것.
+      // trg_user_active_flag_change 트리거가 User -> student_info 방향으로
+      // 동기화하는데, 플래그와 이미 맞는 상태면 건드리지 않도록 돼 있어서
+      // 이 순서라야 '등록'/'이탈'이 '재원'/'퇴원'으로 덮어써지지 않는다.
+      // (server/database/fix_user_active_flag_trigger.sql 선행 적용 필요)
+      const nextActiveFlag = activeFlagForStatus(data.new_status_code);
+      if (nextActiveFlag !== null) {
+        await connection.query<ResultSetHeader>(
+          `UPDATE User
+           SET active_flag = ?, updated_at = NOW()
+           WHERE user_id = ? AND kind = 2 AND active_flag <> ?`,
+          [nextActiveFlag, data.student_id, nextActiveFlag]
+        );
+      }
 
       // Insert history (trigger handles status change, but we add reason here)
       if (data.change_reason) {
