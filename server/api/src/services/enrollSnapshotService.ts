@@ -52,6 +52,23 @@ export interface ParseResult {
   studentCount: number;
 }
 
+/** DB에서 모은 수강 한 건 (학생 × 반). collectFromDb가 돌려준다. */
+export interface DbEnrollRow {
+  /** 같은 반이 여러 class_id로 쪼개져 있어도 이 키로 묶인다 */
+  groupKey: string;
+  studentName: string;
+  studentId: number;
+  schoolName: string | null;
+  schoolId: number | null;
+  grade: number | null;
+  /** User.is_jonghap — 종합반 소속 */
+  isJonghap: boolean;
+  subject: string;
+  subjectGroup: string;
+  className: string;
+  classKind: string;
+}
+
 /**
  * 학년 표기를 User.grade 코드 체계로 옮긴다.
  * 6=초6, 7~9=중1~3, 10~12=고1~3, 13=N수
@@ -404,7 +421,11 @@ export class EnrollSnapshotService {
   }
 
   /**
-   * DB에서 직접 그 달의 스냅샷을 만든다 (2026-09 이후 경로).
+   * DB에서 직접 그 달의 재원 현황을 모은다 (2026-09 이후 경로).
+   *
+   * 저장은 하지 않는다. snapshotFromDb가 월 스냅샷을 굳힐 때 쓰고,
+   * 대시보드의 '현재' 보기도 같은 함수로 수치를 만든다. 두 경로가
+   * 다른 값을 내면 '현재'와 그 달 스냅샷이 어긋나므로 한 곳에 둔다.
    *
    * '그 달에 수업기록이 있는 반'을 운영 중인 반으로 본다.
    * Class.is_active는 종료 특강이 1로 남아 못 쓰고, orzo_url_class_id는
@@ -418,25 +439,18 @@ export class EnrollSnapshotService {
    * 9월 10일치로 검증했을 때 학생 443명(엑셀 442) · 수강 1,146건(엑셀 1,126)으로
    * 1~2% 안에 들어왔다.
    */
-  async snapshotFromDb(
+  async collectFromDb(
     year: number,
-    month: number,
-    options: {
-      asOfDate?: string | null;
-      note?: string | null;
-      /** 다른 년월로 저장한다. 엑셀분과 나란히 두고 비교할 때만 쓴다. */
-      storeAs?: { year: number; month: number };
-    } = {}
-  ): Promise<{ snapshotId: number; rowCount: number; studentCount: number; classCount: number }> {
+    month: number
+  ): Promise<{
+    rows: DbEnrollRow[];
+    teachersByGroup: Map<string, Map<string, number | null>>;
+  }> {
     const from = `${year}-${String(month).padStart(2, '0')}-01`;
     const to =
       month === 12
         ? `${year + 1}-01-01`
         : `${year}-${String(month + 1).padStart(2, '0')}-01`;
-
-    // 조회 기간은 year/month가 정하고, 저장 위치만 storeAs가 바꾼다.
-    const storeYear = options.storeAs?.year ?? year;
-    const storeMonth = options.storeAs?.month ?? month;
 
     // 수업기록 → 클래스인 코스 → 반설정 → Class 로 이어지는 매핑 체인.
     // ClassRecord.class_id는 클래스인 쪽 ID라 Class와 안 맞는다(매칭 0건).
@@ -483,7 +497,7 @@ export class EnrollSnapshotService {
     const [members] = await pool.query<RowDataPacket[]>(
       `SELECT DISTINCT
          c.class_id, c.class_name, c.genre_id,
-         m.user_id, u.name AS student_name, u.grade,
+         m.user_id, u.name AS student_name, u.grade, u.is_jonghap,
          si.school_id, s.school_name
        ${CHAIN}
        JOIN ClassMember m       ON m.class_id = c.class_id
@@ -530,18 +544,7 @@ export class EnrollSnapshotService {
     // (그룹, 학생) 하나가 수강 한 건이다. 같은 반이 여러 class_id로
     // 쪼개져 있어도 여기서 합쳐진다.
     const seen = new Set<string>();
-    const rows: {
-      groupKey: string;
-      studentName: string;
-      studentId: number;
-      schoolName: string | null;
-      schoolId: number | null;
-      grade: number | null;
-      subject: string;
-      subjectGroup: string;
-      className: string;
-      classKind: string;
-    }[] = [];
+    const rows: DbEnrollRow[] = [];
 
     for (const r of members) {
       const key = groupOf(r.class_id);
@@ -559,6 +562,7 @@ export class EnrollSnapshotService {
         schoolName: r.school_name ?? null,
         schoolId: r.school_id || null,
         grade: r.grade || null,
+        isJonghap: Number(r.is_jonghap) === 1,
         subject,
         subjectGroup: SUBJECT_GROUP[subject] ?? '기타',
         className: rep.name,
@@ -596,8 +600,40 @@ export class EnrollSnapshotService {
       }
     }
 
+    return { rows, teachersByGroup };
+  }
+
+  /**
+   * 그 달의 스냅샷을 DB에서 만들어 저장한다 (2026-09 이후 경로).
+   *
+   * 수치는 collectFromDb가 만들고 여기서는 굳히기만 한다.
+   */
+  async snapshotFromDb(
+    year: number,
+    month: number,
+    options: {
+      asOfDate?: string | null;
+      note?: string | null;
+      /** 다른 년월로 저장한다. 엑셀분과 나란히 두고 비교할 때만 쓴다. */
+      storeAs?: { year: number; month: number };
+    } = {}
+  ): Promise<{ snapshotId: number; rowCount: number; studentCount: number; classCount: number }> {
+    const { rows, teachersByGroup } = await this.collectFromDb(year, month);
+
+    // 조회 기간은 year/month가 정하고, 저장 위치만 storeAs가 바꾼다.
+    const storeYear = options.storeAs?.year ?? year;
+    const storeMonth = options.storeAs?.month ?? month;
+
     const studentCount = new Set(rows.map((r) => r.studentId)).size;
     const classCount = new Set(rows.map((r) => r.groupKey)).size;
+
+    // 종합반 수는 User를 직접 센다. rows에서 세면 그 달 수업기록이 있는
+    // 반에 속한 학생만 잡혀, 반 배정이 아직 없는 종합반생이 빠진다.
+    // 대시보드의 '현재'와 같은 잣대여야 달이 굳을 때 숫자가 안 바뀐다.
+    const [jonghapRows] = await pool.query<RowDataPacket[]>(
+      'SELECT COUNT(*) AS cnt FROM User WHERE kind = 2 AND active_flag = 1 AND is_jonghap = 1'
+    );
+    const jonghapCount = Number(jonghapRows[0]?.cnt ?? 0);
 
     const connection = await pool.getConnection();
     try {
@@ -607,16 +643,27 @@ export class EnrollSnapshotService {
 
       const [head] = await connection.query<ResultSetHeader>(
         `INSERT INTO enroll_snapshot
-           (year, month, as_of_date, source_kind, source_note, student_count, row_count)
-         VALUES (?, ?, ?, 'db', ?, ?, ?)`,
-        [storeYear, storeMonth, options.asOfDate ?? null, options.note ?? null, studentCount, rows.length]
+           (year, month, as_of_date, source_kind, source_note, student_count, row_count, jonghap_count)
+         VALUES (?, ?, ?, 'db', ?, ?, ?, ?)`,
+        [
+          storeYear,
+          storeMonth,
+          options.asOfDate ?? null,
+          options.note ?? null,
+          studentCount,
+          rows.length,
+          jonghapCount,
+        ]
       );
       const snapshotId = head.insertId;
 
       const values = rows.map((r) => [
         snapshotId, storeYear, storeMonth,
         r.studentName, r.studentId, r.schoolName, r.schoolId, r.grade,
-        null, // attend_type — 단과/종합은 수강료 체계 값이라 DB에 없다
+        // attend_type — 엑셀은 단과/종합/약술단과/약술종합 4종이지만
+        // DB에는 User.is_jonghap 뿐이라 종합/단과 둘로만 적는다.
+        // 집계는 '%종합%'로 걸어 양쪽을 같이 센다.
+        r.isJonghap ? '종합' : '단과',
         r.subject, r.subjectGroup, r.className, r.classKind,
       ]);
 

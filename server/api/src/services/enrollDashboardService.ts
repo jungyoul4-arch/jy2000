@@ -2,6 +2,7 @@ import { RowDataPacket } from 'mysql2';
 
 import pool from '../config/database';
 import { AppError } from '../middlewares/errorHandler';
+import enrollSnapshotService from './enrollSnapshotService';
 
 /**
  * 재원생 경영 대시보드 집계.
@@ -45,6 +46,60 @@ const toDateString = (value: unknown): string | null => {
 // 과학 세부 과목. 과학 섹션이 이 목록으로 걸린다.
 const SCIENCE_SUBJECTS = ['통합과학', '물리', '화학', '생명', '지구과학', '과학'];
 
+/**
+ * 종합반 여부.
+ *
+ * 엑셀분의 '구분'은 단과/종합/약술단과/약술종합 4종이고, DB분은
+ * User.is_jonghap을 종합/단과 둘로 적는다. 약술종합도 종합으로 세야 해서
+ * 부분 일치로 본다.
+ */
+const isJonghap = (attendType: unknown): boolean =>
+  typeof attendType === 'string' && attendType.includes('종합');
+
+/** 집계가 받는 수강 한 건. 스냅샷 조회분과 '현재' 생성분이 같은 모양이다. */
+interface AggRow {
+  student_name: string;
+  grade: number | null;
+  school_name: string | null;
+  attend_type: string | null;
+  subject: string;
+  subject_group: string;
+  class_name: string | null;
+  class_kind: string;
+}
+
+interface AggTeacher {
+  teacher_name: string;
+  student_name: string;
+  class_name: string | null;
+}
+
+/** 월별 추이 한 점 */
+export interface TrendPoint {
+  year: number;
+  month: number;
+  sourceKind: string;
+  students: number;
+  jonghapStudents: number | null;
+  jonghapChange: number | null;
+  enrollments: number;
+  subjectsPerStudent: number;
+  classes: number;
+  newStudents: number | null;
+  leftStudents: number | null;
+}
+
+/** 월별 추이에서 한 달치를 모으는 자리 */
+interface TrendBucket {
+  students: Set<string>;
+  jonghap: Set<string>;
+  /** 그 달에 attend_type이 한 건이라도 있는가 — 없으면 종합반 수를 null로 낸다 */
+  hasAttendType: boolean;
+  subjects: Set<string>;
+  classes: Set<string>;
+  rows: number;
+}
+
 export interface MonthInfo {
   year: number;
   month: number;
@@ -53,13 +108,16 @@ export interface MonthInfo {
   asOfDate: string | null;
   studentCount: number;
   rowCount: number;
+  /** 굳힐 때 적어 둔 종합반 수. 그 전에 만들어진 달은 null이다. */
+  jonghapCount: number | null;
 }
 
 export class EnrollDashboardService {
   /** 스냅샷이 있는 년월 목록. 화면의 월 선택기가 쓴다. */
   async getMonths(): Promise<MonthInfo[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT year, month, source_kind, source_note, as_of_date, student_count, row_count
+      `SELECT year, month, source_kind, source_note, as_of_date,
+              student_count, row_count, jonghap_count
        FROM enroll_snapshot
        ORDER BY year, month`
     );
@@ -72,55 +130,64 @@ export class EnrollDashboardService {
       asOfDate: toDateString(r.as_of_date),
       studentCount: Number(r.student_count),
       rowCount: Number(r.row_count),
+      jonghapCount: r.jonghap_count === null ? null : Number(r.jonghap_count),
     }));
   }
 
   /**
-   * 월별 추이 — 재원생 수, 수강 건수, 1인당 과목 수, 신규/퇴원.
+   * 월별 추이 — 재원생 수, 종합반 수, 수강 건수, 1인당 과목 수, 신규/퇴원.
    *
    * 신규·퇴원은 이름 기준으로 전월과 견준다. 엑셀이 동명이인을
    * '김나경A'/'김나경B'로 구분해 둬 이름이 사실상 유일키 역할을 한다.
    * student_id는 매칭률이 86~88%라 여기 쓰면 이탈이 부풀려진다.
+   *
+   * 종합반 수는 attend_type이 있는 달만 낸다. 2~8월(엑셀)은 '구분'
+   * 칸에서 왔고, DB분은 User.is_jonghap이 생긴 뒤 만들어진 달부터 있다.
+   * 값이 없는 달은 0이 아니라 null이라야 차트가 선을 끊는다 —
+   * 0으로 내리면 종합반이 전멸한 달처럼 보인다.
+   *
+   * 맨 뒤에는 '현재' 한 점을 덧붙인다. 월 스냅샷은 전월까지만 있어서
+   * 달 중반을 넘기면 마지막 스냅샷과 실제가 꽤 벌어진다.
    */
-  async getTrend(): Promise<
-    {
-      year: number;
-      month: number;
-      sourceKind: string;
-      students: number;
-      enrollments: number;
-      subjectsPerStudent: number;
-      classes: number;
-      newStudents: number | null;
-      leftStudents: number | null;
-    }[]
-  > {
+  async getTrend(): Promise<TrendPoint[]> {
     const months = await this.getMonths();
     if (months.length === 0) return [];
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT year, month, student_name, subject_group, class_name
+      `SELECT year, month, student_name, subject_group, class_name, attend_type
        FROM enroll_snapshot_row`
     );
 
-    const byMonth = new Map<
-      string,
-      { students: Set<string>; subjects: Set<string>; classes: Set<string>; rows: number }
-    >();
+    const byMonth = new Map<string, TrendBucket>();
 
     for (const r of rows) {
       const key = `${r.year}-${r.month}`;
       if (!byMonth.has(key)) {
-        byMonth.set(key, { students: new Set(), subjects: new Set(), classes: new Set(), rows: 0 });
+        byMonth.set(key, {
+          students: new Set(),
+          jonghap: new Set(),
+          hasAttendType: false,
+          subjects: new Set(),
+          classes: new Set(),
+          rows: 0,
+        });
       }
       const b = byMonth.get(key)!;
       b.students.add(r.student_name);
       b.subjects.add(`${r.student_name}|${r.subject_group}`);
       if (r.class_name) b.classes.add(r.class_name);
+      if (r.attend_type) b.hasAttendType = true;
+      if (isJonghap(r.attend_type)) b.jonghap.add(r.student_name);
       b.rows++;
     }
 
-    return months.map((m, i) => {
+    // 종합반 수는 굳힐 때 적어 둔 값(User 기준)을 먼저 쓴다. 그 컬럼이
+    // 생기기 전 달 — 2~8월 엑셀분 — 은 '구분' 칸에서 역산한다.
+    // 엑셀분은 구분이 원본 기록이라 그쪽이 오히려 정확하다.
+    const jonghapOf = (m: MonthInfo, b?: TrendBucket) =>
+      m.jonghapCount ?? (b?.hasAttendType ? b.jonghap.size : null);
+
+    const series: TrendPoint[] = months.map((m, i) => {
       const cur = byMonth.get(`${m.year}-${m.month}`);
       const prev = i > 0 ? byMonth.get(`${months[i - 1].year}-${months[i - 1].month}`) : undefined;
 
@@ -133,11 +200,18 @@ export class EnrollDashboardService {
         leftStudents = [...prev.students].filter((s) => !students.has(s)).length;
       }
 
+      const jonghapStudents = jonghapOf(m, cur);
+      const prevJonghap = i > 0 ? jonghapOf(months[i - 1], prev) : null;
+
       return {
         year: m.year,
         month: m.month,
         sourceKind: m.sourceKind,
         students: students.size,
+        jonghapStudents,
+        // 양쪽 달에 다 값이 있을 때만 증감을 낸다
+        jonghapChange:
+          jonghapStudents !== null && prevJonghap !== null ? jonghapStudents - prevJonghap : null,
         enrollments: cur?.rows ?? 0,
         subjectsPerStudent:
           students.size > 0 ? Math.round(((cur?.subjects.size ?? 0) / students.size) * 100) / 100 : 0,
@@ -146,21 +220,77 @@ export class EnrollDashboardService {
         leftStudents,
       };
     });
+
+    const last = months[months.length - 1];
+    const live = await this.liveTrendPoint(
+      byMonth.get(`${last.year}-${last.month}`),
+      jonghapOf(last, byMonth.get(`${last.year}-${last.month}`))
+    );
+    if (live) series.push(live);
+
+    return series;
   }
 
   /**
-   * 한 달치 대시보드 전체.
+   * 추이 맨 뒤에 붙는 '현재' 한 점.
    *
-   * 카드마다 따로 호출하면 왕복이 열 번을 넘는다. 한 달 데이터가
-   * 1,000~1,600행이라 한 번에 집계해 내려도 부담이 없다.
+   * 숫자는 '현재' 보기의 상단 카드와 같은 기준으로 맞춘다 — 재원생은
+   * 이번 달 수업기록이 있는 반 기준, 종합반은 User 기준. 카드와 차트가
+   * 다른 값을 말하면 어느 쪽을 믿어야 할지 알 수 없다.
+   *
+   * 이번 달 수업기록이 아직 없으면(달 바뀐 직후) 점을 만들지 않는다.
+   * 전월로 물러나 붙이면 같은 달이 두 번 찍힌다.
    */
+  private async liveTrendPoint(
+    prev: TrendBucket | undefined,
+    prevJonghap: number | null
+  ): Promise<TrendPoint | null> {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    let built;
+    try {
+      ({ rows: built } = await enrollSnapshotService.collectFromDb(year, month));
+    } catch (error) {
+      if (error instanceof AppError && error.statusCode === 404) return null;
+      throw error;
+    }
+
+    const students = new Set(built.map((r) => r.studentName));
+    const subjects = new Set(built.map((r) => `${r.studentName}|${r.subjectGroup}`));
+    const classes = new Set(built.filter((r) => r.className).map((r) => r.className));
+
+    const [jonghapRows] = await pool.query<RowDataPacket[]>(
+      'SELECT COUNT(*) AS cnt FROM User WHERE kind = 2 AND active_flag = 1 AND is_jonghap = 1'
+    );
+    const jonghapStudents = Number(jonghapRows[0]?.cnt ?? 0);
+
+    return {
+      year,
+      month,
+      sourceKind: 'live',
+      students: students.size,
+      jonghapStudents,
+      jonghapChange: prevJonghap === null ? null : jonghapStudents - prevJonghap,
+      enrollments: built.length,
+      subjectsPerStudent:
+        students.size > 0 ? Math.round((subjects.size / students.size) * 100) / 100 : 0,
+      classes: classes.size,
+      newStudents: prev ? [...students].filter((s) => !prev.students.has(s)).length : null,
+      leftStudents: prev ? [...prev.students].filter((s) => !students.has(s)).length : null,
+    };
+  }
+
+  /** 저장된 월 스냅샷 한 달치 대시보드 전체. */
   async getDashboard(
     year: number,
     month: number,
     options: { grade?: number | null } = {}
   ): Promise<Record<string, unknown>> {
     const [head] = await pool.query<RowDataPacket[]>(
-      `SELECT year, month, source_kind, source_note, as_of_date, student_count, row_count
+      `SELECT year, month, source_kind, source_note, as_of_date,
+              student_count, row_count, jonghap_count
        FROM enroll_snapshot WHERE year = ? AND month = ?`,
       [year, month]
     );
@@ -181,8 +311,8 @@ export class EnrollDashboardService {
     };
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT row_id, student_name, grade, school_name, subject, subject_group,
-              class_name, class_kind
+      `SELECT row_id, student_name, grade, school_name, attend_type,
+              subject, subject_group, class_name, class_kind
        FROM enroll_snapshot_row WHERE ${whereFor('')}`,
       params
     );
@@ -195,6 +325,133 @@ export class EnrollDashboardService {
       params
     );
 
+    const h = head[0];
+
+    // 종합반 수.
+    //   전체를 볼 때는 굳힐 때 적어 둔 값(User 기준)을 그대로 쓴다.
+    //   학년을 좁히면 그 값으로는 쪼갤 수 없어 행에서 센다.
+    //   둘 다 없는 달(구분도 없고 집계 전)은 0이 아니라 null — 화면에 '-'.
+    const hasAttendType = (rows as AggRow[]).some((r) => r.attend_type);
+    const fromRows = hasAttendType
+      ? new Set((rows as AggRow[]).filter((r) => isJonghap(r.attend_type)).map((r) => r.student_name))
+          .size
+      : null;
+    const storedCount = h.jonghap_count === null ? null : Number(h.jonghap_count);
+    const jonghapStudents = gradeFilter === null ? storedCount ?? fromRows : fromRows;
+
+    return this.aggregate(rows as AggRow[], teachers as AggTeacher[], {
+      year: Number(h.year),
+      month: Number(h.month),
+      sourceKind: h.source_kind,
+      sourceNote: h.source_note,
+      asOfDate: toDateString(h.as_of_date),
+      jonghapStudents,
+    });
+  }
+
+  /**
+   * '현재' 보기 — 저장된 스냅샷 대신 지금 DB 상태로 집계한다.
+   *
+   * 월 스냅샷은 매월 1일 cron이 전월을 굳히므로 이번 달은 비어 있다.
+   * 화면 기본값이 이 보기라 원장이 들어오자마자 오늘 수치를 본다.
+   *
+   * 집계 함수는 월 스냅샷과 같은 것을 쓴다. 이번 달이 다음 달 1일에
+   * 굳으면 같은 값이 그대로 스냅샷이 된다.
+   */
+  async getCurrent(options: { grade?: number | null } = {}): Promise<Record<string, unknown>> {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const gradeFilter = options.grade ?? null;
+
+    // 달이 막 바뀌면 이번 달 수업기록이 아직 없어 집계가 비어 버린다.
+    // 그때는 전월 기록으로 물러나고 어느 달을 봤는지 배지에 적는다.
+    // 비어 있다고 404를 내면 화면 기본 보기가 통째로 깨진다.
+    let sourceNote: string | null = null;
+    let built;
+    let teachersByGroup;
+    try {
+      ({ rows: built, teachersByGroup } = await enrollSnapshotService.collectFromDb(year, month));
+    } catch (error) {
+      if (!(error instanceof AppError) || error.statusCode !== 404) throw error;
+
+      const prevYear = month === 1 ? year - 1 : year;
+      const prevMonth = month === 1 ? 12 : month - 1;
+      ({ rows: built, teachersByGroup } = await enrollSnapshotService.collectFromDb(
+        prevYear,
+        prevMonth
+      ));
+      sourceNote = `${month}월 수업기록이 아직 없어 ${prevMonth}월 기준으로 집계했습니다`;
+    }
+
+    const picked = gradeFilter === null ? built : built.filter((r) => r.grade === gradeFilter);
+
+    const rows: AggRow[] = picked.map((r) => ({
+      student_name: r.studentName,
+      grade: r.grade,
+      school_name: r.schoolName,
+      attend_type: r.isJonghap ? '종합' : '단과',
+      subject: r.subject,
+      subject_group: r.subjectGroup,
+      class_name: r.className,
+      class_kind: r.classKind,
+    }));
+
+    // 강사는 반 단위로 붙어 있어 수강 행마다 펴 준다. 스냅샷 테이블이
+    // 이미 펴 둔 모양과 같게 맞춘다.
+    const teachers: AggTeacher[] = [];
+    for (const r of picked) {
+      for (const name of teachersByGroup.get(r.groupKey)?.keys() ?? []) {
+        teachers.push({
+          teacher_name: name,
+          student_name: r.studentName,
+          class_name: r.className,
+        });
+      }
+    }
+
+    // 종합반 카드만 User를 직접 센다. 재원생 수는 '이번 달 수업기록이
+    // 있는 반'에 속한 학생이지만, 종합반은 반 배정과 무관하게
+    // 소속 자체를 보는 값이라 원장이 보는 기준과 맞춘다.
+    const jonghapParams: unknown[] = [];
+    let jonghapSql =
+      'SELECT COUNT(*) AS cnt FROM User WHERE kind = 2 AND active_flag = 1 AND is_jonghap = 1';
+    if (gradeFilter !== null) {
+      jonghapSql += ' AND grade = ?';
+      jonghapParams.push(gradeFilter);
+    }
+    const [jonghapRows] = await pool.query<RowDataPacket[]>(jonghapSql, jonghapParams);
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    return this.aggregate(rows, teachers, {
+      year,
+      month,
+      sourceKind: 'live',
+      sourceNote,
+      asOfDate: `${year}-${pad(month)}-${pad(now.getDate())}`,
+      jonghapStudents: Number(jonghapRows[0]?.cnt ?? 0),
+    });
+  }
+
+  /**
+   * 집계 본체. 월 스냅샷 조회분과 '현재' 생성분이 같이 쓴다.
+   *
+   * 카드마다 따로 호출하면 왕복이 열 번을 넘는다. 한 달 데이터가
+   * 1,000~1,600행이라 한 번에 집계해 내려도 부담이 없다.
+   */
+  private aggregate(
+    rows: AggRow[],
+    teachers: AggTeacher[],
+    snapshot: {
+      year: number;
+      month: number;
+      sourceKind: string;
+      sourceNote: string | null;
+      asOfDate: string | null;
+      jonghapStudents: number | null;
+    }
+  ): Record<string, unknown> {
     // ── 학생 단위 집계 ────────────────────────────────────
     const students = new Map<
       string,
@@ -313,18 +570,17 @@ export class EnrollDashboardService {
       }))
       .sort((a, b) => (b.grade ?? 0) - (a.grade ?? 0) || a.name.localeCompare(b.name));
 
-    const h = head[0];
-
     return {
       snapshot: {
-        year: Number(h.year),
-        month: Number(h.month),
-        sourceKind: h.source_kind,
-        sourceNote: h.source_note,
-        asOfDate: toDateString(h.as_of_date),
+        year: snapshot.year,
+        month: snapshot.month,
+        sourceKind: snapshot.sourceKind,
+        sourceNote: snapshot.sourceNote,
+        asOfDate: snapshot.asOfDate,
       },
       kpi: {
         students: students.size,
+        jonghapStudents: snapshot.jonghapStudents,
         enrollments: rows.length,
         classes: classes.size,
         regularClasses: regularClasses.length,

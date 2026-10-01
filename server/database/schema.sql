@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS User (
     grade           INT NULL COMMENT '학년 (1~6:초1~초6, 7~9:중1~중3, 10~12:고1~고3, 13:N수생, 14:성인)',
     department      VARCHAR(100) NULL COMMENT '부서',
     active_flag     TINYINT(1) DEFAULT 1 COMMENT '활성화 여부 (1=활성)',
+    is_jonghap      TINYINT(1) DEFAULT 0 COMMENT '종합반 소속 여부 (1=종합, 학생만 의미 있음)',
     last_login_dt   DATETIME NULL COMMENT '마지막 로그인 일시',
     reg_dt          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',
     updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',

@@ -167,6 +167,7 @@ class _MonthPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final monthsAsync = ref.watch(enrollMonthsProvider);
+    final period = ref.watch(enrollPeriodProvider);
 
     return monthsAsync.when(
       loading: () => const SizedBox(height: 40),
@@ -179,7 +180,7 @@ class _MonthPicker extends ConsumerWidget {
           for (final m in months)
             ChoiceChip(
               label: Text(m.label),
-              selected: m.year == current.year && m.month == current.month,
+              selected: !period.isCurrent && m.year == period.year && m.month == period.month,
               // DB 자동 생성분은 테두리로 구분한다. 엑셀분과 원본이 달라
               // 수치를 견줄 때 알고 있어야 한다.
               avatar: m.isFromDb
@@ -187,9 +188,19 @@ class _MonthPicker extends ConsumerWidget {
                   : const Icon(Icons.table_view, size: 14),
               onSelected: (_) {
                 ref.read(enrollPeriodProvider.notifier).state =
-                    EnrollPeriod(year: m.year, month: m.month);
+                    EnrollPeriod.month(m.year, m.month);
               },
             ),
+          // 이번 달은 아직 스냅샷이 없다. 지금 DB를 바로 집계해 보여 주는
+          // 항목을 끝에 두고 기본으로 고른다.
+          ChoiceChip(
+            label: const Text('현재'),
+            selected: period.isCurrent,
+            avatar: const Icon(Icons.bolt, size: 14),
+            onSelected: (_) {
+              ref.read(enrollPeriodProvider.notifier).state = const EnrollPeriod.current();
+            },
+          ),
           const SizedBox(width: 8),
           _SourceBadge(snapshot: current),
         ],
@@ -212,15 +223,19 @@ class _SourceBadge extends StatelessWidget {
 
     return Tooltip(
       message: snapshot.sourceNote ??
-          (snapshot.isFromDb
-              ? '수업기록이 있는 반을 그 달의 운영 반으로 보고 DB에서 집계했습니다'
-              : 'aca2000 재원생 DB 엑셀을 적재한 값입니다'),
+          (snapshot.isLive
+              ? '저장된 월 스냅샷이 아니라 조회 시점의 DB를 바로 집계한 값입니다'
+              : snapshot.isFromDb
+                  ? '수업기록이 있는 반을 그 달의 운영 반으로 보고 DB에서 집계했습니다'
+                  : 'aca2000 재원생 DB 엑셀을 적재한 값입니다'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: snapshot.isFromDb
-              ? AppTheme.accentColor.withValues(alpha: 0.10)
-              : Colors.grey.shade200,
+          color: snapshot.isLive
+              ? AppTheme.successColor.withValues(alpha: 0.12)
+              : snapshot.isFromDb
+                  ? AppTheme.accentColor.withValues(alpha: 0.10)
+                  : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(99),
         ),
         child: Text(
@@ -249,6 +264,18 @@ class _KpiRow extends StatelessWidget {
       runSpacing: 12,
       children: [
         _KpiTile(label: '재원생', value: '${kpi.students}', unit: '명'),
+        _KpiTile(
+          label: '종합반',
+          value: kpi.jonghapStudents == null ? '-' : '${kpi.jonghapStudents}',
+          unit: '명',
+          // 어느 시점 숫자인지 적어 둔다. 과거 달은 그 달을 굳힐 때
+          // 적어 둔 값이라 지금 종합반 인원과 다를 수 있다.
+          note: snapshot.isLive
+              ? '현재 종합반 소속'
+              : kpi.jonghapStudents == null
+                  ? '이 달은 집계 전'
+                  : '그 달 기준',
+        ),
         _KpiTile(label: '수강 건수', value: '${kpi.enrollments}', unit: '건'),
         _KpiTile(
           label: '1인당 과목',
@@ -358,12 +385,19 @@ class _TrendSection extends ConsumerWidget {
         return _Grid(wide: wide, children: [
           _CardShell(
             title: '재원생 수 추이',
-            note: '월말 기준 명',
-            child: SizedBox(height: 200, child: _TrendChart(points: points)),
+            note: '월말 기준 명 · 종합반 함께 표시 · 맨 뒤는 현재 시점',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _TrendLegend(),
+                const SizedBox(height: 8),
+                SizedBox(height: 200, child: _TrendChart(points: points)),
+              ],
+            ),
           ),
           _CardShell(
-            title: '월별 신규 · 퇴원',
-            note: '전월 대비 등록/이탈 학생 수',
+            title: '월별 신규 · 종합 · 퇴원',
+            note: '전월 대비 등록/이탈 학생 수와 종합반 증감 · 마지막 줄은 현재',
             child: _FlowTable(points: points),
           ),
         ]);
@@ -371,6 +405,34 @@ class _TrendSection extends ConsumerWidget {
     );
   }
 }
+
+/// 재원생 / 종합반 두 선을 구분하는 범례
+class _TrendLegend extends StatelessWidget {
+  const _TrendLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _dot(AppTheme.primaryColor, '재원생'),
+        const SizedBox(width: 14),
+        _dot(_jonghapColor, '종합반'),
+      ],
+    );
+  }
+
+  Widget _dot(Color color, String label) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 10, height: 3, color: color),
+          const SizedBox(width: 5),
+          Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade700)),
+        ],
+      );
+}
+
+/// 종합반 선 색. 재원생(파랑)과 확실히 갈리게 주황을 쓴다.
+const Color _jonghapColor = AppTheme.warningColor;
 
 class _TrendChart extends StatelessWidget {
   final List<EnrollTrendPoint> points;
@@ -426,12 +488,17 @@ class _TrendChart extends StatelessWidget {
             isCurved: false,
             barWidth: 2,
             color: AppTheme.primaryColor,
-            // DB 자동 생성분은 점을 채워 구분한다.
+            // 점을 채워 출처를 구분한다 — 엑셀은 속 빈 원,
+            // DB 자동 생성분은 파랑, 맨 뒤 '현재' 한 점은 초록.
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, _, _, index) => FlDotCirclePainter(
-                radius: 3.5,
-                color: points[index].isFromDb ? AppTheme.accentColor : Colors.white,
+                radius: points[index].isLive ? 4.5 : 3.5,
+                color: points[index].isLive
+                    ? AppTheme.successColor
+                    : points[index].isFromDb
+                        ? AppTheme.accentColor
+                        : Colors.white,
                 strokeColor: AppTheme.primaryColor,
                 strokeWidth: 2,
               ),
@@ -439,6 +506,27 @@ class _TrendChart extends StatelessWidget {
             belowBarData: BarAreaData(
               show: true,
               color: AppTheme.primaryColor.withValues(alpha: 0.08),
+            ),
+          ),
+          // 종합반 — 구분이 없는 달은 점을 빼서 선이 끊기게 둔다.
+          // 0으로 이으면 그 달에 종합반이 전멸한 것처럼 보인다.
+          LineChartBarData(
+            spots: [
+              for (var i = 0; i < points.length; i++)
+                if (points[i].jonghapStudents != null)
+                  FlSpot(i.toDouble(), points[i].jonghapStudents!.toDouble()),
+            ],
+            isCurved: false,
+            barWidth: 2,
+            color: _jonghapColor,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, _, _, _) => FlDotCirclePainter(
+                radius: 3,
+                color: Colors.white,
+                strokeColor: _jonghapColor,
+                strokeWidth: 2,
+              ),
             ),
           ),
         ],
@@ -465,6 +553,7 @@ class _FlowTable extends StatelessWidget {
           DataColumn(label: Text('월')),
           DataColumn(label: Text('재원생'), numeric: true),
           DataColumn(label: Text('신규'), numeric: true),
+          DataColumn(label: Text('종합'), numeric: true),
           DataColumn(label: Text('퇴원'), numeric: true),
           DataColumn(label: Text('1인당'), numeric: true),
           DataColumn(label: Text('출처')),
@@ -478,18 +567,64 @@ class _FlowTable extends StatelessWidget {
                 p.newStudents == null ? '-' : '+${p.newStudents}',
                 style: const TextStyle(color: AppTheme.successColor),
               )),
+              // 종합반은 그 달 인원과 전월 대비 증감을 같이 보여 준다.
+              DataCell(_JonghapCell(point: p)),
               DataCell(Text(
                 p.leftStudents == null ? '-' : '-${p.leftStudents}',
                 style: const TextStyle(color: AppTheme.errorColor),
               )),
               DataCell(Text(p.subjectsPerStudent.toStringAsFixed(2))),
               DataCell(Text(
-                p.isFromDb ? 'DB' : '엑셀',
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                p.isLive
+                    ? '현재'
+                    : p.isFromDb
+                        ? 'DB'
+                        : '엑셀',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: p.isLive ? AppTheme.successColor : Colors.grey.shade600,
+                ),
               )),
             ]),
         ],
       ),
+    );
+  }
+}
+
+/// 종합반 칸 — 인원과 전월 대비 증감을 나란히 둔다.
+class _JonghapCell extends StatelessWidget {
+  final EnrollTrendPoint point;
+
+  const _JonghapCell({required this.point});
+
+  @override
+  Widget build(BuildContext context) {
+    if (point.jonghapStudents == null) {
+      return Text('-', style: TextStyle(color: Colors.grey.shade500));
+    }
+
+    final change = point.jonghapChange;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('${point.jonghapStudents}'),
+        if (change != null) ...[
+          const SizedBox(width: 5),
+          Text(
+            change > 0 ? '+$change' : '$change',
+            style: TextStyle(
+              fontSize: 11,
+              color: change > 0
+                  ? AppTheme.successColor
+                  : change < 0
+                      ? AppTheme.errorColor
+                      : Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

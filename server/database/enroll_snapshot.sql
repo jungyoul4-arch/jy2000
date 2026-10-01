@@ -33,6 +33,13 @@ CREATE TABLE IF NOT EXISTS enroll_snapshot (
     student_count   INT NOT NULL DEFAULT 0 COMMENT '재원생 수',
     row_count       INT NOT NULL DEFAULT 0 COMMENT '수강 행수 (학생×과목×반)',
 
+    -- 종합반 수를 행에서 역산하지 않고 굳힐 때 직접 적는다.
+    -- 행 기준으로 세면 '그 달 수업기록이 있는 반에 속한' 학생만 잡혀
+    -- 반 배정이 없는 종합반생이 빠진다. 대시보드의 '현재'는 User를
+    -- 직접 세므로, 같은 잣대를 월 스냅샷에도 남겨야 10월이 굳는 순간
+    -- 같은 달 숫자가 달라지는 일이 없다.
+    jonghap_count   INT NULL COMMENT '종합반 재원생 수 (굳힌 시점 User.is_jonghap 기준, NULL=집계 전)',
+
     created_at      DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
 
     PRIMARY KEY (snapshot_id),

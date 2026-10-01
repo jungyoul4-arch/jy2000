@@ -34,15 +34,20 @@ class EnrollDashboardRepository {
         .toList();
   }
 
-  /// 한 달치 대시보드. 년월을 안 주면 서버가 최근 달을 고른다.
+  /// 한 달치 대시보드.
+  ///
+  /// [current]가 true면 저장된 스냅샷 대신 지금 DB 상태를 집계해 받는다.
+  /// 둘 다 안 주면 서버가 최근 달을 고른다.
   Future<EnrollDashboard?> getDashboard({
+    bool current = false,
     int? year,
     int? month,
     int? grade,
   }) async {
     final query = <String, dynamic>{};
-    if (year != null) query['year'] = year;
-    if (month != null) query['month'] = month;
+    if (current) query['current'] = 1;
+    if (!current && year != null) query['year'] = year;
+    if (!current && month != null) query['month'] = month;
     if (grade != null) query['grade'] = grade;
 
     final response = await _apiClient.get<Map<String, dynamic>>(

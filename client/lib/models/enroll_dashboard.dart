@@ -38,6 +38,7 @@ class NamedValue {
 }
 
 /// 스냅샷 출처. 2~8월은 엑셀, 9월부터는 DB에서 자동 생성된다.
+/// '현재' 보기는 저장된 스냅샷이 아니라 조회 시점의 DB라 'live'로 온다.
 class SnapshotInfo {
   final int year;
   final int month;
@@ -53,9 +54,14 @@ class SnapshotInfo {
     this.asOfDate,
   });
 
+  bool get isLive => sourceKind == 'live';
   bool get isFromDb => sourceKind == 'db';
-  String get label => '$year년 $month월';
-  String get sourceLabel => isFromDb ? 'DB 자동' : '엑셀';
+  String get label => isLive ? '현재' : '$year년 $month월';
+  String get sourceLabel => isLive
+      ? '현재 DB'
+      : isFromDb
+          ? 'DB 자동'
+          : '엑셀';
 
   factory SnapshotInfo.fromJson(Map<String, dynamic> json) => SnapshotInfo(
         year: _asInt(json['year']),
@@ -107,6 +113,12 @@ class EnrollTrendPoint {
   final int classes;
   final double subjectsPerStudent;
 
+  /// 종합반 수. 구분(attend_type)이 없는 달은 null이라 차트에서 선이 끊긴다.
+  final int? jonghapStudents;
+
+  /// 전월 대비 종합반 증감. 양쪽 달에 다 값이 있을 때만 들어온다.
+  final int? jonghapChange;
+
   /// 첫 달은 비교 대상이 없어 null이다.
   final int? newStudents;
   final int? leftStudents;
@@ -119,12 +131,16 @@ class EnrollTrendPoint {
     required this.enrollments,
     required this.classes,
     required this.subjectsPerStudent,
+    this.jonghapStudents,
+    this.jonghapChange,
     this.newStudents,
     this.leftStudents,
   });
 
-  String get label => '$month월';
+  /// 맨 뒤 한 점은 저장된 스냅샷이 아니라 조회 시점의 DB다.
+  bool get isLive => sourceKind == 'live';
   bool get isFromDb => sourceKind == 'db';
+  String get label => isLive ? '현재' : '$month월';
 
   factory EnrollTrendPoint.fromJson(Map<String, dynamic> json) => EnrollTrendPoint(
         year: _asInt(json['year']),
@@ -134,6 +150,9 @@ class EnrollTrendPoint {
         enrollments: _asInt(json['enrollments']),
         classes: _asInt(json['classes']),
         subjectsPerStudent: _asDouble(json['subjectsPerStudent']),
+        jonghapStudents:
+            json['jonghapStudents'] == null ? null : _asInt(json['jonghapStudents']),
+        jonghapChange: json['jonghapChange'] == null ? null : _asInt(json['jonghapChange']),
         newStudents: json['newStudents'] == null ? null : _asInt(json['newStudents']),
         leftStudents: json['leftStudents'] == null ? null : _asInt(json['leftStudents']),
       );
@@ -148,6 +167,11 @@ class EnrollKpi {
   final double scienceRate;
   final int upsellTargets;
 
+  /// 종합반 수.
+  /// '현재' 보기는 User(kind=2·재원·종합) 실수, 과거 달은 그 달 스냅샷 기준.
+  /// 구분이 없는 달은 null이라 화면에 '-'로 나온다.
+  final int? jonghapStudents;
+
   const EnrollKpi({
     required this.students,
     required this.enrollments,
@@ -156,10 +180,13 @@ class EnrollKpi {
     required this.subjectsPerStudent,
     required this.scienceRate,
     required this.upsellTargets,
+    this.jonghapStudents,
   });
 
   factory EnrollKpi.fromJson(Map<String, dynamic> json) => EnrollKpi(
         students: _asInt(json['students']),
+        jonghapStudents:
+            json['jonghapStudents'] == null ? null : _asInt(json['jonghapStudents']),
         enrollments: _asInt(json['enrollments']),
         classes: _asInt(json['classes']),
         regularClasses: _asInt(json['regularClasses']),
