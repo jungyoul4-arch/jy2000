@@ -7,7 +7,12 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+// 서버에는 .env가 있고 로컬에는 .env.local만 둔다. dotenv는 이미 설정된
+// 값을 덮지 않으므로 .env가 있으면 그쪽이 이긴다.
+// (로컬 .env를 FTP로 올려 서버 설정을 덮어쓴 사고가 세 번 있었다)
+for (const file of ['.env', '.env.local']) {
+  dotenv.config({ path: path.join(__dirname, '..', file) });
+}
 
 import pool from '../src/config/database';
 import svc from '../src/services/enrollDashboardService';
