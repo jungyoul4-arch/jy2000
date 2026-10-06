@@ -29,7 +29,10 @@ import { RowDataPacket } from 'mysql2';
 import pool from '../src/config/database';
 import enrollSnapshotService from '../src/services/enrollSnapshotService';
 
-const stamp = () => new Date().toISOString().replace('T', ' ').slice(0, 19);
+// toISOString은 UTC라 '10/1 02:00 KST'가 '9/30 17:00'으로 찍혀 cron이
+// 엉뚱한 날 돈 것처럼 보였다. 이 시스템은 전부 KST 기준이다.
+const stamp = () =>
+  new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 19);
 const log = (msg: string) => console.log(`[${stamp()}] ${msg}`);
 
 /** 인자가 없으면 전월. 있으면 'YYYY-MM'. */
@@ -60,12 +63,21 @@ async function main() {
     [year, month]
   );
 
-  if (existing.length > 0 && !force) {
+  // 엑셀로 넣은 달(2~8월 백필)은 건드리지 않는다. 사람이 받은 원본이 우선이다.
+  if (existing.length > 0 && existing[0].source_kind === 'excel' && !force) {
     const e = existing[0];
-    log(`이미 있습니다 (${e.source_kind}, 재원생 ${e.student_count}명, 수강 ${e.row_count}건). 건너뜁니다.`);
-    log('다시 만들려면 --force를 주세요.');
+    log(`엑셀 스냅샷이 있습니다 (재원생 ${e.student_count}명, 수강 ${e.row_count}건). 건너뜁니다.`);
+    log('덮어쓰려면 --force를 주세요.');
     await pool.end();
     process.exit(0);
+  }
+
+  // DB로 만든 달은 다시 만든다. 월 중간에 미리 만들어 둔 스냅샷이 있으면
+  // 수업기록이 덜 쌓인 상태로 굳어 있다 — 실제로 9월이 10일치로 남아
+  // 수강이 4%, 국어가 8% 적게 잡혀 있었다. 월말 실행이 정본이다.
+  if (existing.length > 0) {
+    const e = existing[0];
+    log(`기존 스냅샷을 다시 만듭니다 (재원생 ${e.student_count}명, 수강 ${e.row_count}건 → 갱신)`);
   }
 
   try {
