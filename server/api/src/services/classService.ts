@@ -2,6 +2,7 @@ import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { ClassListItem, ClassDetail, ClassListQuery, ClassCreate, ClassUpdate, ClassMember, LectureDate } from '../types';
 import { AppError } from '../middlewares/errorHandler';
+import { buildNamePhoneSearch } from '../utils/phone';
 
 // 과목 코드 맵
 const GENRE_MAP: { [key: number]: string } = {
@@ -691,9 +692,9 @@ export class ClassService {
     const params: any[] = [];
 
     if (search) {
-      query += ` AND (name LIKE ? OR phone LIKE ?)`;
-      const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm);
+      const s0 = buildNamePhoneSearch(search, { name: 'name', phone: 'phone' });
+      query += ` AND ${s0.clause}`;
+      params.push(...s0.params);
     }
 
     query += ` ORDER BY name ASC LIMIT 100`;
@@ -724,9 +725,9 @@ export class ClassService {
       query += ` AND kind IN (2, 3)`;
     }
 
-    query += ` AND (name LIKE ? OR phone LIKE ?)`;
-    const searchTerm = `%${search}%`;
-    params.push(searchTerm, searchTerm);
+    const s0 = buildNamePhoneSearch(search, { name: 'name', phone: 'phone' });
+    query += ` AND ${s0.clause}`;
+    params.push(...s0.params);
 
     query += ` ORDER BY name ASC LIMIT 50`;
 

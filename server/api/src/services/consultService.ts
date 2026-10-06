@@ -10,7 +10,7 @@ import {
   NEW_INQUIRY_CONSULT_TYPE_CODE,
 } from '../types';
 import { AppError } from '../middlewares/errorHandler';
-import { cleanPhone } from '../utils/phone';
+import { cleanPhone, buildNamePhoneSearch } from '../utils/phone';
 
 // 일정 캘린더 연동 대상 채널
 // 전화(CHANNEL_PHONE) -> '전화상담' 카테고리, 방문(CHANNEL_VISIT) -> 시간대 슬롯
@@ -212,9 +212,12 @@ export class ConsultService {
     }
 
     if (query.search) {
-      conditions.push('(u.name LIKE ? OR u.phone LIKE ?)');
-      const searchTerm = `%${query.search}%`;
-      params.push(searchTerm, searchTerm);
+      const { clause, params: searchParams } = buildNamePhoneSearch(query.search, {
+        name: 'u.name',
+        phone: 'u.phone',
+      });
+      conditions.push(clause);
+      params.push(...searchParams);
     }
 
     const whereClause = conditions.join(' AND ');
@@ -549,7 +552,7 @@ export class ConsultService {
    * 화면 자동 채움에 필요한 학교/학년/성별/과목/학부모 연락처를 함께 반환한다.
    */
   async lookupInquiryStudents(search: string): Promise<InquiryStudentLookup[]> {
-    const searchTerm = `%${search}%`;
+    const search0 = buildNamePhoneSearch(search, { name: 'u.name', phone: 'u.phone' });
 
     const sql = `
       SELECT
@@ -560,7 +563,8 @@ export class ConsultService {
         u.grade,
         s.gender_code,
         s.school_id,
-        COALESCE(sch.school_name, s.school_name) AS school_name,
+        -- student_info에는 school_name이 없다. School 조인 값만 쓴다.
+        sch.school_name,
         s.subject_code,
         pp.phone AS guardian_phone
       FROM User u
@@ -568,12 +572,12 @@ export class ConsultService {
       LEFT JOIN School sch ON s.school_id = sch.school_id
       LEFT JOIN ParentPhone pp ON pp.student_id = u.user_id AND pp.seq = 1
       WHERE u.kind = 2
-        AND (u.name LIKE ? OR u.phone LIKE ?)
+        AND ${search0.clause}
       ORDER BY u.active_flag DESC, u.name ASC
       LIMIT 30
     `;
 
-    const [rows] = await pool.query<RowDataPacket[]>(sql, [searchTerm, searchTerm]);
+    const [rows] = await pool.query<RowDataPacket[]>(sql, search0.params);
     return rows as InquiryStudentLookup[];
   }
 
@@ -612,9 +616,13 @@ export class ConsultService {
 
     if (options.search && options.search.trim()) {
       // 이름·전화·학교로 찾는다. 기존생은 1,100명이 넘어 검색이 없으면 못 쓴다.
-      conditions.push('(u.name LIKE ? OR u.phone LIKE ? OR sch.school_name LIKE ?)');
-      const term = `%${options.search.trim()}%`;
-      params.push(term, term, term);
+      const { clause, params: searchParams } = buildNamePhoneSearch(options.search, {
+        name: 'u.name',
+        phone: 'u.phone',
+        extra: ['sch.school_name'],
+      });
+      conditions.push(clause);
+      params.push(...searchParams);
     }
 
     // 상담이 없는 학생도 보여 줘야 첫 상담을 붙일 수 있다. LEFT JOIN으로 두고

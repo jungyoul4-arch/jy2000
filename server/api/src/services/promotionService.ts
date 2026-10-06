@@ -2,6 +2,7 @@ import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { Promotion, PromotionCreate, ListQueryParams } from '../types';
 import { AppError } from '../middlewares/errorHandler';
+import { buildNamePhoneSearch } from '../utils/phone';
 
 export class PromotionService {
   // 프로모션 목록 조회
@@ -409,7 +410,7 @@ export class PromotionService {
 
   // User 테이블에서 학생 검색 (이름 또는 전화번호)
   async searchUsers(query: string): Promise<any[]> {
-    const searchTerm = `%${query}%`;
+    const search0 = buildNamePhoneSearch(query, { name: 'u.name', phone: 'u.phone' });
     const sql = `
       SELECT
         u.user_id,
@@ -424,11 +425,11 @@ export class PromotionService {
       LEFT JOIN School s ON si.school_id = s.school_id
       LEFT JOIN code_master cm ON si.status_code = cm.code_id
       WHERE u.kind = 2
-        AND (u.name LIKE ? OR u.phone LIKE ?)
+        AND ${search0.clause}
       ORDER BY u.name
       LIMIT 20
     `;
-    const [rows] = await pool.query<RowDataPacket[]>(sql, [searchTerm, searchTerm]);
+    const [rows] = await pool.query<RowDataPacket[]>(sql, search0.params);
     return rows;
   }
 

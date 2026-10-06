@@ -1,7 +1,7 @@
 import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { AppError } from '../middlewares/errorHandler';
-import { cleanPhone } from '../utils/phone';
+import { cleanPhone, buildNamePhoneSearch } from '../utils/phone';
 
 export interface Staff {
   user_id: number;
@@ -59,9 +59,12 @@ export class StaffService {
     const params: any[] = [];
 
     if (query.search) {
-      conditions.push('(name LIKE ? OR phone LIKE ?)');
-      const searchTerm = `%${query.search}%`;
-      params.push(searchTerm, searchTerm);
+      const { clause, params: searchParams } = buildNamePhoneSearch(query.search, {
+        name: 'name',
+        phone: 'phone',
+      });
+      conditions.push(clause);
+      params.push(...searchParams);
     }
 
     const whereClause = conditions.join(' AND ');

@@ -2,7 +2,7 @@ import pool from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { Student, StudentDetail, StudentListQuery, StudentStateChange, StudentUpdate, StudentCreate, ParentInfo } from '../types';
 import { AppError } from '../middlewares/errorHandler';
-import { cleanPhone } from '../utils/phone';
+import { cleanPhone, buildNamePhoneSearch } from '../utils/phone';
 
 // 학생 상태와 User.active_flag 매핑
 const ACTIVE_USER_STATUS_CODES = ['STATUS_REGISTER', 'STATUS_ENROLLED'];   // 등록/재원 -> 1
@@ -203,9 +203,12 @@ export class StudentService {
     }
 
     if (query.search) {
-      conditions.push('(u.name LIKE ? OR u.phone LIKE ?)');
-      const searchTerm = `%${query.search}%`;
-      params.push(searchTerm, searchTerm);
+      const { clause, params: searchParams } = buildNamePhoneSearch(query.search, {
+        name: 'u.name',
+        phone: 'u.phone',
+      });
+      conditions.push(clause);
+      params.push(...searchParams);
     }
 
     if (query.from_date) {
