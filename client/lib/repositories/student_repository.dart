@@ -96,6 +96,10 @@ class StudentRepository {
           'change_reason': data.changeReason,
         if (data.newTcId != null)
           'new_tc_id': data.newTcId,
+        // 단과반(0)도 보내야 하므로 null인지만 본다. falsy로 거르면
+        // 종합반 -> 단과반 변경이 전송되지 않는다.
+        if (data.newIsJonghap != null)
+          'new_is_jonghap': data.newIsJonghap,
       },
     );
 
