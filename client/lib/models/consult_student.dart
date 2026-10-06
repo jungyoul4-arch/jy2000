@@ -54,6 +54,12 @@ class ConsultStudent {
   final String? lastConsultContent;
   final String? lastConsultTypeName;
 
+  /// 앞으로 잡힌 상담 중 가장 가까운 것. 등록 시점에 적어 둔 '상담할 내용'이
+  /// 여기 들어온다. 계획이 없으면 null.
+  final String? nextPlanDate;
+  final String? nextPlanContent;
+  final String? nextPlanTypeName;
+
   const ConsultStudent({
     required this.studentId,
     required this.studentName,
@@ -66,9 +72,13 @@ class ConsultStudent {
     this.lastConsultDate,
     this.lastConsultContent,
     this.lastConsultTypeName,
+    this.nextPlanDate,
+    this.nextPlanContent,
+    this.nextPlanTypeName,
   });
 
   bool get hasConsult => consultCount > 0;
+  bool get hasPlan => nextPlanDate != null;
   bool get isEnrolled => activeFlag == 1;
   bool get isWithdrawn => statusCode == 'STATUS_WITHDRAW';
 
@@ -120,6 +130,9 @@ class ConsultStudent {
       lastConsultDate: asString(json['last_consult_date']),
       lastConsultContent: asString(json['last_consult_content']),
       lastConsultTypeName: asString(json['last_consult_type_name']),
+      nextPlanDate: asString(json['next_plan_date']),
+      nextPlanContent: asString(json['next_plan_content']),
+      nextPlanTypeName: asString(json['next_plan_type_name']),
     );
   }
 }

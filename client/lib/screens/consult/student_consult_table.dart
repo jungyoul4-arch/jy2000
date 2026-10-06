@@ -101,18 +101,49 @@ class StudentConsultTableState extends ConsumerState<StudentConsultTable> {
                 ),
               ),
               const SizedBox(width: 12),
+
+              // 과거/미래는 켜짐·꺼짐이 아니라 둘 중 하나를 고르는 것이다.
+              // FilterChip으로 두면 지금 어느 쪽을 보고 있는지 알기 어렵다.
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    icon: const Icon(Icons.history, size: 16),
+                    label: Text('과거 $word', style: const TextStyle(fontSize: 12)),
+                  ),
+                  ButtonSegment(
+                    value: true,
+                    icon: const Icon(Icons.event_note, size: 16),
+                    label: Text('미래 $word', style: const TextStyle(fontSize: 12)),
+                  ),
+                ],
+                selected: {_query.planOnly},
+                showSelectedIcon: false,
+                style: const ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onSelectionChanged: (sel) =>
+                    setState(() => _query = _query.copyWith(planOnly: sel.first)),
+              ),
+              const SizedBox(width: 12),
+
               for (final sort in ConsultStudentSort.values)
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: ChoiceChip(
-                    label: Text(sort.label, style: const TextStyle(fontSize: 12)),
+                    label: Text(
+                      _sortLabel(sort, _query.planOnly),
+                      style: const TextStyle(fontSize: 12),
+                    ),
                     selected: _query.sort == sort,
                     visualDensity: VisualDensity.compact,
                     onSelected: (_) => setState(() => _query = _query.copyWith(sort: sort)),
                   ),
                 ),
               // 검색 중에는 대상 전원에서 찾으므로 이 칩이 의미가 없다.
-              if (!searching)
+              // 미래 보기는 애초에 상담이 있는 학생만 나온다.
+              if (!searching && !_query.planOnly)
                 FilterChip(
                   label: Text('$word 없는 학생 포함', style: const TextStyle(fontSize: 12)),
                   selected: !_query.hasConsultOnly,
@@ -151,7 +182,11 @@ class StudentConsultTableState extends ConsumerState<StudentConsultTable> {
               if (students.isEmpty) {
                 return Center(
                   child: Text(
-                    searching ? '검색 결과가 없습니다' : widget.emptyLabel,
+                    searching
+                        ? '검색 결과가 없습니다'
+                        : _query.planOnly
+                            ? '앞으로 잡힌 $word이 없습니다'
+                            : widget.emptyLabel,
                     style: const TextStyle(color: Colors.grey),
                   ),
                 );
@@ -159,6 +194,7 @@ class StudentConsultTableState extends ConsumerState<StudentConsultTable> {
               return _Table(
                 students: students,
                 consultWord: word,
+                planMode: _query.planOnly,
                 showStatus: widget.scope == ConsultStudentScope.existing,
                 onTap: _openDialog,
               );
@@ -174,6 +210,9 @@ class _Table extends StatelessWidget {
   final List<ConsultStudent> students;
   final String consultWord;
 
+  /// 계획 보기에서는 지난 내역 대신 앞으로 잡힌 일정을 보여 준다.
+  final bool planMode;
+
   /// 신규생은 전원이 신규생이라 상태 배지가 무의미하다. 재원·퇴원에서만 붙인다.
   final bool showStatus;
   final void Function(ConsultStudent) onTap;
@@ -181,6 +220,7 @@ class _Table extends StatelessWidget {
   const _Table({
     required this.students,
     required this.consultWord,
+    required this.planMode,
     required this.showStatus,
     required this.onTap,
   });
@@ -199,11 +239,20 @@ class _Table extends StatelessWidget {
         const DataColumn2(label: Text('학교'), size: ColumnSize.S),
         const DataColumn2(label: Text('연락처'), fixedWidth: 130),
         DataColumn2(label: Text(consultWord), fixedWidth: 60, numeric: true),
-        DataColumn2(label: Text('최근 $consultWord일'), fixedWidth: 110),
-        DataColumn2(label: Text('최근 $consultWord 내용'), size: ColumnSize.L),
+        DataColumn2(
+          label: Text(planMode ? '예정일' : '최근 $consultWord일'),
+          fixedWidth: planMode ? 130 : 110,
+        ),
+        DataColumn2(
+          label: Text(planMode ? '$consultWord할 내용' : '최근 $consultWord 내용'),
+          size: ColumnSize.L,
+        ),
       ],
       rows: students.map((s) {
-        final preview = s.lastConsultContent?.replaceAll(RegExp(r'\s+'), ' ').trim();
+        // 계획 보기면 앞으로 잡힌 일정을, 아니면 지난 내역을 보여 준다.
+        final rawPreview = planMode ? s.nextPlanContent : s.lastConsultContent;
+        final preview = rawPreview?.replaceAll(RegExp(r'\s+'), ' ').trim();
+        final typeName = planMode ? s.nextPlanTypeName : s.lastConsultTypeName;
         final status = s.statusLabel;
 
         return DataRow2(
@@ -231,21 +280,28 @@ class _Table extends StatelessWidget {
             DataCell(Text(s.schoolName ?? '-', overflow: TextOverflow.ellipsis)),
             DataCell(Text(formatPhone(s.phone))),
             DataCell(Text(s.hasConsult ? '${s.consultCount}' : '-')),
-            DataCell(Text(
-              s.hasConsult ? _shortDate(s.lastConsultDate) : '$consultWord 없음',
-              style: s.hasConsult
-                  ? null
-                  : TextStyle(fontSize: 12, color: Colors.grey.shade400),
-            )),
+            DataCell(planMode
+                ? Text(
+                    _planDate(s.nextPlanDate),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  )
+                : Text(
+                    s.hasConsult ? _shortDate(s.lastConsultDate) : '$consultWord 없음',
+                    style: s.hasConsult
+                        ? null
+                        : TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                  )),
             DataCell(
               preview == null || preview.isEmpty
                   ? const Text('-')
                   : Row(
                       children: [
-                        if (s.lastConsultTypeName != null) ...[
+                        if (typeName != null) ...[
                           MiniBadge(
-                            text: s.lastConsultTypeName!,
-                            color: AppTheme.primaryColor,
+                            text: typeName,
+                            color: planMode
+                                ? AppTheme.warningColor
+                                : AppTheme.primaryColor,
                           ),
                           const SizedBox(width: 6),
                         ],
@@ -265,6 +321,25 @@ class _Table extends StatelessWidget {
       }).toList(),
     );
   }
+}
+
+/// 미래 보기에서는 '최근 상담순'이 말이 안 된다. 가까운 예정일 순이다.
+String _sortLabel(ConsultStudentSort sort, bool planMode) {
+  if (sort == ConsultStudentSort.name) return sort.label;
+  return planMode ? '예정일순' : sort.label;
+}
+
+// 요일은 직접 붙인다. DateFormat의 'ko' 로케일은 initializeDateFormatting을
+// 거쳐야 하는데 이 앱은 그 초기화를 하지 않아 런타임에 터진다.
+const _weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+
+/// 계획은 시각까지 봐야 한다. '10-07(화) 16:20' 꼴로 둔다.
+String _planDate(String? raw) {
+  if (raw == null) return '-';
+  final date = DateTime.tryParse(raw);
+  if (date == null) return raw;
+  final day = _weekdays[date.weekday - 1];
+  return '${DateFormat('MM-dd').format(date)}($day) ${DateFormat('HH:mm').format(date)}';
 }
 
 String _shortDate(String? raw) {

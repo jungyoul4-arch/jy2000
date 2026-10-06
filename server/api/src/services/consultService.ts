@@ -601,6 +601,8 @@ export class ConsultService {
       search?: string | null;
       /** true면 상담이 한 건이라도 있는 학생만. 기본은 전원. */
       hasConsultOnly?: boolean;
+      /** true면 앞으로 잡힌 상담이 있는 학생만. 가까운 계획 순으로 준다. */
+      planOnly?: boolean;
       limit?: number;
     } = {}
   ): Promise<RowDataPacket[]> {
@@ -627,10 +629,17 @@ export class ConsultService {
 
     // 상담이 없는 학생도 보여 줘야 첫 상담을 붙일 수 있다. LEFT JOIN으로 두고
     // 화면에서 '상담 없음'으로 표시한다. 최근순에서는 NULL이 뒤로 밀린다.
-    const having = options.hasConsultOnly ? 'HAVING consult_count > 0' : '';
+    const havingParts: string[] = [];
+    if (options.hasConsultOnly) havingParts.push('consult_count > 0');
+    if (options.planOnly) havingParts.push('next_plan_date IS NOT NULL');
+    const having = havingParts.length ? `HAVING ${havingParts.join(' AND ')}` : '';
 
-    const orderBy =
-      sort === 'name'
+    // 계획 보기는 가까운 일정이 먼저 와야 한다. 지난 상담 순서는 의미가 없다.
+    const orderBy = options.planOnly
+      ? sort === 'name'
+        ? 'u.name ASC, next_plan_date ASC'
+        : 'next_plan_date ASC, u.name ASC'
+      : sort === 'name'
         ? 'u.name ASC, last_consult_date DESC'
         : 'last_consult_date IS NULL ASC, last_consult_date DESC, u.name ASC';
 
@@ -644,20 +653,39 @@ export class ConsultService {
         si.status_code,
         COALESCE(sch.school_name, '') AS school_name,
         COUNT(c.consult_id) AS consult_count,
-        MAX(c.consult_date) AS last_consult_date,
+        -- 지난 상담과 앞으로 잡힌 상담을 나눈다. 둘을 MAX로 뭉치면 미래
+        -- 날짜가 '최근 상담' 자리를 차지해 지난 내역이 가려지고, 기록인지
+        -- 계획인지도 구분이 안 된다.
+        MAX(CASE WHEN c.consult_date <= NOW() THEN c.consult_date END) AS last_consult_date,
+        MIN(CASE WHEN c.consult_date > NOW() THEN c.consult_date END) AS next_plan_date,
         -- 마지막 상담의 내용과 유형. MAX(consult_date)는 날짜만 주고 그
         -- 행의 내용은 못 주므로 따로 꺼낸다. 목록에서 '이 학생과 뭘
         -- 얘기했더라'가 보여야 학생을 고를 수 있다.
         -- content는 TEXT라 길이를 잘라 내려보낸다(목록은 두 줄만 쓴다).
         (SELECT LEFT(c2.content, 200) FROM consult c2
          WHERE c2.student_id = u.user_id AND c2.deleted_at IS NULL
+           AND c2.consult_date <= NOW()
          ORDER BY c2.consult_date DESC, c2.consult_id DESC
          LIMIT 1) AS last_consult_content,
         (SELECT cm.code_name FROM consult c2
          LEFT JOIN code_master cm ON cm.code_id = c2.consult_type_code
          WHERE c2.student_id = u.user_id AND c2.deleted_at IS NULL
+           AND c2.consult_date <= NOW()
          ORDER BY c2.consult_date DESC, c2.consult_id DESC
-         LIMIT 1) AS last_consult_type_name
+         LIMIT 1) AS last_consult_type_name,
+        -- 앞으로 잡힌 상담 중 가장 가까운 것. 등록 시점에 적어 둔 '상담할
+        -- 내용'이 여기 들어온다.
+        (SELECT LEFT(c2.content, 200) FROM consult c2
+         WHERE c2.student_id = u.user_id AND c2.deleted_at IS NULL
+           AND c2.consult_date > NOW()
+         ORDER BY c2.consult_date ASC, c2.consult_id ASC
+         LIMIT 1) AS next_plan_content,
+        (SELECT cm.code_name FROM consult c2
+         LEFT JOIN code_master cm ON cm.code_id = c2.consult_type_code
+         WHERE c2.student_id = u.user_id AND c2.deleted_at IS NULL
+           AND c2.consult_date > NOW()
+         ORDER BY c2.consult_date ASC, c2.consult_id ASC
+         LIMIT 1) AS next_plan_type_name
       FROM User u
       LEFT JOIN consult c ON c.student_id = u.user_id AND c.deleted_at IS NULL
       LEFT JOIN student_info si ON si.student_id = u.user_id AND si.deleted_at IS NULL

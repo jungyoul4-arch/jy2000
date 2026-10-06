@@ -100,6 +100,7 @@ class ConsultRepository {
     ConsultStudentSort sort = ConsultStudentSort.recent,
     String? search,
     bool hasConsultOnly = false,
+    bool planOnly = false,
   }) async {
     final queryParams = <String, dynamic>{
       'scope': scope.value,
@@ -109,6 +110,7 @@ class ConsultRepository {
       queryParams['search'] = search.trim();
     }
     if (hasConsultOnly) queryParams['hasConsultOnly'] = 'true';
+    if (planOnly) queryParams['planOnly'] = 'true';
 
     final response = await _apiClient.get<Map<String, dynamic>>(
       '/consult/students',

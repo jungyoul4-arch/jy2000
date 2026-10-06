@@ -139,23 +139,29 @@ class ConsultStudentQuery {
   /// 기본은 상담이 있는 학생만 보여 준다.
   final bool hasConsultOnly;
 
+  /// 앞으로 잡힌 상담이 있는 학생만. 가까운 계획 순으로 온다.
+  final bool planOnly;
+
   const ConsultStudentQuery({
     required this.scope,
     this.sort = ConsultStudentSort.recent,
     this.search = '',
     this.hasConsultOnly = true,
+    this.planOnly = false,
   });
 
   ConsultStudentQuery copyWith({
     ConsultStudentSort? sort,
     String? search,
     bool? hasConsultOnly,
+    bool? planOnly,
   }) =>
       ConsultStudentQuery(
         scope: scope,
         sort: sort ?? this.sort,
         search: search ?? this.search,
         hasConsultOnly: hasConsultOnly ?? this.hasConsultOnly,
+        planOnly: planOnly ?? this.planOnly,
       );
 
   @override
@@ -164,10 +170,11 @@ class ConsultStudentQuery {
       other.scope == scope &&
       other.sort == sort &&
       other.search == search &&
-      other.hasConsultOnly == hasConsultOnly;
+      other.hasConsultOnly == hasConsultOnly &&
+      other.planOnly == planOnly;
 
   @override
-  int get hashCode => Object.hash(scope, sort, search, hasConsultOnly);
+  int get hashCode => Object.hash(scope, sort, search, hasConsultOnly, planOnly);
 }
 
 final consultStudentsProvider =
@@ -183,6 +190,7 @@ final consultStudentsProvider =
     sort: query.sort,
     search: query.search,
     hasConsultOnly: searching ? false : query.hasConsultOnly,
+    planOnly: query.planOnly,
   );
 });
 

@@ -65,6 +65,7 @@ export class ConsultController {
       sort: req.query.sort === 'name' ? 'name' : 'recent',
       search: (req.query.search as string) ?? null,
       hasConsultOnly: req.query.hasConsultOnly === 'true',
+      planOnly: req.query.planOnly === 'true',
       limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
     });
 

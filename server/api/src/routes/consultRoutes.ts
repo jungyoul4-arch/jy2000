@@ -45,6 +45,7 @@ router.get(
     query('sort').optional().isIn(['recent', 'name']),
     query('search').optional().isString().trim().isLength({ max: 50 }),
     query('hasConsultOnly').optional().isBoolean(),
+    query('planOnly').optional().isBoolean(),
     query('limit').optional().isInt({ min: 1, max: 2000 }),
   ]),
   consultController.getConsultStudents
