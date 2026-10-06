@@ -440,7 +440,11 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
 
               const SizedBox(height: 24),
 
-              // 상담 내용
+              // 상담(할) 내용
+              //
+              // 등록 시점에는 아직 상담 전일 수 있다. 상담 계획을 미리
+              // 적어 두고, 상담을 마친 뒤 상세 화면에서 고치면 그대로
+              // 상담 기록이 된다. 그래서 여기만 '(할)'을 붙인다.
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -448,17 +452,22 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '상담 내용',
+                        '상담(할) 내용',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '상담 전이면 상담할 내용을 적어 두세요. 상담 후 수정하면 상담 기록이 됩니다.',
+                        style: TextStyle(fontSize: 12.5, color: Colors.grey.shade600),
                       ),
                       const SizedBox(height: 16),
                       FormBuilderTextField(
                         name: 'content',
                         decoration: const InputDecoration(
-                          labelText: '상담 내용',
-                          hintText: '상담 내용을 입력하세요',
+                          labelText: '상담(할) 내용',
+                          hintText: '상담할 내용이나 상담한 내용을 입력하세요',
                         ),
                         maxLines: 4,
                       ),

@@ -7,16 +7,18 @@ import '../../models/consult_student.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/consult_provider.dart';
 import '../../widgets/logout_button.dart';
-import 'student_consult_browser.dart';
+import 'student_consult_dialog.dart';
+import 'student_consult_table.dart';
 import 'tc_register_dialog.dart';
 
 /// 상담 관리
 ///
-/// 신규생을 뺀 학생(재원 또는 퇴원)을 먼저 보여 주고, 고르면 그 학생의
-/// 상담 내역이 뜬다. 신규생은 전용 화면(신규생 문의)에서 다룬다.
+/// 신규생을 뺀 학생(재원 또는 퇴원)을 보여 준다. 신규생은 전용 화면에서
+/// 다룬다. 목록이 가로를 다 쓰고, 고른 학생의 상담 내역은 팝업으로 뜬다.
 ///
-/// 상담 등록은 학생을 고른 뒤 그 학생의 목록 위에서 한다. 전역 버튼으로
-/// 두면 폼에서 학생을 다시 골라야 해 같은 일을 두 번 하게 된다.
+/// 상담 등록은 두 길이 있다.
+///   상단 버튼 — 학생을 아직 못 정했을 때. 폼 안에서 타입어헤드로 고른다.
+///   팝업 안   — 학생이 정해진 상태. 그 학생에게 바로 붙는다.
 class ConsultListScreen extends ConsumerStatefulWidget {
   const ConsultListScreen({super.key});
 
@@ -41,17 +43,21 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
     }
   }
 
-  Future<void> _addConsult(ConsultStudent student) async {
+  /// [student]가 없으면 폼에서 학생을 직접 고른다.
+  Future<void> _addConsult({ConsultStudent? student}) async {
     final uri = Uri(
       path: AppRoutes.consultCreate,
-      queryParameters: {'studentId': '${student.studentId}'},
+      queryParameters:
+          student == null ? null : {'studentId': '${student.studentId}'},
     );
 
     await context.push(uri.toString());
     if (!mounted) return;
 
     ref.invalidate(consultStudentsProvider);
-    ref.invalidate(studentConsultListProvider(student.studentId));
+    if (student != null) {
+      ref.invalidate(studentConsultListProvider(student.studentId));
+    }
   }
 
   @override
@@ -77,13 +83,26 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
             ),
             const SizedBox(width: 8),
           ],
+          FilledButton.icon(
+            onPressed: () => _addConsult(),
+            icon: const Icon(Icons.add),
+            label: const Text('상담 등록'),
+          ),
+          const SizedBox(width: 16),
           const LogoutButton(),
         ],
       ),
-      body: StudentConsultBrowser(
+      body: StudentConsultTable(
         scope: ConsultStudentScope.existing,
-        addConsultLabel: '상담 등록',
-        onAddConsult: _addConsult,
+        emptyLabel: '재원·퇴원 학생이 없습니다',
+        actions: [
+          StudentConsultAction(
+            label: '상담 등록',
+            icon: Icons.add,
+            primary: true,
+            onTap: (student) => _addConsult(student: student),
+          ),
+        ],
       ),
     );
   }
