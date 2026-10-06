@@ -31,6 +31,7 @@ _$StudentImpl _$$StudentImplFromJson(Map<String, dynamic> json) =>
       addressDetail: json['address_detail'] as String?,
       statusCode: json['status_code'] as String,
       statusName: json['status_name'] as String?,
+      isJonghap: const FlexibleIntConverter().fromJson(json['is_jonghap']),
       subStatusCode: json['sub_status_code'] as String?,
       subStatusName: json['sub_status_name'] as String?,
       classTypeCode: json['class_type_code'] as String?,
@@ -81,6 +82,7 @@ Map<String, dynamic> _$$StudentImplToJson(_$StudentImpl instance) =>
       'address_detail': instance.addressDetail,
       'status_code': instance.statusCode,
       'status_name': instance.statusName,
+      'is_jonghap': const FlexibleIntConverter().toJson(instance.isJonghap),
       'sub_status_code': instance.subStatusCode,
       'sub_status_name': instance.subStatusName,
       'class_type_code': instance.classTypeCode,
@@ -176,6 +178,7 @@ _$StudentStateChangeImpl _$$StudentStateChangeImplFromJson(
   newSubStatusCode: json['new_sub_status_code'] as String?,
   changeReason: json['change_reason'] as String?,
   newTcId: (json['new_tc_id'] as num?)?.toInt(),
+  newIsJonghap: (json['new_is_jonghap'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$$StudentStateChangeImplToJson(
@@ -186,6 +189,7 @@ Map<String, dynamic> _$$StudentStateChangeImplToJson(
   'new_sub_status_code': instance.newSubStatusCode,
   'change_reason': instance.changeReason,
   'new_tc_id': instance.newTcId,
+  'new_is_jonghap': instance.newIsJonghap,
 };
 
 _$StudentCreateImpl _$$StudentCreateImplFromJson(Map<String, dynamic> json) =>

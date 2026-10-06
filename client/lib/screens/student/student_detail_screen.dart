@@ -192,6 +192,9 @@ class StudentDetailScreen extends ConsumerWidget {
                       title: '관리 정보',
                       items: [
                         _InfoItem('담당 TC', student.tcName ?? '-'),
+                        // 반 상태는 User.is_jonghap. 반 유형(class_type_code)과
+                        // 다른 값이라 따로 보여 준다.
+                        _InfoItem('반 상태', student.isJonghap == 1 ? '종합반' : '단과반'),
                         _InfoItem('반 유형', student.classTypeName ?? '-'),
                         _InfoItem('과목', SubjectCode.getName(student.subjectCode)),
                         _InfoItem('유입경로', student.sourceName ?? '-'),
@@ -695,6 +698,9 @@ class StudentDetailScreen extends ConsumerWidget {
 
   void _showStatusChangeDialog(BuildContext context, WidgetRef ref, Student student) {
     String? selectedStatus = student.statusCode;
+    // 반 상태(User.is_jonghap)도 여기서 같이 바꾼다. 상태와 함께 움직이는
+    // 일이 많아 화면을 따로 두지 않는다.
+    int selectedJonghap = student.isJonghap == 1 ? 1 : 0;
     final reasonController = TextEditingController();
 
     showDialog(
@@ -731,6 +737,30 @@ class StudentDetailScreen extends ConsumerWidget {
                       },
                     ),
                     const SizedBox(height: 16),
+                    InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: '반 상태',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Row(
+                        children: [
+                          for (final option in const [
+                            (1, '종합반'),
+                            (0, '단과반'),
+                          ])
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(option.$2),
+                                selected: selectedJonghap == option.$1,
+                                onSelected: (_) =>
+                                    setState(() => selectedJonghap = option.$1),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: reasonController,
                       decoration: const InputDecoration(
@@ -749,7 +779,9 @@ class StudentDetailScreen extends ConsumerWidget {
                   child: const Text('취소'),
                 ),
                 FilledButton(
-                  onPressed: selectedStatus == student.statusCode
+                  // 상태와 반 상태 중 하나라도 바뀌면 저장할 수 있다.
+                  onPressed: selectedStatus == student.statusCode &&
+                          selectedJonghap == (student.isJonghap == 1 ? 1 : 0)
                       ? null
                       : () async {
                           Navigator.pop(context);
@@ -759,6 +791,7 @@ class StudentDetailScreen extends ConsumerWidget {
                             student.studentId,
                             selectedStatus!,
                             reasonController.text.isEmpty ? null : reasonController.text,
+                            selectedJonghap,
                           );
                         },
                   child: const Text('변경'),
@@ -777,6 +810,7 @@ class StudentDetailScreen extends ConsumerWidget {
     int studentId,
     String newStatusCode,
     String? reason,
+    int newIsJonghap,
   ) async {
     try {
       final repository = StudentRepository();
@@ -784,6 +818,7 @@ class StudentDetailScreen extends ConsumerWidget {
         studentId: studentId,
         newStatusCode: newStatusCode,
         changeReason: reason,
+        newIsJonghap: newIsJonghap,
       ));
 
       // 상세 정보 새로고침

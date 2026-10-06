@@ -86,6 +86,8 @@ export interface StudentStateChange {
   new_sub_status_code?: string;
   change_reason?: string;
   new_tc_id?: number;
+  /** 반 상태 (User.is_jonghap). 1=종합반, 0=단과반. 안 보내면 그대로 둔다. */
+  new_is_jonghap?: number;
 }
 
 // 보호자 정보

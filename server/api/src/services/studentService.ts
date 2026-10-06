@@ -247,6 +247,7 @@ export class StudentService {
         u.name as student_name,
         u.phone,
         u.email,
+        u.is_jonghap,
         s.birth_date,
         s.gender_code,
         g.code_name as gender_name,
@@ -324,6 +325,7 @@ export class StudentService {
         u.phone,
         s.phone_sub,
         u.email,
+        u.is_jonghap,
         s.birth_date,
         s.gender_code,
         g.code_name as gender_name,
@@ -678,6 +680,17 @@ export class StudentService {
            SET active_flag = ?, updated_at = NOW()
            WHERE user_id = ? AND kind = 2 AND active_flag <> ?`,
           [nextActiveFlag, data.student_id, nextActiveFlag]
+        );
+      }
+
+      // 반 상태(종합/단과). 상태 변경 화면에서 같이 고를 수 있어 함께 받는다.
+      // 안 보내면 손대지 않는다 — 기존 호출자가 깨지면 안 된다.
+      if (data.new_is_jonghap !== undefined && data.new_is_jonghap !== null) {
+        await connection.query<ResultSetHeader>(
+          `UPDATE User
+           SET is_jonghap = ?, updated_at = NOW()
+           WHERE user_id = ? AND kind = 2`,
+          [data.new_is_jonghap, data.student_id]
         );
       }
 

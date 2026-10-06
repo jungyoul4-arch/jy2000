@@ -46,6 +46,10 @@ export const validateStudentStateChange: ValidationChain[] = [
     .trim()
     .isLength({ max: 1000 })
     .withMessage('change_reason must be less than 1000 characters'),
+  body('new_is_jonghap')
+    .optional()
+    .isInt({ min: 0, max: 1 })
+    .withMessage('new_is_jonghap must be 0 or 1'),
   body('new_tc_id')
     .optional()
     .isInt({ min: 1 })

@@ -5,6 +5,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/routes.dart';
+import '../../config/theme.dart';
 import '../../providers/student_provider.dart';
 import '../../providers/code_provider.dart';
 import '../../models/student.dart';
@@ -176,6 +177,15 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('학생 관리'),
+            const SizedBox(width: 8),
+            Text(
+              '(★ = 종합반)',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.normal,
+                color: Colors.grey.shade600,
+              ),
+            ),
             if (_selectedSchoolName != null) ...[
               const SizedBox(width: 12),
               Container(
@@ -540,7 +550,21 @@ class _StudentDataSource extends DataTableSource {
       onTap: () => onTap(student),
       cells: [
         DataCell(Text('${index + 1}')),
-        DataCell(Text(student.studentName)),
+        DataCell(
+          student.isJonghap == 1
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(student.studentName),
+                    const SizedBox(width: 3),
+                    const Text(
+                      '★',
+                      style: TextStyle(fontSize: 13, color: AppTheme.warningColor),
+                    ),
+                  ],
+                )
+              : Text(student.studentName),
+        ),
         DataCell(Text('${student.studentId}')),
         DataCell(Text(formatPhone(student.phone))),
         DataCell(Text(student.schoolName ?? '-')),

@@ -47,6 +47,8 @@ class Student with _$Student {
     @JsonKey(name: 'address_detail') String? addressDetail,
     @JsonKey(name: 'status_code') required String statusCode,
     @JsonKey(name: 'status_name') String? statusName,
+    // 반 상태 (User.is_jonghap). 1=종합반, 0=단과반.
+    @JsonKey(name: 'is_jonghap') @FlexibleIntConverter() int? isJonghap,
     @JsonKey(name: 'sub_status_code') String? subStatusCode,
     @JsonKey(name: 'sub_status_name') String? subStatusName,
     @JsonKey(name: 'class_type_code') String? classTypeCode,
@@ -123,6 +125,8 @@ class StudentStateChange with _$StudentStateChange {
     @JsonKey(name: 'new_sub_status_code') String? newSubStatusCode,
     @JsonKey(name: 'change_reason') String? changeReason,
     @JsonKey(name: 'new_tc_id') int? newTcId,
+    // 반 상태. 안 보내면 서버가 손대지 않는다.
+    @JsonKey(name: 'new_is_jonghap') int? newIsJonghap,
   }) = _StudentStateChange;
 
   factory StudentStateChange.fromJson(Map<String, dynamic> json) =>

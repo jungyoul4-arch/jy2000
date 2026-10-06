@@ -61,7 +61,10 @@ mixin _$Student {
   @JsonKey(name: 'status_code')
   String get statusCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'status_name')
-  String? get statusName => throw _privateConstructorUsedError;
+  String? get statusName => throw _privateConstructorUsedError; // 반 상태 (User.is_jonghap). 1=종합반, 0=단과반.
+  @JsonKey(name: 'is_jonghap')
+  @FlexibleIntConverter()
+  int? get isJonghap => throw _privateConstructorUsedError;
   @JsonKey(name: 'sub_status_code')
   String? get subStatusCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'sub_status_name')
@@ -143,6 +146,7 @@ abstract class $StudentCopyWith<$Res> {
     @JsonKey(name: 'address_detail') String? addressDetail,
     @JsonKey(name: 'status_code') String statusCode,
     @JsonKey(name: 'status_name') String? statusName,
+    @JsonKey(name: 'is_jonghap') @FlexibleIntConverter() int? isJonghap,
     @JsonKey(name: 'sub_status_code') String? subStatusCode,
     @JsonKey(name: 'sub_status_name') String? subStatusName,
     @JsonKey(name: 'class_type_code') String? classTypeCode,
@@ -203,6 +207,7 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
     Object? addressDetail = freezed,
     Object? statusCode = null,
     Object? statusName = freezed,
+    Object? isJonghap = freezed,
     Object? subStatusCode = freezed,
     Object? subStatusName = freezed,
     Object? classTypeCode = freezed,
@@ -311,6 +316,10 @@ class _$StudentCopyWithImpl<$Res, $Val extends Student>
                 ? _value.statusName
                 : statusName // ignore: cast_nullable_to_non_nullable
                       as String?,
+            isJonghap: freezed == isJonghap
+                ? _value.isJonghap
+                : isJonghap // ignore: cast_nullable_to_non_nullable
+                      as int?,
             subStatusCode: freezed == subStatusCode
                 ? _value.subStatusCode
                 : subStatusCode // ignore: cast_nullable_to_non_nullable
@@ -433,6 +442,7 @@ abstract class _$$StudentImplCopyWith<$Res> implements $StudentCopyWith<$Res> {
     @JsonKey(name: 'address_detail') String? addressDetail,
     @JsonKey(name: 'status_code') String statusCode,
     @JsonKey(name: 'status_name') String? statusName,
+    @JsonKey(name: 'is_jonghap') @FlexibleIntConverter() int? isJonghap,
     @JsonKey(name: 'sub_status_code') String? subStatusCode,
     @JsonKey(name: 'sub_status_name') String? subStatusName,
     @JsonKey(name: 'class_type_code') String? classTypeCode,
@@ -492,6 +502,7 @@ class __$$StudentImplCopyWithImpl<$Res>
     Object? addressDetail = freezed,
     Object? statusCode = null,
     Object? statusName = freezed,
+    Object? isJonghap = freezed,
     Object? subStatusCode = freezed,
     Object? subStatusName = freezed,
     Object? classTypeCode = freezed,
@@ -600,6 +611,10 @@ class __$$StudentImplCopyWithImpl<$Res>
             ? _value.statusName
             : statusName // ignore: cast_nullable_to_non_nullable
                   as String?,
+        isJonghap: freezed == isJonghap
+            ? _value.isJonghap
+            : isJonghap // ignore: cast_nullable_to_non_nullable
+                  as int?,
         subStatusCode: freezed == subStatusCode
             ? _value.subStatusCode
             : subStatusCode // ignore: cast_nullable_to_non_nullable
@@ -716,6 +731,7 @@ class _$StudentImpl implements _Student {
     @JsonKey(name: 'address_detail') this.addressDetail,
     @JsonKey(name: 'status_code') required this.statusCode,
     @JsonKey(name: 'status_name') this.statusName,
+    @JsonKey(name: 'is_jonghap') @FlexibleIntConverter() this.isJonghap,
     @JsonKey(name: 'sub_status_code') this.subStatusCode,
     @JsonKey(name: 'sub_status_name') this.subStatusName,
     @JsonKey(name: 'class_type_code') this.classTypeCode,
@@ -804,6 +820,11 @@ class _$StudentImpl implements _Student {
   @override
   @JsonKey(name: 'status_name')
   final String? statusName;
+  // 반 상태 (User.is_jonghap). 1=종합반, 0=단과반.
+  @override
+  @JsonKey(name: 'is_jonghap')
+  @FlexibleIntConverter()
+  final int? isJonghap;
   @override
   @JsonKey(name: 'sub_status_code')
   final String? subStatusCode;
@@ -877,7 +898,7 @@ class _$StudentImpl implements _Student {
 
   @override
   String toString() {
-    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, subStatusCode: $subStatusCode, subStatusName: $subStatusName, classTypeCode: $classTypeCode, classTypeName: $classTypeName, subjectCode: $subjectCode, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, enrollStartDate: $enrollStartDate, enrollEndDate: $enrollEndDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt, parents: $parents)';
+    return 'Student(studentId: $studentId, studentName: $studentName, phone: $phone, phoneSub: $phoneSub, email: $email, birthDate: $birthDate, genderCode: $genderCode, genderName: $genderName, schoolId: $schoolId, schoolName: $schoolName, grade: $grade, gradeName: $gradeName, guardianName: $guardianName, guardianPhone: $guardianPhone, guardianRelation: $guardianRelation, relationName: $relationName, zipCode: $zipCode, address: $address, addressDetail: $addressDetail, statusCode: $statusCode, statusName: $statusName, isJonghap: $isJonghap, subStatusCode: $subStatusCode, subStatusName: $subStatusName, classTypeCode: $classTypeCode, classTypeName: $classTypeName, subjectCode: $subjectCode, sourceCode: $sourceCode, sourceName: $sourceName, sourceDetail: $sourceDetail, tcId: $tcId, tcName: $tcName, firstContactDate: $firstContactDate, consultDate: $consultDate, registerDate: $registerDate, enrollDate: $enrollDate, enrollStartDate: $enrollStartDate, enrollEndDate: $enrollEndDate, withdrawDate: $withdrawDate, memo: $memo, createdAt: $createdAt, updatedAt: $updatedAt, parents: $parents)';
   }
 
   @override
@@ -922,6 +943,8 @@ class _$StudentImpl implements _Student {
                 other.statusCode == statusCode) &&
             (identical(other.statusName, statusName) ||
                 other.statusName == statusName) &&
+            (identical(other.isJonghap, isJonghap) ||
+                other.isJonghap == isJonghap) &&
             (identical(other.subStatusCode, subStatusCode) ||
                 other.subStatusCode == subStatusCode) &&
             (identical(other.subStatusName, subStatusName) ||
@@ -987,6 +1010,7 @@ class _$StudentImpl implements _Student {
     addressDetail,
     statusCode,
     statusName,
+    isJonghap,
     subStatusCode,
     subStatusName,
     classTypeCode,
@@ -1049,6 +1073,7 @@ abstract class _Student implements Student {
     @JsonKey(name: 'address_detail') final String? addressDetail,
     @JsonKey(name: 'status_code') required final String statusCode,
     @JsonKey(name: 'status_name') final String? statusName,
+    @JsonKey(name: 'is_jonghap') @FlexibleIntConverter() final int? isJonghap,
     @JsonKey(name: 'sub_status_code') final String? subStatusCode,
     @JsonKey(name: 'sub_status_name') final String? subStatusName,
     @JsonKey(name: 'class_type_code') final String? classTypeCode,
@@ -1137,7 +1162,11 @@ abstract class _Student implements Student {
   String get statusCode;
   @override
   @JsonKey(name: 'status_name')
-  String? get statusName;
+  String? get statusName; // 반 상태 (User.is_jonghap). 1=종합반, 0=단과반.
+  @override
+  @JsonKey(name: 'is_jonghap')
+  @FlexibleIntConverter()
+  int? get isJonghap;
   @override
   @JsonKey(name: 'sub_status_code')
   String? get subStatusCode;
@@ -2055,7 +2084,9 @@ mixin _$StudentStateChange {
   @JsonKey(name: 'change_reason')
   String? get changeReason => throw _privateConstructorUsedError;
   @JsonKey(name: 'new_tc_id')
-  int? get newTcId => throw _privateConstructorUsedError;
+  int? get newTcId => throw _privateConstructorUsedError; // 반 상태. 안 보내면 서버가 손대지 않는다.
+  @JsonKey(name: 'new_is_jonghap')
+  int? get newIsJonghap => throw _privateConstructorUsedError;
 
   /// Serializes this StudentStateChange to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -2080,6 +2111,7 @@ abstract class $StudentStateChangeCopyWith<$Res> {
     @JsonKey(name: 'new_sub_status_code') String? newSubStatusCode,
     @JsonKey(name: 'change_reason') String? changeReason,
     @JsonKey(name: 'new_tc_id') int? newTcId,
+    @JsonKey(name: 'new_is_jonghap') int? newIsJonghap,
   });
 }
 
@@ -2103,6 +2135,7 @@ class _$StudentStateChangeCopyWithImpl<$Res, $Val extends StudentStateChange>
     Object? newSubStatusCode = freezed,
     Object? changeReason = freezed,
     Object? newTcId = freezed,
+    Object? newIsJonghap = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -2126,6 +2159,10 @@ class _$StudentStateChangeCopyWithImpl<$Res, $Val extends StudentStateChange>
                 ? _value.newTcId
                 : newTcId // ignore: cast_nullable_to_non_nullable
                       as int?,
+            newIsJonghap: freezed == newIsJonghap
+                ? _value.newIsJonghap
+                : newIsJonghap // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -2147,6 +2184,7 @@ abstract class _$$StudentStateChangeImplCopyWith<$Res>
     @JsonKey(name: 'new_sub_status_code') String? newSubStatusCode,
     @JsonKey(name: 'change_reason') String? changeReason,
     @JsonKey(name: 'new_tc_id') int? newTcId,
+    @JsonKey(name: 'new_is_jonghap') int? newIsJonghap,
   });
 }
 
@@ -2169,6 +2207,7 @@ class __$$StudentStateChangeImplCopyWithImpl<$Res>
     Object? newSubStatusCode = freezed,
     Object? changeReason = freezed,
     Object? newTcId = freezed,
+    Object? newIsJonghap = freezed,
   }) {
     return _then(
       _$StudentStateChangeImpl(
@@ -2192,6 +2231,10 @@ class __$$StudentStateChangeImplCopyWithImpl<$Res>
             ? _value.newTcId
             : newTcId // ignore: cast_nullable_to_non_nullable
                   as int?,
+        newIsJonghap: freezed == newIsJonghap
+            ? _value.newIsJonghap
+            : newIsJonghap // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -2206,6 +2249,7 @@ class _$StudentStateChangeImpl implements _StudentStateChange {
     @JsonKey(name: 'new_sub_status_code') this.newSubStatusCode,
     @JsonKey(name: 'change_reason') this.changeReason,
     @JsonKey(name: 'new_tc_id') this.newTcId,
+    @JsonKey(name: 'new_is_jonghap') this.newIsJonghap,
   });
 
   factory _$StudentStateChangeImpl.fromJson(Map<String, dynamic> json) =>
@@ -2226,10 +2270,14 @@ class _$StudentStateChangeImpl implements _StudentStateChange {
   @override
   @JsonKey(name: 'new_tc_id')
   final int? newTcId;
+  // 반 상태. 안 보내면 서버가 손대지 않는다.
+  @override
+  @JsonKey(name: 'new_is_jonghap')
+  final int? newIsJonghap;
 
   @override
   String toString() {
-    return 'StudentStateChange(studentId: $studentId, newStatusCode: $newStatusCode, newSubStatusCode: $newSubStatusCode, changeReason: $changeReason, newTcId: $newTcId)';
+    return 'StudentStateChange(studentId: $studentId, newStatusCode: $newStatusCode, newSubStatusCode: $newSubStatusCode, changeReason: $changeReason, newTcId: $newTcId, newIsJonghap: $newIsJonghap)';
   }
 
   @override
@@ -2245,7 +2293,9 @@ class _$StudentStateChangeImpl implements _StudentStateChange {
                 other.newSubStatusCode == newSubStatusCode) &&
             (identical(other.changeReason, changeReason) ||
                 other.changeReason == changeReason) &&
-            (identical(other.newTcId, newTcId) || other.newTcId == newTcId));
+            (identical(other.newTcId, newTcId) || other.newTcId == newTcId) &&
+            (identical(other.newIsJonghap, newIsJonghap) ||
+                other.newIsJonghap == newIsJonghap));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2257,6 +2307,7 @@ class _$StudentStateChangeImpl implements _StudentStateChange {
     newSubStatusCode,
     changeReason,
     newTcId,
+    newIsJonghap,
   );
 
   /// Create a copy of StudentStateChange
@@ -2283,6 +2334,7 @@ abstract class _StudentStateChange implements StudentStateChange {
     @JsonKey(name: 'new_sub_status_code') final String? newSubStatusCode,
     @JsonKey(name: 'change_reason') final String? changeReason,
     @JsonKey(name: 'new_tc_id') final int? newTcId,
+    @JsonKey(name: 'new_is_jonghap') final int? newIsJonghap,
   }) = _$StudentStateChangeImpl;
 
   factory _StudentStateChange.fromJson(Map<String, dynamic> json) =
@@ -2302,7 +2354,10 @@ abstract class _StudentStateChange implements StudentStateChange {
   String? get changeReason;
   @override
   @JsonKey(name: 'new_tc_id')
-  int? get newTcId;
+  int? get newTcId; // 반 상태. 안 보내면 서버가 손대지 않는다.
+  @override
+  @JsonKey(name: 'new_is_jonghap')
+  int? get newIsJonghap;
 
   /// Create a copy of StudentStateChange
   /// with the given fields replaced by the non-null parameter values.
