@@ -465,7 +465,13 @@ class _TrendChart extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              // X축은 점의 인덱스다. interval을 안 주면 0.5 같은 눈금도
+              // 생기고 value.toInt()가 0과 0.5를 똑같이 0으로 깎아
+              // '2월 2월 3월 3월'처럼 라벨이 두 번씩 찍힌다.
+              interval: 1,
               getTitlesWidget: (value, _) {
+                // 혹시 정수가 아닌 값이 들어오면 라벨을 그리지 않는다.
+                if (value != value.roundToDouble()) return const SizedBox.shrink();
                 final i = value.toInt();
                 if (i < 0 || i >= points.length) return const SizedBox.shrink();
                 return Padding(
