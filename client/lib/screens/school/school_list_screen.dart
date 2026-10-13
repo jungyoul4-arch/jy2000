@@ -19,6 +19,10 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
 
   int? _filterKind;
   bool _sortByStudentCount = false; // false: 가나다순, true: 학생수순
+
+  // 기본은 활성 학교만 본다. 학생들이 오르조에서 장난으로 만든 학교가
+  // 목록에 섞여 들어와 쓰기 어려웠다. 지운 걸 되살릴 때만 켠다.
+  bool _includeInactive = false;
   final _searchController = TextEditingController();
   String _searchText = '';
 
@@ -91,7 +95,10 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
             ],
             onChanged: (value) {
               setState(() => _filterKind = value);
-              ref.read(schoolListProvider.notifier).loadSchools(schoolKind: value);
+              ref.read(schoolListProvider.notifier).loadSchools(
+                    schoolKind: value,
+                    includeInactive: _includeInactive,
+                  );
             },
           ),
           const SizedBox(width: 16),
@@ -155,6 +162,21 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
                   onSelectionChanged: (selected) {
                     setState(() => _sortByStudentCount = selected.first);
                     _saveSortPreference(selected.first);
+                  },
+                ),
+                const SizedBox(width: 16),
+
+                // 삭제한 학교를 되살리려면 먼저 보이게 해야 한다.
+                FilterChip(
+                  avatar: const Icon(Icons.delete_outline, size: 16),
+                  label: const Text('삭제됨 포함'),
+                  selected: _includeInactive,
+                  onSelected: (on) {
+                    setState(() => _includeInactive = on);
+                    ref.read(schoolListProvider.notifier).loadSchools(
+                          schoolKind: _filterKind,
+                          includeInactive: on,
+                        );
                   },
                 ),
                 const Spacer(),
@@ -280,7 +302,11 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
               style: TextStyle(color: isDeleted ? Colors.grey : null),
             ),
             trailing: isDeleted
-                ? null
+                ? IconButton(
+                    icon: const Icon(Icons.restore_from_trash, color: Colors.green),
+                    tooltip: '복원',
+                    onPressed: () => _confirmRestore(context, school),
+                  )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -519,6 +545,40 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmRestore(BuildContext context, School school) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('학교 복원'),
+        content: Text('${school.schoolName}을(를) 다시 사용하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final success = await ref
+                  .read(schoolListProvider.notifier)
+                  .restoreSchool(school.schoolId);
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(success ? '학교가 복원되었습니다' : '복원 실패'),
+                    backgroundColor: success ? Colors.green : Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('복원'),
+          ),
+        ],
       ),
     );
   }

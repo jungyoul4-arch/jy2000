@@ -5,10 +5,13 @@ class SchoolRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
   // 학교 목록 조회
+  // 기본은 활성 학교만 온다. 삭제한 학교를 되살리려면 includeInactive로
+  // 꺼내 봐야 한다.
   Future<List<School>> getList({
     String? search,
     int? schoolKind,
     int? regionKind,
+    bool includeInactive = false,
   }) async {
     final queryParams = <String, dynamic>{
       'perPage': 1000, // 전체 목록 가져오기
@@ -23,6 +26,9 @@ class SchoolRepository {
     if (regionKind != null) {
       queryParams['region_kind'] = regionKind.toString();
     }
+    if (includeInactive) {
+      queryParams['include_inactive'] = 'true';
+    }
 
     final response = await _apiClient.get<Map<String, dynamic>>(
       '/school/list',
@@ -31,6 +37,15 @@ class SchoolRepository {
 
     final List<dynamic> dataList = response['data'] ?? [];
     return dataList.map((e) => School.fromJson(e)).toList();
+  }
+
+  // 지운 학교 되살리기
+  Future<School> restore(int schoolId) async {
+    final response = await _apiClient.post<Map<String, dynamic>>(
+      '/school/$schoolId/restore',
+    );
+
+    return School.fromJson(response['data']);
   }
 
   // 학교 상세 조회

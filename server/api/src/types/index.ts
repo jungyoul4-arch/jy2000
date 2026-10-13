@@ -362,6 +362,8 @@ export interface SchoolCreate {
 export interface SchoolListQuery extends ListQueryParams {
   school_kind?: number;
   region_kind?: number;
+  /** 삭제(비활성)된 학교까지 포함. 기본은 활성만. */
+  include_inactive?: boolean;
 }
 
 // Class Types (반 관리)

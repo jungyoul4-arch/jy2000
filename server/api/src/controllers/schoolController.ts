@@ -15,7 +15,8 @@ export class SchoolController {
       order: req.query.order as 'asc' | 'desc',
       search: req.query.search as string,
       school_kind: parseInt(req.query.school_kind as string) || undefined,
-      region_kind: regionKindStr ? parseInt(regionKindStr) : undefined
+      region_kind: regionKindStr ? parseInt(regionKindStr) : undefined,
+      include_inactive: req.query.include_inactive === 'true'
     };
 
     const result = await schoolService.getList(query);
@@ -56,6 +57,14 @@ export class SchoolController {
   });
 
   // DELETE /school/:id - 학교 삭제
+  // POST /school/:id/restore - 지운 학교 되살리기
+  restore = asyncHandler(async (req: Request, res: Response) => {
+    const schoolId = parseInt(req.params.id);
+    const school = await schoolService.restore(schoolId);
+
+    return sendSuccess(res, school, 'School restored successfully');
+  });
+
   delete = asyncHandler(async (req: Request, res: Response) => {
     const schoolId = parseInt(req.params.id);
     await schoolService.delete(schoolId);

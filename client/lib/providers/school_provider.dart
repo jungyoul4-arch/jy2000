@@ -37,14 +37,28 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
 
   SchoolListNotifier(this._repository) : super(SchoolListState());
 
+  // 마지막 조회 조건. 삭제·복원 뒤 새로고침할 때 그대로 쓴다.
+  String? _lastSearch;
+  int? _lastSchoolKind;
+  bool _lastIncludeInactive = false;
+
   // 학교 목록 로드
-  Future<void> loadSchools({String? search, int? schoolKind}) async {
+  Future<void> loadSchools({
+    String? search,
+    int? schoolKind,
+    bool includeInactive = false,
+  }) async {
+    _lastSearch = search;
+    _lastSchoolKind = schoolKind;
+    _lastIncludeInactive = includeInactive;
+
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       final schools = await _repository.getList(
         search: search,
         schoolKind: schoolKind,
+        includeInactive: includeInactive,
       );
       state = state.copyWith(schools: schools, isLoading: false);
     } catch (e) {
@@ -104,14 +118,31 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
   Future<bool> deleteSchool(int schoolId) async {
     try {
       await _repository.delete(schoolId);
-      // 삭제 후 목록 새로고침 (삭제된 학교도 표시하기 위해)
-      await loadSchools();
+      await _reload();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
       return false;
     }
   }
+
+  // 지운 학교 되살리기
+  Future<bool> restoreSchool(int schoolId) async {
+    try {
+      await _repository.restore(schoolId);
+      await _reload();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<void> _reload() => loadSchools(
+        search: _lastSearch,
+        schoolKind: _lastSchoolKind,
+        includeInactive: _lastIncludeInactive,
+      );
 
   // 에러 초기화
   void clearError() {

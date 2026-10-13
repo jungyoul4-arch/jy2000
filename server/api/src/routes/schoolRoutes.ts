@@ -37,6 +37,13 @@ router.put(
   schoolController.update
 );
 
+// POST /school/:id/restore - 지운 학교 되살리기
+router.post(
+  '/:id/restore',
+  validate([validateId('id')]),
+  schoolController.restore
+);
+
 // DELETE /school/:id - 학교 삭제
 router.delete(
   '/:id',

@@ -12,9 +12,15 @@ export class SchoolService {
     const sort = query.sort || 'school_name';
     const order = query.order || 'asc';
 
-    // Build WHERE clause (삭제된 학교도 포함)
+    // 기본은 활성 학교만. 학생들이 오르조에서 장난으로 만든 학교가 목록에
+    // 섞여 들어와 쓰기 어려웠다. 지운 학교를 되살리려면 include_inactive로
+    // 꺼내 볼 수 있다.
     const conditions: string[] = [];
     const params: any[] = [];
+
+    if (!query.include_inactive) {
+      conditions.push('is_active = 1');
+    }
 
     if (query.school_kind) {
       conditions.push('school_kind = ?');
@@ -39,7 +45,7 @@ export class SchoolService {
     const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
     // Count query
-    const countSql = `SELECT COUNT(*) as total FROM School s WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name')}`;
+    const countSql = `SELECT COUNT(*) as total FROM School s WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name').replace(/is_active/g, 's.is_active')}`;
 
     // Data query (is_active=1인 것 먼저, 그 다음 이름순) + 학생 수 포함
     const dataSql = `
@@ -60,7 +66,7 @@ export class SchoolService {
         WHERE deleted_at IS NULL
         GROUP BY school_id
       ) sc ON s.school_id = sc.school_id
-      WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name')}
+      WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name').replace(/is_active/g, 's.is_active')}
       ORDER BY s.is_active DESC, s.${sortColumn} ${sortOrder}
       LIMIT ? OFFSET ?
     `;
@@ -203,6 +209,28 @@ export class SchoolService {
       'UPDATE School SET deleted_at = NOW(), is_active = 0 WHERE school_id = ?',
       [schoolId]
     );
+  }
+
+  // 학교 복원 — 지운 걸 되살린다.
+  //
+  // 목록이 기본으로 활성만 보여 주므로, 복원 수단이 없으면 잘못 지운 학교를
+  // 화면에서 되돌릴 길이 없어진다.
+  async restore(schoolId: number): Promise<School> {
+    const [existing] = await pool.query<RowDataPacket[]>(
+      'SELECT school_id FROM School WHERE school_id = ?',
+      [schoolId]
+    );
+
+    if (existing.length === 0) {
+      throw new AppError('School not found', 404);
+    }
+
+    await pool.query<ResultSetHeader>(
+      'UPDATE School SET deleted_at = NULL, is_active = 1 WHERE school_id = ?',
+      [schoolId]
+    );
+
+    return this.getById(schoolId);
   }
 }
 
