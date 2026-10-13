@@ -54,7 +54,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _NavItem(
         icon: Icons.chat_outlined,
         selectedIcon: Icons.chat,
-        label: '상담 관리',
+        label: '재/퇴원생 상담',
         path: AppRoutes.consultList,
       ),
       _NavItem(

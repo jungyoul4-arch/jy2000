@@ -480,7 +480,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
       columns: const [
         DataColumn2(label: Text('No.'), fixedWidth: 60),
         DataColumn2(label: Text('이름'), size: ColumnSize.S),
-        DataColumn2(label: Text('ID'), fixedWidth: 60),
+        // user_id가 여섯 자리(178864)까지 올라가 60으로는 두 줄로 접힌다.
+        DataColumn2(label: Text('ID'), fixedWidth: 80),
         DataColumn2(label: Text('전화번호'), size: ColumnSize.M),
         DataColumn2(label: Text('학교'), size: ColumnSize.M),
         DataColumn2(label: Text('학년'), size: ColumnSize.S),

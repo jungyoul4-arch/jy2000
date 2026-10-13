@@ -92,7 +92,7 @@ class ConsultRepository {
     return dataList.map((e) => InquiryStudentLookup.fromJson(e)).toList();
   }
 
-  // 상담 화면의 학생 목록 (신규생 문의 / 상담 관리 공용)
+  // 상담 화면의 학생 목록 (신규생 문의 / 재/퇴원생 상담 공용)
   //
   // 상담이 없는 학생도 내려온다. 첫 상담을 붙이려면 목록에 있어야 한다.
   Future<List<ConsultStudent>> getConsultStudents({

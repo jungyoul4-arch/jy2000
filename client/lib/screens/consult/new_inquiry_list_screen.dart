@@ -91,7 +91,7 @@ class _NewInquiryListScreenState extends ConsumerState<NewInquiryListScreen> {
             onTap: (student) => _openForm(student: student),
           ),
           // 신규생도 이미 User에 있으므로 일정이 붙는 정식 상담을 바로 잡을 수
-          // 있다. 상담 관리의 '상담 등록'과 같은 화면으로 간다.
+          // 있다. 재/퇴원생 상담의 '상담 등록'과 같은 화면으로 간다.
           StudentConsultAction(
             label: '상담 일정 등록',
             icon: Icons.event_available,

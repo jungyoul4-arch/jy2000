@@ -11,7 +11,7 @@ import '../../providers/consult_provider.dart';
 import '../../utils/formatters.dart';
 import 'student_consult_dialog.dart';
 
-/// 학생 목록 표 — 신규생 문의와 상담 관리가 대상(scope)만 바꿔 같이 쓴다.
+/// 학생 목록 표 — 신규생 문의와 재/퇴원생 상담가 대상(scope)만 바꿔 같이 쓴다.
 ///
 /// 화면을 반으로 나누지 않고 목록이 가로를 다 쓴다. 한 줄에 학교·학년·
 /// 연락처·최근 상담 내용까지 실어 목록만 훑어도 판단이 되게 하고, 고른

@@ -154,7 +154,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
 
-          // 상담 관리
+          // 재/퇴원생 상담
           GoRoute(
             path: AppRoutes.consultList,
             name: 'consultList',

@@ -11,7 +11,7 @@ import 'student_consult_dialog.dart';
 import 'student_consult_table.dart';
 import 'tc_register_dialog.dart';
 
-/// 상담 관리
+/// 재/퇴원생 상담
 ///
 /// 신규생을 뺀 학생(재원 또는 퇴원)을 보여 준다. 신규생은 전용 화면에서
 /// 다룬다. 목록이 가로를 다 쓰고, 고른 학생의 상담 내역은 팝업으로 뜬다.
@@ -67,7 +67,7 @@ class _ConsultListScreenState extends ConsumerState<ConsultListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('상담 관리'),
+        title: const Text('재/퇴원생 상담'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

@@ -51,7 +51,7 @@ class MiniBadge extends StatelessWidget {
 
 /// 한 학생의 상담 목록.
 ///
-/// 신규생 문의는 팝업 안에서, 상담 관리는 오른쪽 칸에서 같은 걸 쓴다.
+/// 신규생 문의는 팝업 안에서, 재/퇴원생 상담는 오른쪽 칸에서 같은 걸 쓴다.
 class StudentConsultListView extends ConsumerWidget {
   final ConsultStudent student;
   final List<StudentConsultAction> actions;

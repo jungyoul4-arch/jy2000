@@ -155,8 +155,8 @@ class ScheduleEvent with _$ScheduleEvent {
     return isTimeSlot ? "${eventMinute.toString().padLeft(2, '0')}'" : '';
   }
 
-  /// 캘린더 표시용 텍스트: [분]' [학생명]([학교명][학년])-[내용]
-  /// 예: 30' 김민재(중원고3)-수학테스트, 00' 상담
+  /// 캘린더 표시용 텍스트: [분]' [학생명]([학교명] [학년])-[내용]
+  /// 예: 30' 김민재(중원고 고3)-수학테스트, 00' 상담
   String get displayText {
     final parts = <String>[];
 
@@ -169,7 +169,8 @@ class ScheduleEvent with _$ScheduleEvent {
         final schoolInfo = <String>[];
         if (schoolName != null) schoolInfo.add(schoolName!);
         if (gradeName != null) schoolInfo.add(gradeName!);
-        studentPart += '(${schoolInfo.join('')})';
+        // 붙여 쓰면 '성주중'+'중2'가 '성주중중2'가 되어 읽기 어렵다.
+        studentPart += '(${schoolInfo.join(' ')})';
       }
 
       parts.add(studentPart);

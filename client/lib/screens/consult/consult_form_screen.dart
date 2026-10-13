@@ -658,7 +658,7 @@ class _ConsultFormScreenState extends ConsumerState<ConsultFormScreen> {
         if (mounted) {
           // 학생 상담 내역 캐시 무효화 (학생 상세 페이지로 돌아갔을 때 새로고침됨)
           ref.invalidate(studentConsultListProvider(studentIdValue));
-          // 상담 목록 새로고침 (상담 관리 화면으로 돌아갔을 때)
+          // 상담 목록 새로고침 (재/퇴원생 상담 화면으로 돌아갔을 때)
           ref.read(consultListProvider.notifier).refresh();
           // 캘린더 데이터 새로고침 (달력 화면으로 돌아갔을 때)
           ref.refresh(monthlyEventsProvider);
