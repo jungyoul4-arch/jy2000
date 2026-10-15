@@ -37,9 +37,8 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
 
   SchoolListNotifier(this._repository) : super(SchoolListState());
 
-  // 마지막 조회 조건. 삭제·복원 뒤 새로고침할 때 그대로 쓴다.
-  String? _lastSearch;
-  int? _lastSchoolKind;
+  // 삭제했을 때 그 항목을 목록에서 뺄지(기본) 회색으로 남길지('삭제됨 포함')
+  // 판단하는 데 쓴다.
   bool _lastIncludeInactive = false;
 
   // 학교 목록 로드
@@ -48,8 +47,6 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
     int? schoolKind,
     bool includeInactive = false,
   }) async {
-    _lastSearch = search;
-    _lastSchoolKind = schoolKind;
     _lastIncludeInactive = includeInactive;
 
     state = state.copyWith(isLoading: true, error: null);
@@ -115,10 +112,25 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
   }
 
   // 학교 삭제 (soft delete 후 목록 새로고침)
+  // 삭제·복원 뒤에는 목록을 다시 받지 않고 그 항목만 손본다.
+  //
+  // loadSchools를 부르면 isLoading이 켜지면서 ListView가 스피너로 바뀌고,
+  // 스크롤 위치가 맨 위로 돌아간다. 한 줄 바뀐 걸 보려고 보던 자리를
+  // 잃을 이유가 없다.
   Future<bool> deleteSchool(int schoolId) async {
     try {
       await _repository.delete(schoolId);
-      await _reload();
+
+      // 삭제는 is_active=0으로 내리는 것이다. '삭제됨 포함'을 켜 둔
+      // 상태라면 목록에 남아 회색으로 보여야 하고, 아니면 사라져야 한다.
+      final schools = _lastIncludeInactive
+          ? [
+              for (final s in state.schools)
+                if (s.schoolId == schoolId) s.copyWith(isActive: false) else s,
+            ]
+          : state.schools.where((s) => s.schoolId != schoolId).toList();
+
+      state = state.copyWith(schools: schools);
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -130,19 +142,19 @@ class SchoolListNotifier extends StateNotifier<SchoolListState> {
   Future<bool> restoreSchool(int schoolId) async {
     try {
       await _repository.restore(schoolId);
-      await _reload();
+
+      state = state.copyWith(
+        schools: [
+          for (final s in state.schools)
+            if (s.schoolId == schoolId) s.copyWith(isActive: true) else s,
+        ],
+      );
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
       return false;
     }
   }
-
-  Future<void> _reload() => loadSchools(
-        search: _lastSearch,
-        schoolKind: _lastSchoolKind,
-        includeInactive: _lastIncludeInactive,
-      );
 
   // 에러 초기화
   void clearError() {

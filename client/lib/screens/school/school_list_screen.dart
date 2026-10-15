@@ -222,8 +222,12 @@ class _SchoolListScreenState extends ConsumerState<SchoolListScreen> {
   }
 
   void _navigateToStudentList(School school) {
-    // 학생 관리 화면으로 이동 (쿼리 파라미터로 학교 필터 전달)
-    context.go('/students?schoolId=${school.schoolId}&schoolName=${Uri.encodeComponent(school.schoolName)}');
+    // push로 쌓는다. go로 가면 이 화면이 파괴됐다가 돌아올 때 새로
+    // 만들어져 스크롤도 검색어도 처음으로 돌아간다.
+    context.push(
+      '/students?schoolId=${school.schoolId}'
+      '&schoolName=${Uri.encodeComponent(school.schoolName)}',
+    );
   }
 
   Widget _buildSchoolList(List<School> schools) {

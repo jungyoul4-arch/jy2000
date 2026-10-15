@@ -170,7 +170,16 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
         leading: _selectedSchoolId != null
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.go('/schools'),
+                // 학교 관리에서 push로 들어왔으면 pop해야 그 화면이 살아서
+                // 보던 자리 그대로 돌아간다. 주소로 바로 들어온 경우엔
+                // 쌓인 게 없으므로 학교 목록으로 보낸다.
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/schools');
+                  }
+                },
               )
             : null,
         title: Row(
