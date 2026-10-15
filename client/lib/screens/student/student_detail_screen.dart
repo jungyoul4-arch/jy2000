@@ -422,8 +422,9 @@ class StudentDetailScreen extends ConsumerWidget {
                   );
                 }
 
-                return SizedBox(
-                  width: double.infinity,
+                // 컬럼이 여섯 개라 좁은 화면에서는 넘친다. 가로로 민다.
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
                   child: DataTable(
                     columnSpacing: 24,
                     headingRowColor: WidgetStateProperty.all(
@@ -486,8 +487,12 @@ class StudentDetailScreen extends ConsumerWidget {
                           ),
                           DataCell(Text(prevText)),
                           DataCell(Text(newText)),
+                          // DataCell은 Flex 자식이 아니라 Expanded를 넣으면
+                          // 이 칸이 폭을 다 가져가고 나머지가 짓눌린다.
+                          // 머리글이 겹치고 '재/원'처럼 글자가 세로로 쪼개졌다.
                           DataCell(
-                            Expanded(
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 320),
                               child: Text(
                                 history.changeReason ?? '-',
                                 maxLines: 2,
