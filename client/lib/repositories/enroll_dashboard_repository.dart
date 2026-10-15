@@ -22,9 +22,12 @@ class EnrollDashboardRepository {
   }
 
   /// 월별 추이 (전 기간)
-  Future<List<EnrollTrendPoint>> getTrend() async {
+  ///
+  /// [grade]를 주면 그 학년만 센다. 위쪽 카드와 같은 모수를 봐야 한다.
+  Future<List<EnrollTrendPoint>> getTrend({int? grade}) async {
     final response = await _apiClient.get<Map<String, dynamic>>(
       '/enroll-dashboard/trend',
+      queryParameters: grade == null ? null : {'grade': grade},
     );
 
     final List<dynamic> data = response['data'] ?? [];

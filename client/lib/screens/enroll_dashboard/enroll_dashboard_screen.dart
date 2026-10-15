@@ -78,17 +78,21 @@ class _Body extends ConsumerWidget {
         children: [
           _MonthPicker(current: dashboard.snapshot),
           const SizedBox(height: 16),
+
+          // 학년 필터는 추이까지 포함해 화면 전체에 걸리므로 맨 위에 둔다.
+          // 칩은 필터 전 목록으로 그린다. byGrade를 쓰면 한 학년을 고른
+          // 순간 그 학년만 남아 다른 학년으로 넘어갈 수 없다.
+          _GradeFilter(grades: dashboard.gradeOptions),
+          const SizedBox(height: 16),
+
           _KpiRow(kpi: dashboard.kpi, snapshot: dashboard.snapshot),
           const SizedBox(height: 24),
 
-          const _SectionTitle('월별 추이', '이름 기준 월간 연결 · 학년 필터 미적용'),
+          const _SectionTitle('월별 추이', '이름 기준 월간 연결'),
           const _TrendSection(),
           const SizedBox(height: 24),
 
-          _GradeFilter(grades: dashboard.byGrade),
-          const SizedBox(height: 16),
-
-          const _SectionTitle('학생 구성 · 과목', '아래 카드는 학년 필터가 적용됩니다'),
+          const _SectionTitle('학생 구성 · 과목', ''),
           _Grid(wide: wide, children: [
             _BarCard(
               title: '학년별 재원생',

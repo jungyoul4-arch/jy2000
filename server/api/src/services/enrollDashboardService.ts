@@ -149,13 +149,18 @@ export class EnrollDashboardService {
    * 맨 뒤에는 '현재' 한 점을 덧붙인다. 월 스냅샷은 전월까지만 있어서
    * 달 중반을 넘기면 마지막 스냅샷과 실제가 꽤 벌어진다.
    */
-  async getTrend(): Promise<TrendPoint[]> {
+  async getTrend(options: { grade?: number | null } = {}): Promise<TrendPoint[]> {
     const months = await this.getMonths();
     if (months.length === 0) return [];
 
+    // 학년을 고르면 위쪽 카드와 아래 추이가 같은 모수를 봐야 한다.
+    const gradeFilter = options.grade ?? null;
+
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT year, month, student_name, subject_group, class_name, attend_type
-       FROM enroll_snapshot_row`
+       FROM enroll_snapshot_row` +
+        (gradeFilter === null ? '' : ' WHERE grade = ?'),
+      gradeFilter === null ? [] : [gradeFilter]
     );
 
     const byMonth = new Map<string, TrendBucket>();
@@ -184,8 +189,14 @@ export class EnrollDashboardService {
     // 종합반 수는 굳힐 때 적어 둔 값(User 기준)을 먼저 쓴다. 그 컬럼이
     // 생기기 전 달 — 2~8월 엑셀분 — 은 '구분' 칸에서 역산한다.
     // 엑셀분은 구분이 원본 기록이라 그쪽이 오히려 정확하다.
+    // 굳혀 둔 jonghap_count는 그 달 전체(User 기준)라 학년을 걸면 못 쓴다.
+    // 그때는 행에서 센다.
     const jonghapOf = (m: MonthInfo, b?: TrendBucket) =>
-      m.jonghapCount ?? (b?.hasAttendType ? b.jonghap.size : null);
+      gradeFilter === null
+        ? m.jonghapCount ?? (b?.hasAttendType ? b.jonghap.size : null)
+        : b?.hasAttendType
+          ? b.jonghap.size
+          : null;
 
     const series: TrendPoint[] = months.map((m, i) => {
       const cur = byMonth.get(`${m.year}-${m.month}`);
@@ -224,7 +235,8 @@ export class EnrollDashboardService {
     const last = months[months.length - 1];
     const live = await this.liveTrendPoint(
       byMonth.get(`${last.year}-${last.month}`),
-      jonghapOf(last, byMonth.get(`${last.year}-${last.month}`))
+      jonghapOf(last, byMonth.get(`${last.year}-${last.month}`)),
+      gradeFilter
     );
     if (live) series.push(live);
 
@@ -243,28 +255,39 @@ export class EnrollDashboardService {
    */
   private async liveTrendPoint(
     prev: TrendBucket | undefined,
-    prevJonghap: number | null
+    prevJonghap: number | null,
+    gradeFilter: number | null = null
   ): Promise<TrendPoint | null> {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
 
-    let built;
+    let all;
     try {
-      ({ rows: built } = await enrollSnapshotService.collectFromDb(year, month));
+      ({ rows: all } = await enrollSnapshotService.collectFromDb(year, month));
     } catch (error) {
       if (error instanceof AppError && error.statusCode === 404) return null;
       throw error;
     }
 
+    const built = gradeFilter === null ? all : all.filter((r) => r.grade === gradeFilter);
+
     const students = new Set(built.map((r) => r.studentName));
     const subjects = new Set(built.map((r) => `${r.studentName}|${r.subjectGroup}`));
     const classes = new Set(built.filter((r) => r.className).map((r) => r.className));
 
-    const [jonghapRows] = await pool.query<RowDataPacket[]>(
-      'SELECT COUNT(*) AS cnt FROM User WHERE kind = 2 AND active_flag = 1 AND is_jonghap = 1'
-    );
-    const jonghapStudents = Number(jonghapRows[0]?.cnt ?? 0);
+    // 학년을 걸면 User 전체 집계 대신 추려 둔 행에서 센다.
+    let jonghapStudents: number;
+    if (gradeFilter === null) {
+      const [jonghapRows] = await pool.query<RowDataPacket[]>(
+        'SELECT COUNT(*) AS cnt FROM User WHERE kind = 2 AND active_flag = 1 AND is_jonghap = 1'
+      );
+      jonghapStudents = Number(jonghapRows[0]?.cnt ?? 0);
+    } else {
+      jonghapStudents = new Set(
+        built.filter((r) => r.isJonghap).map((r) => r.studentName)
+      ).size;
+    }
 
     return {
       year,
@@ -339,14 +362,33 @@ export class EnrollDashboardService {
     const storedCount = h.jonghap_count === null ? null : Number(h.jonghap_count);
     const jonghapStudents = gradeFilter === null ? storedCount ?? fromRows : fromRows;
 
-    return this.aggregate(rows as AggRow[], teachers as AggTeacher[], {
-      year: Number(h.year),
-      month: Number(h.month),
-      sourceKind: h.source_kind,
-      sourceNote: h.source_note,
-      asOfDate: toDateString(h.as_of_date),
-      jonghapStudents,
-    });
+    // 학년 칩 목록은 필터를 걸지 않은 그 달 전체에서 뽑는다.
+    const [gradeRows] = await pool.query<RowDataPacket[]>(
+      `SELECT grade, COUNT(DISTINCT student_name) AS value
+       FROM enroll_snapshot_row
+       WHERE year = ? AND month = ?
+       GROUP BY grade ORDER BY grade`,
+      [year, month]
+    );
+    const gradeOptions = gradeRows.map((r) => ({
+      grade: r.grade === null ? -1 : Number(r.grade),
+      name: gradeName(r.grade === null ? null : Number(r.grade)),
+      value: Number(r.value),
+    }));
+
+    return this.aggregate(
+      rows as AggRow[],
+      teachers as AggTeacher[],
+      {
+        year: Number(h.year),
+        month: Number(h.month),
+        sourceKind: h.source_kind,
+        sourceNote: h.source_note,
+        asOfDate: toDateString(h.as_of_date),
+        jonghapStudents,
+      },
+      gradeOptions
+    );
   }
 
   /**
@@ -424,14 +466,35 @@ export class EnrollDashboardService {
 
     const pad = (n: number) => String(n).padStart(2, '0');
 
-    return this.aggregate(rows, teachers, {
-      year,
-      month,
-      sourceKind: 'live',
-      sourceNote,
-      asOfDate: `${year}-${pad(month)}-${pad(now.getDate())}`,
-      jonghapStudents: Number(jonghapRows[0]?.cnt ?? 0),
-    });
+    // 학년 칩 목록은 필터 전(built)에서 뽑는다. picked로 만들면 한 학년을
+    // 고른 순간 나머지 칩이 사라져 다른 학년으로 넘어갈 수 없다.
+    const gradeStudents = new Map<number, Set<string>>();
+    for (const r of built) {
+      const g = r.grade ?? -1;
+      if (!gradeStudents.has(g)) gradeStudents.set(g, new Set());
+      gradeStudents.get(g)!.add(r.studentName);
+    }
+    const gradeOptions = [...gradeStudents.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([grade, names]) => ({
+        grade,
+        name: gradeName(grade === -1 ? null : grade),
+        value: names.size,
+      }));
+
+    return this.aggregate(
+      rows,
+      teachers,
+      {
+        year,
+        month,
+        sourceKind: 'live',
+        sourceNote,
+        asOfDate: `${year}-${pad(month)}-${pad(now.getDate())}`,
+        jonghapStudents: Number(jonghapRows[0]?.cnt ?? 0),
+      },
+      gradeOptions
+    );
   }
 
   /**
@@ -450,7 +513,10 @@ export class EnrollDashboardService {
       sourceNote: string | null;
       asOfDate: string | null;
       jonghapStudents: number | null;
-    }
+    },
+    // 학년 필터를 걸기 전의 학년 목록. 칩을 byGrade로 그리면 한 학년을
+    // 고른 순간 나머지 칩이 사라져 다른 학년으로 못 넘어간다.
+    gradeOptions?: { grade: number; name: string; value: number }[]
   ): Record<string, unknown> {
     // ── 학생 단위 집계 ────────────────────────────────────
     const students = new Map<
@@ -597,6 +663,16 @@ export class EnrollDashboardService {
       byGrade: [...byGrade.entries()]
         .sort((a, b) => a[0] - b[0])
         .map(([grade, value]) => ({ grade, name: gradeName(grade === -1 ? null : grade), value })),
+      // 학년 필터 칩이 쓸 목록. 필터를 걸어도 줄지 않는다.
+      gradeOptions:
+        gradeOptions ??
+        [...byGrade.entries()]
+          .sort((a, b) => a[0] - b[0])
+          .map(([grade, value]) => ({
+            grade,
+            name: gradeName(grade === -1 ? null : grade),
+            value,
+          })),
       bySubject: sortDesc(
         new Map([...subjectStudents].map(([k, v]) => [k, v.size]))
       ),

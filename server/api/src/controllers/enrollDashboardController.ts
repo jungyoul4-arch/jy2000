@@ -13,8 +13,11 @@ export class EnrollDashboardController {
   });
 
   // GET /enroll-dashboard/trend - 월별 추이 (전 기간)
-  getTrend = asyncHandler(async (_req: Request, res: Response) => {
-    const trend = await enrollDashboardService.getTrend();
+  getTrend = asyncHandler(async (req: Request, res: Response) => {
+    const gradeRaw = req.query.grade ? parseInt(req.query.grade as string, 10) : null;
+    const grade = Number.isNaN(gradeRaw as number) ? null : gradeRaw;
+
+    const trend = await enrollDashboardService.getTrend({ grade });
 
     return sendSuccess(res, trend, 'Enroll trend retrieved successfully');
   });

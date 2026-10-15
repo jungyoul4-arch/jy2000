@@ -313,6 +313,10 @@ class EnrollDashboard {
   final SnapshotInfo snapshot;
   final EnrollKpi kpi;
   final List<GradeCount> byGrade;
+
+  /// 학년 필터 칩이 쓰는 목록. byGrade는 필터가 걸린 결과라 한 학년을
+  /// 고르면 그 학년만 남아 다른 학년으로 넘어갈 수 없다. 이쪽은 줄지 않는다.
+  final List<GradeCount> gradeOptions;
   final List<NamedValue> bySubject;
   final List<NamedValue> bySubjectGroup;
   final List<NamedValue> byNsubj;
@@ -328,6 +332,7 @@ class EnrollDashboard {
     required this.snapshot,
     required this.kpi,
     required this.byGrade,
+    required this.gradeOptions,
     required this.bySubject,
     required this.bySubjectGroup,
     required this.byNsubj,
@@ -346,6 +351,11 @@ class EnrollDashboard {
         ),
         kpi: EnrollKpi.fromJson(Map<String, dynamic>.from(json['kpi'] as Map? ?? {})),
         byGrade: _list(json['byGrade'], GradeCount.fromJson),
+        // 서버가 예전 버전이면 없을 수 있다. 그때는 byGrade로 되돌린다.
+        gradeOptions: _list(
+          json['gradeOptions'] ?? json['byGrade'],
+          GradeCount.fromJson,
+        ),
         bySubject: _list(json['bySubject'], NamedValue.fromJson),
         bySubjectGroup: _list(json['bySubjectGroup'], NamedValue.fromJson),
         byNsubj: _list(json['byNsubj'], NamedValue.fromJson),

@@ -12,10 +12,12 @@ final enrollMonthsProvider = FutureProvider<List<EnrollMonth>>((ref) async {
   return repository.getMonths();
 });
 
-/// 월별 추이. 월을 바꿔도 그대로라 따로 둔다.
+/// 월별 추이. 월을 바꿔도 그대로지만 학년 필터는 따라간다 —
+/// 위쪽 카드가 고1만 보고 있는데 추이가 전체를 그리면 읽는 사람이 헷갈린다.
 final enrollTrendProvider = FutureProvider<List<EnrollTrendPoint>>((ref) async {
+  final grade = ref.watch(enrollGradeFilterProvider);
   final repository = ref.read(enrollDashboardRepositoryProvider);
-  return repository.getTrend();
+  return repository.getTrend(grade: grade);
 });
 
 /// 화면에서 고른 기간.
