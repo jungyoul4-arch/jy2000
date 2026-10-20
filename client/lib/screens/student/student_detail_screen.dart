@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../models/student.dart';
 import '../../models/school.dart';
-import '../../models/consult.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/code_provider.dart';
 import '../../providers/student_provider.dart';

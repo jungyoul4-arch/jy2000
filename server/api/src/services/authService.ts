@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import pool from '../config/database';
 import { RowDataPacket } from 'mysql2';
 import { AppError } from '../middlewares/errorHandler';
@@ -181,6 +182,11 @@ export class AuthService {
       throw new AppError('전화번호를 입력해주세요.', 400);
     }
 
+    // 로컬 개발 전용. 정율서버 배포에서는 AUTH_MODE를 비워 둔다.
+    if (process.env.AUTH_MODE === 'local') {
+      return this.loginWithLocalPassword(normalizedPhone, password);
+    }
+
     // 1. 정율톡 로그인 API 호출
     let result: JungyoulTalkLoginResponse;
 
@@ -256,20 +262,48 @@ export class AuthService {
     };
   }
 
-  // ID/PW 로그인
-  async loginWithCredentials(loginId: string, password: string): Promise<any> {
-    // 하드코딩된 관리자 계정
-    if (loginId === 'admin' && password === 'jysk') {
-      return {
-        userId: 0,
-        name: '관리자',
-        kind: 1,
-        phone: '',
-        email: '',
-        isAdmin: true
-      };
+  // 로컬 DB의 User.user_pw_hash 로 로그인. AUTH_MODE=local 일 때만 탄다.
+  private async loginWithLocalPassword(phone: string, password: string): Promise<any> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT user_id, name, kind, phone, email, active_flag, user_pw_hash
+       FROM User
+       WHERE phone = ?`,
+      [phone]
+    );
+
+    const localUser = rows[0];
+    const hash = String(localUser?.user_pw_hash || '');
+    // PHP bcrypt($2y$)는 bcryptjs가 $2b$로 비교한다.
+    const comparable = hash.replace(/^\$2y\$/, '$2b$');
+    const passwordOk = comparable
+      ? await bcrypt.compare(password, comparable)
+      : false;
+
+    if (!localUser || localUser.active_flag !== 1 || !passwordOk) {
+      throw new AppError('전화번호 또는 패스워드가 일치하지 않습니다.', 401);
     }
 
+    const kind = Number(localUser.kind);
+    if (LOGIN_BLOCKED_KINDS.includes(kind)) {
+      throw new AppError('학생/학부모 계정은 이 시스템을 사용할 수 없습니다.', 403);
+    }
+
+    await pool.query('UPDATE User SET last_login_dt = NOW() WHERE user_id = ?', [
+      localUser.user_id,
+    ]);
+
+    return {
+      userId: localUser.user_id,
+      name: localUser.name,
+      kind,
+      phone: localUser.phone,
+      email: localUser.email,
+      isAdmin: kind === 1,
+    };
+  }
+
+  // ID/PW 로그인. 화면은 정율톡 로그인을 쓰고, 이 경로는 더 이상 고정 계정을 받지 않는다.
+  async loginWithCredentials(_loginId: string, _password: string): Promise<any> {
     throw new AppError('아이디 또는 비밀번호가 일치하지 않습니다.', 401);
   }
 }

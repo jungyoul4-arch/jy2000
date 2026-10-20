@@ -21,6 +21,7 @@ SELECT
     se.event_minute,
     se.content,
     se.is_important,
+    se.event_status,
     se.student_id,
     su.name AS student_name,
     su.phone AS student_phone,

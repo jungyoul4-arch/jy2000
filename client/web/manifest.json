@@ -1,12 +1,12 @@
 {
-    "name": "student_counseling",
-    "short_name": "student_counseling",
+    "name": "학원 관리",
+    "short_name": "학원 관리",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "description": "학원 관리 시스템",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

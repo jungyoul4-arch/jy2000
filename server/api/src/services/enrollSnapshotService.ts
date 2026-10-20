@@ -463,10 +463,22 @@ export class EnrollSnapshotService {
     `;
     const PERIOD = 'WHERE cr.reg_dt >= ? AND cr.reg_dt < ?';
 
-    const [edges] = await pool.query<RowDataPacket[]>(
-      `SELECT DISTINCT cr.course_id, c.class_id ${CHAIN} ${PERIOD}`,
-      [from, to]
-    );
+    let edges: RowDataPacket[];
+    try {
+      const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT DISTINCT cr.course_id, c.class_id ${CHAIN} ${PERIOD}`,
+        [from, to]
+      );
+      edges = rows;
+    } catch (error) {
+      // 수업기록 테이블은 정율서버의 클래스인 연동 DB에만 있다.
+      // 없거나 이름이 다르면 500 대신, 화면이 월 스냅샷으로 넘어갈 수 있게 404.
+      const code = (error as { code?: string }).code;
+      if (code === 'ER_NO_SUCH_TABLE') {
+        throw new AppError(`${year}년 ${month}월 수업기록을 조회할 수 없습니다`, 404);
+      }
+      throw error;
+    }
     if (edges.length === 0) {
       throw new AppError(`${year}년 ${month}월에 수업기록이 없습니다`, 404);
     }

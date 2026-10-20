@@ -623,7 +623,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
 
               final success = await ref.read(mgmtDataListProvider.notifier).deleteByMonth(year, month);
 
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(success ? '$year년 $month월 데이터가 삭제되었습니다' : '삭제 실패'),

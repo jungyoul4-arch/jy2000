@@ -627,21 +627,28 @@ export class ConsultService {
       params.push(...searchParams);
     }
 
+    // 집계식을 SELECT 별칭으로 ORDER BY/HAVING 하면 MariaDB 가
+    // "reference to group function" 으로 거절한다. 식 자체를 반복한다.
+    const lastConsultExpr =
+      'MAX(CASE WHEN c.consult_date <= NOW() THEN c.consult_date END)';
+    const nextPlanExpr =
+      'MIN(CASE WHEN c.consult_date > NOW() THEN c.consult_date END)';
+
     // 상담이 없는 학생도 보여 줘야 첫 상담을 붙일 수 있다. LEFT JOIN으로 두고
     // 화면에서 '상담 없음'으로 표시한다. 최근순에서는 NULL이 뒤로 밀린다.
     const havingParts: string[] = [];
-    if (options.hasConsultOnly) havingParts.push('consult_count > 0');
-    if (options.planOnly) havingParts.push('next_plan_date IS NOT NULL');
+    if (options.hasConsultOnly) havingParts.push('COUNT(c.consult_id) > 0');
+    if (options.planOnly) havingParts.push(`${nextPlanExpr} IS NOT NULL`);
     const having = havingParts.length ? `HAVING ${havingParts.join(' AND ')}` : '';
 
     // 계획 보기는 가까운 일정이 먼저 와야 한다. 지난 상담 순서는 의미가 없다.
     const orderBy = options.planOnly
       ? sort === 'name'
-        ? 'u.name ASC, next_plan_date ASC'
-        : 'next_plan_date ASC, u.name ASC'
+        ? `u.name ASC, ${nextPlanExpr} ASC`
+        : `${nextPlanExpr} ASC, u.name ASC`
       : sort === 'name'
-        ? 'u.name ASC, last_consult_date DESC'
-        : 'last_consult_date IS NULL ASC, last_consult_date DESC, u.name ASC';
+        ? `u.name ASC, ${lastConsultExpr} DESC`
+        : `${lastConsultExpr} IS NULL ASC, ${lastConsultExpr} DESC, u.name ASC`;
 
     const sql = `
       SELECT
