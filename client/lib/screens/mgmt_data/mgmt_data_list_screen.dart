@@ -21,7 +21,8 @@ class MgmtDataListScreen extends ConsumerStatefulWidget {
 }
 
 class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
-  final _filePathController = TextEditingController();
+  final _fileNameController = TextEditingController();
+  List<int>? _selectedFileBytes;
   final _searchController = TextEditingController();
   String _searchText = '';
   int _currentPage = 1;
@@ -37,7 +38,7 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
 
   @override
   void dispose() {
-    _filePathController.dispose();
+    _fileNameController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -92,10 +93,10 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
                 SizedBox(
                   width: 400,
                   child: TextField(
-                    controller: _filePathController,
+                    controller: _fileNameController,
                     readOnly: true,
                     decoration: InputDecoration(
-                      hintText: '엑셀 파일 경로',
+                      hintText: '엑셀 파일',
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       suffixIcon: IconButton(
@@ -554,15 +555,21 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['xlsx', 'xls'],
+      withData: true,
     );
 
-    if (result != null && result.files.single.path != null) {
-      _filePathController.text = result.files.single.path!;
-    }
+    final file = result?.files.single;
+    if (!mounted || file == null || file.bytes == null) return;
+
+    setState(() {
+      _selectedFileBytes = file.bytes;
+      _fileNameController.text = file.name;
+    });
   }
 
   Future<void> _uploadFile() async {
-    if (_filePathController.text.isEmpty) {
+    final bytes = _selectedFileBytes;
+    if (bytes == null || _fileNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('엑셀 파일을 선택해주세요'),
@@ -579,7 +586,8 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
     final month = state.selectedMonth ?? now.month;
 
     final result = await ref.read(mgmtDataListProvider.notifier).uploadExcel(
-      _filePathController.text,
+      bytes,
+      _fileNameController.text,
       year,
       month,
     );
@@ -592,7 +600,10 @@ class _MgmtDataListScreenState extends ConsumerState<MgmtDataListScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        _filePathController.clear();
+        setState(() {
+          _selectedFileBytes = null;
+          _fileNameController.clear();
+        });
       } else {
         final error = ref.read(mgmtDataListProvider).error;
         ScaffoldMessenger.of(context).showSnackBar(
