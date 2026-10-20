@@ -133,6 +133,8 @@ CREATE TABLE student_info (
     -- 상태 정보
     status_code         VARCHAR(30) NOT NULL DEFAULT 'STATUS_PROSPECT' COMMENT '학생 상태 (FK: code_master)',
     sub_status_code     VARCHAR(30) NULL COMMENT '세부 상태 (FK: code_master)',
+    class_type_code     VARCHAR(30) NULL COMMENT '반 유형 (CLASS_COMP/CLASS_SINGLE/CLASS_SPECIAL/CLASS_ETC)',
+    subject_code        INT NULL COMMENT '과목 비트마스크',
 
     -- 유입 경로
     source_code         VARCHAR(30) NULL COMMENT '유입 경로 (FK: code_master)',
@@ -146,6 +148,8 @@ CREATE TABLE student_info (
     consult_date        DATE NULL COMMENT '상담일',
     register_date       DATE NULL COMMENT '등록일',
     enroll_date         DATE NULL COMMENT '재원 시작일',
+    enroll_start_date   DATE NULL COMMENT '수강 시작일',
+    enroll_end_date     DATE NULL COMMENT '수강 종료일',
     withdraw_date       DATE NULL COMMENT '퇴원일',
 
     -- 메모

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import studentService from '../services/studentService';
 import { asyncHandler } from '../middlewares/errorHandler';
-import { sendSuccess, sendPaginated } from '../utils/responseHelper';
+import { sendSuccess, sendPaginated, sendError } from '../utils/responseHelper';
 import { StudentListQuery, StudentStateChange, StudentUpdate, StudentCreate } from '../types';
 
 export class StudentController {
@@ -107,7 +107,7 @@ export class StudentController {
     // 관리자(kind=1) 권한 체크
     if (userKind !== 1) {
       console.log(`Permission denied: userKind=${userKind} is not admin`);
-      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+      return sendError(res, '관리자만 삭제할 수 있습니다.', 403);
     }
 
     if (hardDelete) {

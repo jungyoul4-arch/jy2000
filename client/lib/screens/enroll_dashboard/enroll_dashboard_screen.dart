@@ -39,16 +39,7 @@ class EnrollDashboardScreen extends ConsumerWidget {
       ),
       body: dashboardAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: SelectableText(
-              '대시보드를 불러오지 못했습니다\n\n$error',
-              style: const TextStyle(color: AppTheme.errorColor),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
+        error: (error, _) => _DashboardLoadError(error: error),
         data: (dashboard) {
           if (dashboard == null) {
             return const Center(
@@ -57,6 +48,65 @@ class EnrollDashboardScreen extends ConsumerWidget {
           }
           return _Body(dashboard: dashboard);
         },
+      ),
+    );
+  }
+}
+
+/// '현재' 집계가 실패해도 저장된 월 스냅샷은 고를 수 있게 한다.
+class _DashboardLoadError extends ConsumerWidget {
+  final Object error;
+
+  const _DashboardLoadError({required this.error});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final monthsAsync = ref.watch(enrollMonthsProvider);
+    final period = ref.watch(enrollPeriodProvider);
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            monthsAsync.maybeWhen(
+              data: (months) => Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final month in months)
+                    ChoiceChip(
+                      label: Text('${month.year}년 ${month.label}'),
+                      selected: !period.isCurrent &&
+                          month.year == period.year &&
+                          month.month == period.month,
+                      onSelected: (_) {
+                        ref.read(enrollPeriodProvider.notifier).state =
+                            EnrollPeriod.month(month.year, month.month);
+                      },
+                    ),
+                  ChoiceChip(
+                    label: const Text('현재'),
+                    selected: period.isCurrent,
+                    onSelected: (_) {
+                      ref.read(enrollPeriodProvider.notifier).state =
+                          const EnrollPeriod.current();
+                    },
+                  ),
+                ],
+              ),
+              orElse: () => const SizedBox.shrink(),
+            ),
+            const SizedBox(height: 16),
+            SelectableText(
+              '대시보드를 불러오지 못했습니다\n\n$error',
+              style: const TextStyle(color: AppTheme.errorColor),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

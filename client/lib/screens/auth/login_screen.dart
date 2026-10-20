@@ -135,7 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 border: Border.all(color: _borderColor),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 18,
                     offset: const Offset(0, 4),
                   ),
@@ -184,6 +184,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     controller: _phoneController,
                     focusNode: _phoneFocusNode,
                     keyboardType: TextInputType.phone,
+                    autofillHints: const [AutofillHints.telephoneNumber],
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
                       LengthLimitingTextInputFormatter(13),
@@ -202,6 +203,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     controller: _pwController,
                     focusNode: _pwFocusNode,
                     obscureText: _obscurePassword,
+                    autofillHints: const [AutofillHints.password],
                     style: const TextStyle(color: _titleColor),
                     decoration: _fieldDecoration('패스워드').copyWith(
                       suffixIcon: IconButton(
@@ -212,6 +214,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: _hintColor,
                           size: 20,
                         ),
+                        tooltip: _obscurePassword ? '패스워드 표시' : '패스워드 숨기기',
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
                         },
@@ -223,26 +226,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 12),
 
                   // 자동 로그인
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Checkbox(
-                          value: _autoLogin,
-                          onChanged: (value) {
-                            setState(() => _autoLogin = value ?? false);
-                          },
-                          side: const BorderSide(color: _borderColor),
-                          activeColor: _accentColor,
+                  InkWell(
+                    onTap: isLoading
+                        ? null
+                        : () => setState(() => _autoLogin = !_autoLogin),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: _autoLogin,
+                            onChanged: isLoading
+                                ? null
+                                : (value) {
+                                    setState(() => _autoLogin = value ?? false);
+                                  },
+                            side: const BorderSide(color: _borderColor),
+                            activeColor: _accentColor,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '자동 로그인',
-                        style: TextStyle(fontSize: 13, color: _labelColor),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        const Text(
+                          '자동 로그인',
+                          style: TextStyle(fontSize: 13, color: _labelColor),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -254,7 +264,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onPressed: isLoading ? null : _login,
                       style: FilledButton.styleFrom(
                         backgroundColor: _accentColor,
-                        disabledBackgroundColor: _accentColor.withOpacity(0.5),
+                        disabledBackgroundColor: _accentColor.withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

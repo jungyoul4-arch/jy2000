@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import classService from '../services/classService';
 import { asyncHandler } from '../middlewares/errorHandler';
-import { sendSuccess, sendPaginated } from '../utils/responseHelper';
+import { sendSuccess, sendPaginated, sendError } from '../utils/responseHelper';
 import { ClassListQuery, ClassCreate, ClassUpdate } from '../types';
 
 export class ClassController {
@@ -85,7 +85,7 @@ export class ClassController {
 
     // 관리자(kind=1) 권한 체크
     if (userKind !== 1) {
-      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+      return sendError(res, '관리자만 삭제할 수 있습니다.', 403);
     }
 
     await classService.delete(classId);

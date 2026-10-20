@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -71,9 +72,9 @@ class GoRouterRefreshNotifier extends ChangeNotifier {
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = GoRouterRefreshNotifier(ref);
 
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: AppRoutes.login,
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: kDebugMode,
     refreshListenable: refreshNotifier,
     routes: [
       // 로그인
@@ -331,4 +332,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
   );
+
+  ref.onDispose(() {
+    refreshNotifier.dispose();
+    router.dispose();
+  });
+  return router;
 });

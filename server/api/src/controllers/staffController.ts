@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import staffService, { StaffListQuery, StaffCreate } from '../services/staffService';
 import { asyncHandler } from '../middlewares/errorHandler';
-import { sendSuccess, sendPaginated } from '../utils/responseHelper';
+import { sendSuccess, sendPaginated, sendError } from '../utils/responseHelper';
 
 export class StaffController {
   // GET /staff/list - 직원 목록 조회 (모든 로그인 사용자 가능)
@@ -40,7 +40,7 @@ export class StaffController {
     const userIsAdmin = (req as any).userIsAdmin;
 
     if (userKind !== 1 && !userIsAdmin) {
-      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+      return sendError(res, '관리자만 처리할 수 있습니다.', 403);
     }
 
     const data: StaffCreate = req.body;
@@ -55,7 +55,7 @@ export class StaffController {
     const userIsAdmin = (req as any).userIsAdmin;
 
     if (userKind !== 1 && !userIsAdmin) {
-      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+      return sendError(res, '관리자만 처리할 수 있습니다.', 403);
     }
 
     const userId = parseInt(req.params.id);
@@ -71,7 +71,7 @@ export class StaffController {
     const userIsAdmin = (req as any).userIsAdmin;
 
     if (userKind !== 1 && !userIsAdmin) {
-      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+      return sendError(res, '관리자만 처리할 수 있습니다.', 403);
     }
 
     const userId = parseInt(req.params.id);
@@ -86,7 +86,7 @@ export class StaffController {
     const userIsAdmin = (req as any).userIsAdmin;
 
     if (userKind !== 1 && !userIsAdmin) {
-      return sendSuccess(res, null, 'Permission denied: Admin only', 403);
+      return sendError(res, '관리자만 처리할 수 있습니다.', 403);
     }
 
     const userId = parseInt(req.params.id);

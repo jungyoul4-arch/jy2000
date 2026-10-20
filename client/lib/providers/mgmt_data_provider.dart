@@ -108,11 +108,16 @@ class MgmtDataListNotifier extends StateNotifier<MgmtDataListState> {
   }
 
   // 엑셀 파일 업로드
-  Future<UploadResult?> uploadExcel(String filePath, int year, int month) async {
+  Future<UploadResult?> uploadExcel(
+    List<int> bytes,
+    String filename,
+    int year,
+    int month,
+  ) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final result = await _repository.uploadExcel(filePath, year, month);
+      final result = await _repository.uploadExcel(bytes, filename, year, month);
       // 업로드 후 해당 년월 데이터 로드
       await loadData(year: year, month: month);
       return result;

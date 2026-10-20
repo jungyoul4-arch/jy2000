@@ -112,10 +112,15 @@ class MgmtDataRepository {
     return RegionReport.fromJson(response['data']);
   }
 
-  // 엑셀 파일 업로드
-  Future<UploadResult> uploadExcel(String filePath, int year, int month) async {
+  // 엑셀 파일 업로드. 웹은 로컬 경로가 없으므로 바이트로 보낸다.
+  Future<UploadResult> uploadExcel(
+    List<int> bytes,
+    String filename,
+    int year,
+    int month,
+  ) async {
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(filePath),
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
       'year': year.toString(),
       'month': month.toString(),
     });

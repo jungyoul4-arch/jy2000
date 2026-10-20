@@ -18,22 +18,25 @@ export class SchoolService {
     const conditions: string[] = [];
     const params: any[] = [];
 
+    // 별칭 s 를 처음부터 붙인다. 예전에는 WHERE 를 만든 뒤 replace 로
+    // 붙였는데, is_active 쪽 정규식이 단어 경계(\\b)가 아니라 백스페이스라
+    // 컬럼이 그대로 남아 조인이 늘면 ambiguous column 이 된다.
     if (!query.include_inactive) {
-      conditions.push('is_active = 1');
+      conditions.push('s.is_active = 1');
     }
 
     if (query.school_kind) {
-      conditions.push('school_kind = ?');
+      conditions.push('s.school_kind = ?');
       params.push(query.school_kind);
     }
 
     if (query.region_kind !== undefined) {
-      conditions.push('region_kind = ?');
+      conditions.push('s.region_kind = ?');
       params.push(query.region_kind);
     }
 
     if (query.search) {
-      conditions.push('school_name LIKE ?');
+      conditions.push('s.school_name LIKE ?');
       params.push(`%${query.search}%`);
     }
 
@@ -45,7 +48,7 @@ export class SchoolService {
     const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
     // Count query
-    const countSql = `SELECT COUNT(*) as total FROM School s WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name').replace(/is_active/g, 's.is_active')}`;
+    const countSql = `SELECT COUNT(*) as total FROM School s WHERE ${whereClause}`;
 
     // Data query (is_active=1인 것 먼저, 그 다음 이름순) + 학생 수 포함
     const dataSql = `
@@ -66,7 +69,7 @@ export class SchoolService {
         WHERE deleted_at IS NULL
         GROUP BY school_id
       ) sc ON s.school_id = sc.school_id
-      WHERE ${whereClause.replace(/school_kind/g, 's.school_kind').replace(/region_kind/g, 's.region_kind').replace(/school_name/g, 's.school_name').replace(/is_active/g, 's.is_active')}
+      WHERE ${whereClause}
       ORDER BY s.is_active DESC, s.${sortColumn} ${sortOrder}
       LIMIT ? OFFSET ?
     `;
